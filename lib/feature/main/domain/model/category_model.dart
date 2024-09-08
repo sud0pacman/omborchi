@@ -4,22 +4,27 @@ class CategoryModel {
   final int? id;
   final String name;
   final DateTime updatedAt;
+  final bool isVerfied;
+
 
   CategoryModel({
     this.id,
     required this.name,
-    required this.updatedAt
+    required this.updatedAt,
+    this.isVerfied = false,
   });
 
   CategoryModel copyWith({
     int? id,
     String? name,
     DateTime? updatedAt,
+    bool? isVerfied,
   }) {
     return CategoryModel(
       id: id ?? this.id,
       name: name ?? this.name,
       updatedAt: updatedAt ?? this.updatedAt,
+      isVerfied: isVerfied ?? this.isVerfied,
     );
   }
 
@@ -28,12 +33,13 @@ class CategoryModel {
       id: id,
       name: name,
       updatedAt: updatedAt,
+      isVerfied: isVerfied,
     );
   }
 
   @override
   String toString() {
-    return 'CategoryModel{id: $id, name: $name, updatedAt: $updatedAt}';
+    return 'CategoryModel{id: $id, name: $name, updatedAt: $updatedAt, isVerfied: $isVerfied}';
   }
 
 }

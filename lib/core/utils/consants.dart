@@ -9,9 +9,8 @@ class ExpenseFields {
   static const String categoryTable = 'category';
   static const String productTable = 'product';
   static const String productPriceTable = 'tannarx';
-  static const String typesTable = 'types';
+  static const String rawMaterialTypeTable = 'types';
   static const String rawMaterialTable = 'xomashyo';
-  static const String adminKeyTable = 'xomashyo';
+  static const String adminKeyTable = 'admin';
+  static const String productImageBucket = 'product_images';
 }
-
-
