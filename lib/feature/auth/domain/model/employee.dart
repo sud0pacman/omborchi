@@ -1,4 +1,4 @@
-import 'package:omborchi/feature/auth/data/remote_data_source/model/employee_request.dart';
+import 'package:omborchi/feature/auth/data/remote_data_source/model/employee_network.dart';
 
 class Employee {
   final int? id;

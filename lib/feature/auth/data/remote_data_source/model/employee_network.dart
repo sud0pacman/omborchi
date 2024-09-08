@@ -33,7 +33,6 @@ class EmployeeNetwork {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'fullName': fullName,
       'password': password,
       'deviceName': deviceName,

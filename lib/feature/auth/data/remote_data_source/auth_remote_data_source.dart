@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:omborchi/feature/auth/data/remote_data_source/model/employee_request.dart';
+import 'package:omborchi/feature/auth/data/remote_data_source/model/employee_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/network/network_state.dart';
