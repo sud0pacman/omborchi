@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:omborchi/feature/main/data/remote_data_source/model/raw_material_network.dart';
+import 'package:omborchi/feature/main/data/remote_data_source/model/raw_material_type_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/network/network_state.dart';
@@ -9,9 +9,9 @@ import '../../../../core/utils/consants.dart';
 
 abstract interface class TypeRemoteDataSource {
   Future<State> getTypes();
-  Future<State> createType(RawMaterialNetwork type);
-  Future<State> updateType(RawMaterialNetwork type);
-  Future<State> deleteType(RawMaterialNetwork type);
+  Future<State> createType(RawMaterialTypeNetwork type);
+  Future<State> updateType(RawMaterialTypeNetwork type);
+  Future<State> deleteType(RawMaterialTypeNetwork type);
 }
 
 class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
@@ -20,7 +20,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
   TypeRemoteDataSourceImpl(this.supabaseClient);
 
   @override
-  Future<State> createType(RawMaterialNetwork type) async {
+  Future<State> createType(RawMaterialTypeNetwork type) async {
     AppRes.logger.t(type.toString());
 
     try {
@@ -30,7 +30,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .select()
           .single();
 
-      return Success(RawMaterialNetwork.fromJson(newType));
+      return Success(RawMaterialTypeNetwork.fromJson(newType));
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -44,7 +44,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
   }
 
   @override
-  Future<State> deleteType(RawMaterialNetwork type) async {
+  Future<State> deleteType(RawMaterialTypeNetwork type) async {
     AppRes.logger.t(type.toString());
     try {
       final res = await supabaseClient
@@ -53,7 +53,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .eq('id', type.id!)
           .single();
 
-      return Success(RawMaterialNetwork.fromJson(res));
+      return Success(RawMaterialTypeNetwork.fromJson(res));
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -73,7 +73,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .from(ExpenseFields.rawMaterialTypeTable)
           .select();
 
-      final res = response.map((e) => RawMaterialNetwork.fromJson(e)).toList();
+      final res = response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
 
       AppRes.logger.t(res.length);
 
@@ -91,9 +91,9 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
   }
 
   @override
-  Future<State> updateType(RawMaterialNetwork type) async {
+  Future<State> updateType(RawMaterialTypeNetwork type) async {
     AppRes.logger.t(type.toString());
-    
+
     try {
       final res = await supabaseClient
           .from(ExpenseFields.rawMaterialTypeTable)
@@ -101,7 +101,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .eq('id', type.id!)
           .single();
 
-      return Success(RawMaterialNetwork.fromJson(res));
+      return Success(RawMaterialTypeNetwork.fromJson(res));
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
