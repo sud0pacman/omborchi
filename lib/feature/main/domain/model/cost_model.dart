@@ -1,4 +1,4 @@
-import '../../data/remote_data_source/model/cost_network.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart';
 
 class CostModel {
   final int? id;

@@ -1,4 +1,4 @@
-import '../../data/remote_data_source/model/product_network.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 
 class ProductModel {
   final int? id;

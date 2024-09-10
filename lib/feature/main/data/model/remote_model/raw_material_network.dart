@@ -1,4 +1,4 @@
-import '../../../domain/model/raw_material.dart';
+import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 
 class RawMaterialNetwork {
   final int? id;

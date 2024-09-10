@@ -1,30 +1,30 @@
-import 'package:omborchi/feature/main/data/remote_data_source/model/category_network.dart';
+import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/category_network.dart';
 
 class CategoryModel {
   final int? id;
   final String name;
   final DateTime updatedAt;
-  final bool isVerfied;
-
+  final String status;
 
   CategoryModel({
     this.id,
     required this.name,
     required this.updatedAt,
-    this.isVerfied = false,
+    required this.status,
   });
 
   CategoryModel copyWith({
     int? id,
     String? name,
     DateTime? updatedAt,
-    bool? isVerfied,
+    String? status,
   }) {
     return CategoryModel(
       id: id ?? this.id,
       name: name ?? this.name,
       updatedAt: updatedAt ?? this.updatedAt,
-      isVerfied: isVerfied ?? this.isVerfied,
+      status: status ?? this.status,
     );
   }
 
@@ -33,13 +33,21 @@ class CategoryModel {
       id: id,
       name: name,
       updatedAt: updatedAt,
-      isVerfied: isVerfied,
+      status: status,
+    );
+  }
+
+  CategoryEntity toLocal() {
+    return CategoryEntity(
+      id: id,
+      name: name,
+      updatedAt: updatedAt,
+      status: status,
     );
   }
 
   @override
   String toString() {
-    return 'CategoryModel{id: $id, name: $name, updatedAt: $updatedAt, isVerfied: $isVerfied}';
+    return 'CategoryModel{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
   }
-
 }

@@ -1,4 +1,4 @@
-import 'package:omborchi/feature/main/data/remote_data_source/model/raw_material_type_network.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/raw_material_type_network.dart';
 
 class RawMaterialType {
   final int? id;

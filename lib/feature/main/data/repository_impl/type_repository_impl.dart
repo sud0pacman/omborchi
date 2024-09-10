@@ -1,10 +1,10 @@
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/feature/main/data/data_sources/remote_data_source/type_remote_data_source.dart';
 
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
+import 'package:omborchi/feature/main/domain/repository/type_repository.dart';
 
-import '../../../domain/repository/type_repository.dart';
-import '../model/raw_material_type_network.dart';
-import '../type_remote_data_source.dart';
+import '../model/remote_model/raw_material_type_network.dart';
 
 class TypeRepositoryImpl implements TypeRepository {
   final TypeRemoteDataSource typeRemoteDataSource;

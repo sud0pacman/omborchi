@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:omborchi/core/network/network_state.dart';
-import 'package:omborchi/feature/main/data/remote_data_source/model/product_network.dart';
+import 'package:omborchi/core/utils/consants.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../core/utils/consants.dart';
 import 'package:image_picker/image_picker.dart';
 
 abstract interface class ProductRemoteDataSource {

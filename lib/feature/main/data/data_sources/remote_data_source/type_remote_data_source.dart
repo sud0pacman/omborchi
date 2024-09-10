@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:omborchi/feature/main/data/remote_data_source/model/raw_material_type_network.dart';
+import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/core/utils/consants.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/raw_material_type_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../../../../core/network/network_state.dart';
-import '../../../../core/utils/consants.dart';
 
 abstract interface class TypeRemoteDataSource {
   Future<State> getTypes();

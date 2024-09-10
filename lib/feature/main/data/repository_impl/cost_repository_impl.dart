@@ -1,10 +1,10 @@
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/feature/main/data/data_sources/remote_data_source/cost_remote_data_source.dart';
 
 import 'package:omborchi/feature/main/domain/model/cost_model.dart';
+import 'package:omborchi/feature/main/domain/repository/cost_repository.dart';
 
-import '../../../domain/repository/cost_repository.dart';
-import '../cost_remote_data_source.dart';
-import '../model/cost_network.dart';
+import '../model/remote_model/cost_network.dart';
 
 class CostRepositoryImpl implements CostRepository {
   final CostRemoteDataSource costRemoteDataSource;

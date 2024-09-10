@@ -1,11 +1,9 @@
-import 'package:cross_file/src/types/interface.dart';
-
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
 
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
-
-import '../../../domain/repository/product_repository.dart';
-import '../product_remote_data_source.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDataSource productRemoteDataSource;

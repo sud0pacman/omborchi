@@ -4,19 +4,21 @@ class CategoryNetwork {
   final int? id;
   final String name;
   final DateTime updatedAt;
-  final bool isVerfied;
+  final String status;
+
 
   CategoryNetwork(
       {this.id,
       required this.name,
       required this.updatedAt,
-      this.isVerfied = false});
+      required this.status
+      });
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'updated_at': updatedAt.toUtc().toIso8601String(),
-      'is_verified': isVerfied,
     };
   }
 
@@ -25,7 +27,7 @@ class CategoryNetwork {
       id: json['id'],
       name: json['name'],
       updatedAt: json['updated_at'],
-      isVerfied: json['is_verified'],
+      status: json['status'],
     );
   }
 
@@ -34,7 +36,7 @@ class CategoryNetwork {
       id: id,
       name: name,
       updatedAt: updatedAt,
-      isVerfied: isVerfied,
+      status: status,
     );
   }
 
@@ -42,18 +44,17 @@ class CategoryNetwork {
     int? id,
     String? name,
     DateTime? updatedAt,
-    bool? isVerfied,
   }) {
     return CategoryNetwork(
       id: id ?? this.id,
       name: name ?? this.name,
       updatedAt: updatedAt ?? this.updatedAt,
-      isVerfied: isVerfied ?? this.isVerfied,
+      status: status,
     );
   }
 
   @override
   String toString() {
-    return 'CategoryNetwork{id: $id, name: $name, updatedAt: $updatedAt, isVerfied: $isVerfied}';
+    return 'CategoryNetwork{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
   }
 }

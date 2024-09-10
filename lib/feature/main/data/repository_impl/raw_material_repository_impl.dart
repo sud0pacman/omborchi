@@ -1,10 +1,10 @@
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/feature/main/data/data_sources/remote_data_source/raw_material_remote_data_source.dart';
 
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
+import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
+import '../model/remote_model/raw_material_network.dart';
 
-import '../../../domain/repository/raw_material_repository.dart';
-import '../model/raw_material_network.dart';
-import '../raw_material_remote_data_source.dart';
 
 class RawMaterialRepositoryImpl implements RawMaterialRepository {
   final RawMaterialRemoteDataSource rawMaterialRemoteDataSource;

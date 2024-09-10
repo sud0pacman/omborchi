@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/core/utils/consants.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/category_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../../../../core/utils/consants.dart';
-import 'model/category_network.dart';
 
 abstract interface class CategoryRemoteDataSource {
   Future<State> getCategories();

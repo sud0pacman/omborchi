@@ -14,3 +14,10 @@ class ExpenseFields {
   static const String adminKeyTable = 'admin';
   static const String productImageBucket = 'product_images';
 }
+
+class AppSecrets {
+  static const String supabaseAnonKey =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1ZnJmeHJjcHZhd3J2aHhvYmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU2ODk2MDcsImV4cCI6MjA0MTI2NTYwN30.fet0Fb3QekY4Q-zcDvM3yo7cIMjFygECy7fgfAO39ac";
+
+  static const String supabaseUrl = "https://vufrfxrcpvawrvhxobcp.supabase.co";
+}
