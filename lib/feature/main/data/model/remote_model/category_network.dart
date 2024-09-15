@@ -19,6 +19,7 @@ class CategoryNetwork {
       'id': id,
       'name': name,
       'updated_at': updatedAt.toUtc().toIso8601String(),
+      'status': status,
     };
   }
 
@@ -26,7 +27,7 @@ class CategoryNetwork {
     return CategoryNetwork(
       id: json['id'],
       name: json['name'],
-      updatedAt: json['updated_at'],
+      updatedAt: DateTime.parse(json['updated_at']),
       status: json['status'],
     );
   }

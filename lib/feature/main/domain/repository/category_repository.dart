@@ -7,4 +7,5 @@ abstract interface class CategoryRepository {
   Future<State> createCategory(CategoryModel category);
   Future<State> updateCategory(CategoryModel category);
   Future<State> deleteCategory(CategoryModel category);
+  Future<State> syncCategories();
 }

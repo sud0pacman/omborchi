@@ -43,15 +43,17 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
 
   @override
   Future<State> createCategory(CategoryNetwork category) async {
-    AppRes.logger.t(category.toString());
-
     try {
       final newCategory = await supabaseClient
           .from(ExpenseFields.categoryTable)
           .insert(category.toJson())
-          .select();
+          .select()
+          .single();
 
-      return Success(newCategory);
+
+      AppRes.logger.t(newCategory);
+
+      return Success(CategoryNetwork.fromJson(newCategory));
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -63,6 +65,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       return GenericError(e);
     }
   }
+
 
   @override
   Future<State> deleteCategory(CategoryNetwork category) async {
@@ -97,7 +100,10 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
           .from(ExpenseFields.categoryTable)
           .update(category.toJson())
           .eq('id', category.id!)
+          .select()
           .single();
+
+      AppRes.logger.t(res);
 
       return Success(CategoryNetwork.fromJson(res));
     } on SocketException catch (e) {
@@ -111,4 +117,5 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       return GenericError(e);
     }
   }
+
 }

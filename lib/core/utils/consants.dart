@@ -21,3 +21,13 @@ class AppSecrets {
 
   static const String supabaseUrl = "https://vufrfxrcpvawrvhxobcp.supabase.co";
 }
+
+class AssetRes {
+  static const _base = 'assets/icons/';
+  static const icBack = '${_base}left.png';
+  static const icSearch = '${_base}ic_search.svg';
+  static const icLogout = '${_base}ic_logout.svg';
+  static const icFolder = '${_base}folder.png';
+  static const icAppLogo = '${_base}logo.png';
+  static const icInactive = '${_base}ic_inactive.svg';
+}

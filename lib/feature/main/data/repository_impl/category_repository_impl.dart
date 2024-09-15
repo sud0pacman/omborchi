@@ -15,9 +15,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<State> createCategory(CategoryModel category) async {
-    bool isHaveNetwork = true;
+    bool isHaveNetwork = category.id == null;
 
-    final localData = category.toLocal();
+    final localData = category.copyWith(id: 0).toLocal();
 
     AppRes.logger.i(localData);
 
@@ -30,13 +30,16 @@ class CategoryRepositoryImpl implements CategoryRepository {
         final res = await categoryRemoteDataSource
             .createCategory(category.copyWith(id: response).toNetwork());
 
-
-        if (res is Success) {
-          final CategoryNetwork category = res.value;
-          return Success(category.toModel());
-        } else {
+        // if (res is Success) {
+        //   final CategoryNetwork category = res.value;
+        //   return Success(category.toModel());
+        // } else {
           return res;
-        }
+        // }
+      } else {
+        await myDatabaseHelper.deleteCategory(response);
+        AppRes.logger.wtf('Weak network');
+        return NoInternet('Weak network');
       }
     } else {
       AppRes.logger.e('$response');
@@ -45,8 +48,23 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<State> deleteCategory(CategoryModel category) {
-    return categoryRemoteDataSource.deleteCategory(category.toNetwork());
+  Future<State> deleteCategory(CategoryModel category) async {
+    bool isHaveNetwork = category.id != null;
+    if (isHaveNetwork) {
+      final res =
+          await categoryRemoteDataSource.deleteCategory(category.toNetwork());
+
+      if (res is Success) {
+        final localRes =
+            await categoryRemoteDataSource.deleteCategory(category.toNetwork());
+        AppRes.logger.t(localRes);
+        return Success(res.value);
+      } else {
+        return res;
+      }
+    } else {
+      return NoInternet('Weak network');
+    }
   }
 
   @override
@@ -65,7 +83,20 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<State> updateCategory(CategoryModel category) {
-    return categoryRemoteDataSource.updateCategory(category.toNetwork());
+  Future<State> updateCategory(CategoryModel category) async {
+    final res =
+        await categoryRemoteDataSource.updateCategory(category.toNetwork());
+
+    if (res is Success) {
+      await myDatabaseHelper.updateCategory(category.toLocal()); 
+    }
+
+    return res;
+  }
+  
+  @override
+  Future<State> syncCategories() {
+    // TODO: implement syncCategories
+    throw UnimplementedError();
   }
 }

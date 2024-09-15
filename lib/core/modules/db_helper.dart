@@ -12,7 +12,7 @@ class MyDatabaseHelper {
         onCreate: (db, version) async {
           // CategoryEntity jadvalini yaratish
           await db.execute(
-              'CREATE TABLE CategoryEntity (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, updated_at TEXT NOT NULL)');
+              'CREATE TABLE CategoryEntity (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, updated_at TEXT NOT NULL, status TEXT NOT NULL)');
         });
   }
 

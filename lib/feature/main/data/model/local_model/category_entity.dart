@@ -20,7 +20,6 @@ class CategoryEntity {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'updated_at': updatedAt.toUtc().toIso8601String(),
       'status': status,
