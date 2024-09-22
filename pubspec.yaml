@@ -2,7 +2,7 @@ name: omborchi
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+# publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
 version: 1.0.0+1
@@ -16,6 +16,9 @@ environment:
 # dependencies can be manually updated by changing the version numbers below to
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
+
+isar_version: &isar_version 3.1.0 # define the version to be used
+
 dependencies:
   flutter:
     sdk: flutter
@@ -32,8 +35,15 @@ dependencies:
   get: ^4.6.6
   flutter_bloc: ^8.1.6
   flutter_svg: ^2.0.10+1
-
+  internet_connection_checker: ^2.0.0
+  isar: *isar_version
+  isar_flutter_libs: *isar_version # contains Isar Core
+  path_provider: ^2.0.15
   path: any
+  hive: ^2.2.3
+  pull_to_refresh_flutter3: ^2.0.2
+  popover: ^0.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -44,7 +54,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
-
+  isar_generator: *isar_version
+  build_runner: any
+  analyzer: ^5.13.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

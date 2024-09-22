@@ -149,7 +149,7 @@ ButtonStyle kButtonWhiteStyle = ButtonStyle(
       borderRadius: BorderRadius.all(Radius.circular(14)),
     ),
   ),
-  overlayColor: WidgetStatePropertyAll(Colors.grey.withAlpha(40)),
+  overlayColor: WidgetStatePropertyAll(AppColors.overlay),
 );
 
 ButtonStyle kButtonBackgroundStyle = ButtonStyle(
@@ -159,7 +159,7 @@ ButtonStyle kButtonBackgroundStyle = ButtonStyle(
       borderRadius: BorderRadius.all(Radius.circular(14)),
     ),
   ),
-  overlayColor: WidgetStatePropertyAll(Colors.grey.withAlpha(40)),
+  overlayColor: WidgetStatePropertyAll(AppColors.overlay),
 );
 
 ButtonStyle kButtonTransparentStyle = ButtonStyle(
@@ -169,7 +169,7 @@ ButtonStyle kButtonTransparentStyle = ButtonStyle(
       borderRadius: BorderRadius.all(Radius.circular(14)),
     ),
   ),
-  overlayColor: WidgetStatePropertyAll(Colors.grey.withAlpha(40)),
+  overlayColor: WidgetStatePropertyAll(AppColors.overlay),
 );
 
 ButtonStyle kButtonThemeStyle = ButtonStyle(
@@ -179,7 +179,7 @@ ButtonStyle kButtonThemeStyle = ButtonStyle(
       borderRadius: BorderRadius.all(Radius.circular(14)),
     ),
   ),
-  overlayColor: WidgetStatePropertyAll(Colors.grey.withAlpha(40)),
+  overlayColor: WidgetStatePropertyAll(AppColors.overlay),
 );
 
 ButtonStyle kButtonShadowThemeStyle = ButtonStyle(
@@ -190,6 +190,11 @@ ButtonStyle kButtonShadowThemeStyle = ButtonStyle(
       borderRadius: BorderRadius.all(Radius.circular(14)),
     ),
   ),
-  overlayColor: WidgetStatePropertyAll(Colors.grey.withAlpha(40)),
+  overlayColor: WidgetStatePropertyAll(AppColors.overlay),
   elevation: const WidgetStatePropertyAll(5), // Adjust elevation as needed
+);
+
+ButtonStyle actionTextButtonStyle = ButtonStyle(
+  backgroundColor: const WidgetStatePropertyAll(AppColors.transparent),
+  overlayColor: WidgetStatePropertyAll(AppColors.overlay),
 );

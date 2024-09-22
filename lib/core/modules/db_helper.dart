@@ -6,14 +6,13 @@ class MyDatabaseHelper {
   static int version = 1;
   static String dbName = 'omborchi.db';
 
-   Future<Database> _getDb() async {
+  Future<Database> _getDb() async {
     return await openDatabase(join(await getDatabasesPath(), dbName),
-        version: version,
-        onCreate: (db, version) async {
-          // CategoryEntity jadvalini yaratish
-          await db.execute(
-              'CREATE TABLE CategoryEntity (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, updated_at TEXT NOT NULL, status TEXT NOT NULL)');
-        });
+        version: version, onCreate: (db, version) async {
+      // CategoryEntity jadvalini yaratish
+      await db.execute(
+          'CREATE TABLE CategoryEntity (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, updated_at TEXT NOT NULL, status TEXT NOT NULL)');
+    });
   }
 
   // Kategoriyalar uchun CRUD operatsiyalari
@@ -25,7 +24,7 @@ class MyDatabaseHelper {
   Future<CategoryEntity?> getCategory(int id) async {
     final db = await _getDb();
     final List<Map<String, dynamic>> map =
-    await db.query('CategoryEntity', where: 'id = ?', whereArgs: [id]);
+        await db.query('CategoryEntity', where: 'id = ?', whereArgs: [id]);
     if (map.isNotEmpty) {
       return CategoryEntity.fromJson(map.first);
     }
@@ -46,6 +45,21 @@ class MyDatabaseHelper {
   Future<List<CategoryEntity>> getAllCategories() async {
     final db = await _getDb();
     final map = await db.query('CategoryEntity');
-    return List.generate(map.length, (index) => CategoryEntity.fromJson(map[index]));
+    return List.generate(
+        map.length, (index) => CategoryEntity.fromJson(map[index]));
   }
+
+  // T Y P E    C R U D   O P E R A T I O N S
+
+  // Future<List<TypeEntity>> getTypes() async {
+  //   final db = await _getDb();
+  //   final map = await db.query('TypeEntity');
+  //   return List.generate(
+  //       map.length, (index) => TypeEntity.fromJson(map[index]));
+  // }
+
+  // Future<TypeEntity> getType(int id) async {
+  //   final db = await _getDb();
+
+  // }
 }

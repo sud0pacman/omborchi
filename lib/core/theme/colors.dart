@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+
 class AppColors {
   static const primary = Color(0xff3F8CFF);
   static const background = Color(0xffF4F9FD);
@@ -17,4 +19,5 @@ class AppColors {
   static const mediumPurple = Color(0xff6D5DD3);
   static const transparent = Color(0x00000000);
   static const syanBlue = Color(0xff00C0EA);
+  static Color overlay = const Color(0xFF9E9E9E).withAlpha(40);
 }

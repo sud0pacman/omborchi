@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar.dart';
 import 'package:omborchi/core/custom/widgets/primary_container.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/core/theme/colors.dart';
-import 'package:omborchi/core/theme/style_res.dart';
-import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/presentation/bloc/main/main_bloc.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/category_widget.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/home_app_bar.dart';

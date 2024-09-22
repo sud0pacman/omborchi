@@ -1,15 +1,12 @@
+import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/raw_material_type_network.dart';
 
 class RawMaterialType {
   final int? id;
   final String name;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
-  RawMaterialType({
-    this.id,
-    required this.name,
-    required this.updatedAt
-  });
+  RawMaterialType({this.id, required this.name, this.updatedAt});
 
   RawMaterialType copyWith({
     int? id,
@@ -23,15 +20,20 @@ class RawMaterialType {
     );
   }
 
-
   RawMaterialTypeNetwork toNetwork() {
     return RawMaterialTypeNetwork(
       id: id,
       name: name,
-      updatedAt: updatedAt,
+      updatedAt: updatedAt!,
     );
   }
 
+  TypeEntity toEntity() {
+    final entity = TypeEntity();
+    entity.name = name;
+
+    return entity;
+  }
 
   @override
   String toString() {

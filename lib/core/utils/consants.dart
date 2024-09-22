@@ -13,6 +13,8 @@ class ExpenseFields {
   static const String rawMaterialTable = 'xomashyo';
   static const String adminKeyTable = 'admin';
   static const String productImageBucket = 'product_images';
+
+  static const String myBox = 'myBox';
 }
 
 class AppSecrets {
@@ -30,4 +32,16 @@ class AssetRes {
   static const icFolder = '${_base}folder.png';
   static const icAppLogo = '${_base}logo.png';
   static const icInactive = '${_base}ic_inactive.svg';
+  static const icProduct = '${_base}ic_product.svg';
+  static const icMaterialRaw = '${_base}ic_material_raw.svg';
+  static const icMaterialRawType = '${_base}ic_materialraw_type.svg';
+  static const icEyeHidden = '${_base}ic_eye_hidden.svg';
+  static const icEyeShowed = '${_base}ic_eye_showed.svg';
+  static const icTrash = '${_base}ic_trash.svg';
+  static const icEdit = '${_base}ic_edit.svg';
+}
+
+class LastUpdates {
+  static const String type = 'type_last_update_time';
+  static const String category = 'category_last_update_time';
 }

@@ -36,16 +36,13 @@ class PrimaryNavbar extends StatelessWidget {
                   height: 65,
                   fit: BoxFit.cover,
                 ),
-
                 const SizedBox(
                   height: 16,
                 ),
-
                 Text(
                   'Omborchi',
                   style: boldWhite.copyWith(fontSize: 14),
                 ),
-
                 const SizedBox(
                   height: 12,
                 ),
@@ -53,13 +50,25 @@ class PrimaryNavbar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 47),
+          NavBarItem(
+              title: "Maxsulot qo'shish".tr,
+              iconPath: AssetRes.icProduct,
+              onTap: () => onItemTapped(0)),
+          NavBarItem(
+              title: "Kategoriya qo'shish".tr,
+              iconPath: AssetRes.icInactive,
+              onTap: () => onItemTapped(1)),
 
           NavBarItem(
-            title: "Maxsulot qo'shish".tr, 
-            iconPath: AssetRes.icInactive, 
-            onTap: () => onItemTapped(0)
-          ),
-          
+              title: "Xomashyo".tr,
+              iconPath: AssetRes.icMaterialRaw,
+              onTap: () => onItemTapped(2)),
+
+          NavBarItem(
+              title: "Xomashyo turi".tr,
+              iconPath: AssetRes.icMaterialRawType,
+              onTap: () => onItemTapped(3)),
+
           const Spacer(),
           NavBarItem(
             title: "Logout".tr,

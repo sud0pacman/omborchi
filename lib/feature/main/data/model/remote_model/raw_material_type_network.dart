@@ -1,3 +1,5 @@
+import 'package:isar/isar.dart';
+import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 
 class RawMaterialTypeNetwork {
@@ -5,12 +7,8 @@ class RawMaterialTypeNetwork {
   final String name;
   final DateTime updatedAt;
 
-
-  RawMaterialTypeNetwork({
-    this.id,
-    required this.name,
-    required this.updatedAt
-  });
+  RawMaterialTypeNetwork(
+      {this.id, required this.name, required this.updatedAt});
 
   RawMaterialTypeNetwork copyWith({
     int? id,
@@ -26,8 +24,9 @@ class RawMaterialTypeNetwork {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
-      'updatedAt': updatedAt.toUtc().toIso8601String(),
+      'updated_at': updatedAt.toUtc().toIso8601String(),
     };
   }
 
@@ -35,7 +34,7 @@ class RawMaterialTypeNetwork {
     return RawMaterialTypeNetwork(
       id: json['id'],
       name: json['name'],
-      updatedAt: json['updated_at'],
+      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
@@ -50,5 +49,13 @@ class RawMaterialTypeNetwork {
   @override
   String toString() {
     return 'RawMaterialTypeNetwork{id: $id, name: $name, updatedAt: $updatedAt}';
+  }
+
+  TypeEntity toEntity() {
+    final Id isarId = id!;
+    return TypeEntity()
+      ..id = isarId
+      ..name = name
+    ;
   }
 }
