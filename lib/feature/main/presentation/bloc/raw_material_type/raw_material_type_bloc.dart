@@ -36,7 +36,8 @@ class RawMaterialTypeBloc
       AppRes.logger.i(typesRes.toString());
 
       if (typesRes is Success) {
-        emit(state.copyWith(types: typesRes.value, isLoading: false));
+        emit(state.copyWith(
+            types: typesRes.value, isLoading: false, isCRUD: true));
       } else if (typesRes is NoInternet) {
         emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
       } else if (typesRes is GenericError) {
@@ -54,5 +55,43 @@ class RawMaterialTypeBloc
         emit(state.copyWith(isLoading: false));
       }
     });
+
+    on<UpdateType>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      final updateRes = await repo.updateType(event.rawMaterialType);
+
+      AppRes.logger.i(updateRes.toString());
+
+      if (state is Success) {
+        emit(state.copyWith(isLoading: false, isCRUD: true));
+      } else if (updateRes is NoInternet) {
+        emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
+      } else if (updateRes is GenericError) {
+        emit(state.copyWith(error: 'Qandaydir xatolik'));
+      } else {
+        emit(state.copyWith(error: 'Qandaydir xatolik'));
+      }
+    });
+
+
+    on<DeleteType>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      final deleteRes = await repo.deleteType(event.rawMaterialType);
+
+      AppRes.logger.i(deleteRes.toString());
+
+      if (state is Success) {
+        emit(state.copyWith(isLoading: false, isCRUD: true));
+      } else if (deleteRes is NoInternet) {
+        emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
+      } else if (deleteRes is GenericError) {
+        emit(state.copyWith(error: 'Qandaydir xatolik'));
+      } else {
+        emit(state.copyWith(error: 'Qandaydir xatolik'));
+      }
+    });
+
+
+    
   }
 }

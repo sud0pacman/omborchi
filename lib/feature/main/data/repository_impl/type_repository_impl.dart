@@ -43,8 +43,24 @@ class TypeRepositoryImpl implements TypeRepository {
   }
 
   @override
-  Future<State> deleteType(RawMaterialType type) {
-    return typeRemoteDataSource.deleteType(type.toNetwork());
+  Future<State> deleteType(RawMaterialType type) async {
+    final bool hasNetwork = await networkChecker.hasConnection;
+
+    if (hasNetwork) {
+      final networkRes = await typeRemoteDataSource
+          .deleteType(type.copyWith(updatedAt: now).toNetwork());
+
+      if (networkRes is Success) {
+        now = DateTime.now();
+        await setUpdateTime();
+        await isarHelper.deleteType(type.id!);
+        return Success(null);
+      } else {
+        return networkRes;
+      }
+    } else {
+      return NoInternet(Exception("Weak Internet"));
+    }
   }
 
   @override
@@ -71,14 +87,31 @@ class TypeRepositoryImpl implements TypeRepository {
   }
 
   @override
-  Future<State> updateType(RawMaterialType type) {
-    return typeRemoteDataSource.updateType(type.toNetwork());
+  Future<State> updateType(RawMaterialType type) async {
+    final bool hasNetwork = await networkChecker.hasConnection;
+
+    if (hasNetwork) {
+      final networkRes = await typeRemoteDataSource
+          .updateType(type.copyWith(updatedAt: now).toNetwork());
+
+      if (networkRes is Success) {
+        now = DateTime.now();
+        await setUpdateTime();
+        await isarHelper.updateType(type.toEntity());
+        return Success(null);
+      } else {
+        return networkRes;
+      }
+    } else {
+      return NoInternet(Exception("Weak Internet"));
+    }
   }
 
   Future<List<RawMaterialType>> _getTypesFromLocal() async {
     final isarRes = await isarHelper.getAllTypes();
     final lastUpdate = DateTime.parse(
-        await Hive.box(ExpenseFields.myBox).get(LastUpdates.type));
+        await Hive.box(ExpenseFields.myBox).get(LastUpdates.type) ??
+            DateTime.now().toLocal().toIso8601String());
 
     return isarRes.map((e) {
       return e.toModel(lastUpdate);

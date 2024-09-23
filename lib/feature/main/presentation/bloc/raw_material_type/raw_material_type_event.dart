@@ -3,6 +3,7 @@ part of 'raw_material_type_bloc.dart';
 class RawMaterialTypeEvent {}
 
 class GetTypes extends RawMaterialTypeEvent {}
+
 class RefreshTypes extends RawMaterialTypeEvent {}
 
 class CreateType extends RawMaterialTypeEvent {
@@ -18,7 +19,7 @@ class UpdateType extends RawMaterialTypeEvent {
 }
 
 class DeleteType extends RawMaterialTypeEvent {
-  final int id;
+  final RawMaterialType rawMaterialType;
 
-  DeleteType(this.id);
+  DeleteType(this.rawMaterialType);
 }
