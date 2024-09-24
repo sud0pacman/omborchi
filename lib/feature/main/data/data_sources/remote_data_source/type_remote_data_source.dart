@@ -46,13 +46,12 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
   Future<State> deleteType(RawMaterialTypeNetwork type) async {
     AppRes.logger.t(type.toString());
     try {
-      final res = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.rawMaterialTypeTable)
           .delete()
-          .eq('id', type.id!)
-          .single();
+          .eq('id', type.id!);
 
-      return Success(RawMaterialTypeNetwork.fromJson(res));
+      return Success(null);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -72,7 +71,8 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .from(ExpenseFields.rawMaterialTypeTable)
           .select();
 
-      final res = response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
+      final res =
+          response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
 
       AppRes.logger.t(res.length);
 
@@ -98,6 +98,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .from(ExpenseFields.rawMaterialTypeTable)
           .update(type.toJson())
           .eq('id', type.id!)
+          .select()
           .single();
 
       return Success(RawMaterialTypeNetwork.fromJson(res));

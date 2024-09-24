@@ -62,7 +62,7 @@ class RawMaterialTypeBloc
 
       AppRes.logger.i(updateRes.toString());
 
-      if (state is Success) {
+      if (updateRes is Success) {
         emit(state.copyWith(isLoading: false, isCRUD: true));
       } else if (updateRes is NoInternet) {
         emit(state.copyWith(error: 'Internetingiz yaroqsiz'));

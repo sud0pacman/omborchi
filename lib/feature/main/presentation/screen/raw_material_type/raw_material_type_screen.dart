@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
+import 'package:omborchi/core/custom/widgets/dialog/info_dialog.dart';
 import 'package:omborchi/core/custom/widgets/dialog/text_field_dialog.dart';
 import 'package:omborchi/core/custom/widgets/floating_action_button.dart';
 import 'package:omborchi/core/modules/app_module.dart';
@@ -54,14 +55,24 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
       child: BlocConsumer<RawMaterialTypeBloc, RawMaterialTypeState>(
         listener: (context, state) {
           AppRes.logger.wtf(state.toString());
-          if (state.isLoading == false) {}
+
+          if (state.isCRUD == true) {
+            _bloc.add(GetTypes());
+          }
         },
         builder: (context, state) => Scaffold(
           backgroundColor: AppColors.background,
           appBar: simpleAppBar(
-              leadingIcon: AssetRes.icBack,
-              onTapLeading: () {},
-              title: 'Xomashyo turi'),
+            leadingIcon: AssetRes.icBack,
+            onTapLeading: () {},
+            title: 'Xomashyo turi',
+            actions: [AssetRes.icSynchronization],
+            onTapAction: (p0) {
+              if (p0 == 0) {
+                _bloc.add(RefreshTypes());
+              }
+            },
+          ),
           floatingActionButton: primaryFloatingActionButton(onTap: () {
             showAddDialog(context);
           }),
@@ -84,7 +95,9 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
                         showEditDialog(
                             context: context, type: state.types[index]);
                       },
-                      onTapDelete: () {},
+                      onTapDelete: () {
+                        showDeleteDialog(context, state.types[index]);
+                      },
                     );
                   },
                   separatorBuilder: (context, index) {
@@ -102,14 +115,34 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
     );
   }
 
+  void showDeleteDialog(BuildContext context, RawMaterialType type) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return InfoDialog(
+            title: "O'chirish".tr,
+            message: "Ushbu typeni o'chirmoqchimisiz?".tr,
+            positiveText: "O'chirish".tr,
+            negativeText: "Bekor qilish",
+            onPositiveTap: () {
+              _bloc.add(DeleteType(type));
+              closeDialog(context);
+            },
+            onNegativeTap: () {
+              closeDialog(context);
+            },
+          );
+        });
+  }
+
   void showEditDialog(
       {required BuildContext context, required RawMaterialType type}) {
-        _typeNameController.text = type.name;
-        dialogErrorText = null;
+    _typeNameController.text = type.name;
+    dialogErrorText = null;
     showPrimaryDialog(
       context: context,
       onTapPositive: () {
-        _bloc.add(UpdateType(type));
+        _bloc.add(UpdateType(type.copyWith(name: _typeNameController.text)));
       },
       onTapNegative: () {
         closeDialog(context);

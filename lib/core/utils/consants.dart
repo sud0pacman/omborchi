@@ -39,6 +39,7 @@ class AssetRes {
   static const icEyeShowed = '${_base}ic_eye_showed.svg';
   static const icTrash = '${_base}ic_trash.svg';
   static const icEdit = '${_base}ic_edit.svg';
+  static const icSynchronization = '${_base}ic_synch.svg';
 }
 
 class LastUpdates {

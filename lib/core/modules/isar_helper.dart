@@ -56,6 +56,14 @@ class IsarHelper {
     });
   }
 
+  Future<void> deleteAllTypes(List<int> ids) async {
+    final isar = await db;
+
+    await isar.writeTxn(() async {
+      isar.typeEntitys.deleteAll(ids);
+    });
+  }
+
   // Close the database
   Future<void> closeDb() async {
     final isar = await db;

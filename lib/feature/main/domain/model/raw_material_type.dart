@@ -30,6 +30,7 @@ class RawMaterialType {
 
   TypeEntity toEntity() {
     final entity = TypeEntity();
+    entity.id = id!;
     entity.name = name;
 
     return entity;
