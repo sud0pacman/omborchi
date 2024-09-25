@@ -1,33 +1,20 @@
+import 'package:isar/isar.dart';
+import 'package:omborchi/feature/main/domain/model/category_model.dart';
+part 'category_entity.g.dart';
+
+@Collection()
 class CategoryEntity {
-  final int? id;
-  final String name;
-  final DateTime updatedAt;
-  final String status;
-
-
-  CategoryEntity(
-      {this.id, required this.name, required this.updatedAt, required this.status});
-
-
-  factory CategoryEntity.fromJson(Map<String, dynamic> json) {
-    return CategoryEntity(
-      id: json['id'],
-      name: json['name'],
-      updatedAt: json['updated_at'],
-      status: json['status'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'updated_at': updatedAt.toUtc().toIso8601String(),
-      'status': status,
-    };
-  }
+  Id id = Isar.autoIncrement;
+  late String name;
+  late DateTime updatedAt;
+  late String status;
 
   @override
   String toString() {
     return 'CategoryEntity{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
+  }
+
+  CategoryModel toModel(DateTime dateTime) {
+    return CategoryModel(name: name, updatedAt: updatedAt, status: status);
   }
 }

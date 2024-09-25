@@ -1,7 +1,10 @@
-import 'package:omborchi/core/modules/db_helper.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:isar/isar.dart';
+import 'package:omborchi/core/custom/functions/custom_functions.dart';
+import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
-import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/category_remote_data_source.dart';
+import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/category_network.dart';
 
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
@@ -9,55 +12,50 @@ import 'package:omborchi/feature/main/domain/repository/category_repository.dart
 
 class CategoryRepositoryImpl implements CategoryRepository {
   final CategoryRemoteDataSource categoryRemoteDataSource;
-  final MyDatabaseHelper myDatabaseHelper;
+  final InternetConnectionChecker networkChecker = InternetConnectionChecker();
+  final isarHelper = IsarHelper();
+  late DateTime now;
 
-  CategoryRepositoryImpl(this.categoryRemoteDataSource, this.myDatabaseHelper);
+  CategoryRepositoryImpl(
+    this.categoryRemoteDataSource,
+  );
 
   @override
   Future<State> createCategory(CategoryModel category) async {
-    bool isHaveNetwork = category.id == null;
+    final bool hasNetwork = await networkChecker.hasConnection;
 
-    final localData = category.copyWith(id: 0).toLocal();
+    if (hasNetwork) {
+      final Id localId = await isarHelper.addCategory(category.toLocal());
 
-    AppRes.logger.i(localData);
+      now = DateTime.now();
+      final networkRes = await categoryRemoteDataSource.createCategory(
+          category.copyWith(id: localId, updatedAt: now).toNetwork());
 
-    final response = await myDatabaseHelper.addCategory(localData);
-
-    AppRes.logger.i(response);
-
-    if (response != -1) {
-      if (isHaveNetwork) {
-        final res = await categoryRemoteDataSource
-            .createCategory(category.copyWith(id: response).toNetwork());
-
-        // if (res is Success) {
-        //   final CategoryNetwork category = res.value;
-        //   return Success(category.toModel());
-        // } else {
-          return res;
-        // }
+      if (networkRes is Success) {
+        await setUpdateTime(now);
+        return Success((networkRes.value as CategoryNetwork).toModel());
       } else {
-        await myDatabaseHelper.deleteCategory(response);
-        AppRes.logger.wtf('Weak network');
-        return NoInternet('Weak network');
+        await isarHelper.deleteCategory(localId);
+        return networkRes;
       }
     } else {
-      AppRes.logger.e('$response');
-      return GenericError('$response');
+      return NoInternet(Exception("Weak Internet"));
     }
   }
 
   @override
   Future<State> deleteCategory(CategoryModel category) async {
-    bool isHaveNetwork = category.id != null;
-    if (isHaveNetwork) {
+    final bool hasNetwork = await networkChecker.hasConnection;
+
+    if (hasNetwork) {
       final res =
           await categoryRemoteDataSource.deleteCategory(category.toNetwork());
 
       if (res is Success) {
-        final localRes =
-            await categoryRemoteDataSource.deleteCategory(category.toNetwork());
-        AppRes.logger.t(localRes);
+        now = DateTime.now();
+        await setUpdateTime(now);
+        await isarHelper.deleteCategory(category.id!);
+
         return Success(res.value);
       } else {
         return res;
@@ -68,35 +66,69 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<State> getCategories() async {
-    final response = await categoryRemoteDataSource.getCategories();
-
-    if (response is Success) {
-      final List<CategoryNetwork> categories = response.value;
-      final List<CategoryModel> categoriesModel =
-          categories.map((e) => e.toModel()).toList();
-
-      return Success(categoriesModel);
-    } else {
-      return response;
-    }
-  }
-
-  @override
   Future<State> updateCategory(CategoryModel category) async {
-    final res =
-        await categoryRemoteDataSource.updateCategory(category.toNetwork());
+    final bool hasNetwork = await networkChecker.hasConnection;
 
-    if (res is Success) {
-      await myDatabaseHelper.updateCategory(category.toLocal()); 
+    if (hasNetwork) {
+      now = DateTime.now();
+
+      final res =
+          await categoryRemoteDataSource.updateCategory(category.toNetwork());
+
+      if (res is Success) {
+        await setUpdateTime(now);
+        await isarHelper.updateCategory(category.toLocal());
+        return Success(category);
+      } else {
+        return res;
+      }
+    } else {
+      return NoInternet('Weak network');
     }
-
-    return res;
   }
-  
+
   @override
-  Future<State> syncCategories() {
-    // TODO: implement syncCategories
-    throw UnimplementedError();
+  Future<State> getCategories() async {
+    return Success(await _getCategoriesFromLocal());
+  }
+
+  @override
+  Future<State> syncCategories() async {
+    final bool hasNetwork = await networkChecker.hasConnection;
+
+    if (hasNetwork) {
+      final networkRes = await categoryRemoteDataSource.getCategories();
+
+      if (networkRes is Success) {
+        now = DateTime.now();
+        await setUpdateTime(now);
+
+        final List<int> categoryId =
+            await _getCategoriesFromLocal().then((value) {
+          return value.map((e) => e.id!).toList();
+        });
+
+        await isarHelper.deleteAllCategories(categoryId);
+        final List<CategoryNetwork> categories = networkRes.value;
+        final List<CategoryEntity> categoriesEntity =
+            categories.map((e) => e.toLocal()).toList();
+
+        await isarHelper.insertAllCategories(categoriesEntity);
+
+        return Success(await _getCategoriesFromLocal);
+      } else {
+        return networkRes;
+      }
+    } else {
+      return NoInternet('Weak network');
+    }
+  }
+
+  Future<List<CategoryModel>> _getCategoriesFromLocal() async {
+    final isarRes = await isarHelper.getAllCategories();
+
+    return isarRes.map((e) {
+      return e.toModel(DateTime.now());
+    }).toList();
   }
 }

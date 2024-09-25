@@ -38,12 +38,13 @@ class CategoryModel {
   }
 
   CategoryEntity toLocal() {
-    return CategoryEntity(
-      id: id,
-      name: name,
-      updatedAt: updatedAt,
-      status: status,
-    );
+    final CategoryEntity entity = CategoryEntity();
+    entity.id = id!;
+    entity.name = name;
+    entity.updatedAt = updatedAt;
+    entity.status = status;
+
+    return entity;
   }
 
   @override

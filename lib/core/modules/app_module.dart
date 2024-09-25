@@ -23,7 +23,7 @@ Future<void> initDependencies() async {
   final supabase = Supabase.instance.client;
 
   serviceLocator.registerLazySingleton(() => supabase);
-  serviceLocator.registerLazySingleton(() => MyDatabaseHelper());
+  // serviceLocator.registerLazySingleton(() => MyDatabaseHelper());
 
   _initCategory();
   _initType();

@@ -70,8 +70,11 @@ class TypeRepositoryImpl implements TypeRepository {
 
     if (isFullRefresh && hasNetwork) {
       final res = await typeRemoteDataSource.getTypes();
+      now = DateTime.now();
 
       if (res is Success) {
+      await setUpdateTime();
+      
         final List<TypeEntity> typeEntityList =
             (res.value as List<RawMaterialTypeNetwork>)
                 .map((e) => e.toEntity())
@@ -83,8 +86,6 @@ class TypeRepositoryImpl implements TypeRepository {
         await isarHelper.insertAllTypes(typeEntityList);
       }
 
-      now = DateTime.now();
-      await setUpdateTime();
     }
 
     return Success(await _getTypesFromLocal());

@@ -71,11 +71,11 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
 
     if (hasNetwork) {
       now = DateTime.now();
-      await setUpdateTime(now);
       final networkRes = await rawMaterialRemoteDataSource
           .updateRawMaterial(rawMaterial.copyWith(updatedAt: now).toNetwork());
 
       if (networkRes is Success) {
+        await setUpdateTime(now);
         await isarHelper.updateRawMaterial(rawMaterial.toEntity());
         return Success(rawMaterial);
       } else {

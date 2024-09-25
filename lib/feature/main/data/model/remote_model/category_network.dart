@@ -1,3 +1,4 @@
+import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 
 class CategoryNetwork {
@@ -57,5 +58,15 @@ class CategoryNetwork {
   @override
   String toString() {
     return 'CategoryNetwork{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
+  }
+
+  CategoryEntity toLocal() {
+    final CategoryEntity entity = CategoryEntity();
+    entity.id = id!;
+    entity.name = name;
+    entity.updatedAt = updatedAt;
+    entity.status = status;
+
+    return entity;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
 import 'package:path_provider/path_provider.dart'; // For getting the directory path
@@ -13,7 +14,7 @@ class IsarHelper {
   Future<Isar> _initDb() async {
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
-      [TypeEntitySchema, RawMaterialEntitySchema], // List of schemas
+      [TypeEntitySchema, RawMaterialEntitySchema, CategoryEntitySchema], // List of schemas
       directory: dir.path,
     );
   }
@@ -108,6 +109,52 @@ class IsarHelper {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.rawMaterialEntitys.deleteAll(ids);
+    });
+  }
+
+  // Category CRUD Operations
+  Future<int> addCategory(CategoryEntity category) async {
+    final isar = await db;
+    return await isar.writeTxn<int>(() async {
+      return await isar.categoryEntitys.put(category);
+    });
+  }
+
+  Future<CategoryEntity?> getCategory(int id) async {
+    final isar = await db;
+    return await isar.categoryEntitys.get(id);
+  }
+
+  Future<List<CategoryEntity>> getAllCategories() async {
+    final isar = await db;
+    return await isar.categoryEntitys.where().findAll();
+  }
+
+  Future<void> updateCategory(CategoryEntity category) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.categoryEntitys.put(category);
+    });
+  }
+
+  Future<void> insertAllCategories(List<CategoryEntity> categories) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.categoryEntitys.putAll(categories);
+    });
+  }
+
+  Future<void> deleteCategory(int id) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.categoryEntitys.delete(id);
+    });
+  }
+
+  Future<void> deleteAllCategories(List<int> ids) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.categoryEntitys.deleteAll(ids);
     });
   }
 
