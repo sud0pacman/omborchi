@@ -37,7 +37,6 @@ void _initCategory() {
     ..registerFactory<CategoryRepository>(
       () => CategoryRepositoryImpl(
         serviceLocator(),
-        serviceLocator(),
       ),
     );
 }
