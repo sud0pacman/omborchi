@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:omborchi/core/modules/db_helper.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/category_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/type_remote_data_source.dart';

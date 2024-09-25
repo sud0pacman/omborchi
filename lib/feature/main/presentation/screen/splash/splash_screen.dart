@@ -15,7 +15,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final CategoryRepository categoryRepository =
-      CategoryRepositoryImpl(serviceLocator(), );
+      CategoryRepositoryImpl(serviceLocator(),);
 
   List<CategoryModel> cts = [];
 

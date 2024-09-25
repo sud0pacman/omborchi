@@ -115,7 +115,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
         await isarHelper.insertAllCategories(categoriesEntity);
 
-        return Success(await _getCategoriesFromLocal);
+        return Success(_getCategoriesFromLocal);
       } else {
         return networkRes;
       }
