@@ -1,3 +1,4 @@
+import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/raw_material_network.dart';
 
 class RawMaterial {
@@ -45,5 +46,15 @@ class RawMaterial {
   @override
   String toString() {
     return 'RawMaterial{id: $id, name: $name, price: $price, typeId: $typeId}';
+  }
+
+  RawMaterialEntity toEntity() {
+    final entity = RawMaterialEntity();
+    entity.id = id!;
+    entity.name = name!;
+    entity.price = price!;
+    entity.typeId = typeId;
+
+    return entity;
   }
 }

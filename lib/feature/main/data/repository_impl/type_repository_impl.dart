@@ -35,6 +35,7 @@ class TypeRepositoryImpl implements TypeRepository {
         await setUpdateTime();
         return Success((networkRes.value as RawMaterialTypeNetwork).toModel());
       } else {
+        await isarHelper.deleteType(id);
         return networkRes;
       }
     } else {
@@ -126,7 +127,7 @@ class TypeRepositoryImpl implements TypeRepository {
     final box = Hive.box(ExpenseFields.myBox);
     return await box.put(
       LastUpdates.type,
-      DateTime.now().toUtc().toIso8601String(),
+      now.toUtc().toIso8601String(),
     );
   }
 }

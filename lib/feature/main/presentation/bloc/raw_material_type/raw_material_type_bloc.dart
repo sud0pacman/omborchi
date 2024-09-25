@@ -73,7 +73,6 @@ class RawMaterialTypeBloc
       }
     });
 
-
     on<DeleteType>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       final deleteRes = await repo.deleteType(event.rawMaterialType);
@@ -90,8 +89,5 @@ class RawMaterialTypeBloc
         emit(state.copyWith(error: 'Qandaydir xatolik'));
       }
     });
-
-
-    
   }
 }
