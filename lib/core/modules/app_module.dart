@@ -1,11 +1,15 @@
 import 'package:get_it/get_it.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/category_remote_data_source.dart';
+import 'package:omborchi/feature/main/data/data_sources/remote_data_source/raw_material_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/type_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/repository_impl/category_repository_impl.dart';
+import 'package:omborchi/feature/main/data/repository_impl/raw_material_repository_impl.dart';
 import 'package:omborchi/feature/main/data/repository_impl/type_repository_impl.dart';
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
+import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
 import 'package:omborchi/feature/main/domain/repository/type_repository.dart';
+import 'package:omborchi/feature/main/presentation/bloc/raw_material/raw_material_bloc.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material_type/raw_material_type_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -26,6 +30,20 @@ Future<void> initDependencies() async {
 
   _initCategory();
   _initType();
+  _initRawMaterials();
+}
+
+void _initRawMaterials() {
+  serviceLocator
+    ..registerFactory<RawMaterialRemoteDataSource>(
+      () => RawMaterialRemoteDataSourceImpl(serviceLocator()),
+    )
+    ..registerFactory<RawMaterialRepository>(
+      () => RawMaterialRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(() => RawMaterialBloc(serviceLocator()));
 }
 
 void _initCategory() {

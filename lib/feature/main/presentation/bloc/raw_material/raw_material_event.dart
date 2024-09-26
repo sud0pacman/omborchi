@@ -2,14 +2,16 @@ part of 'raw_material_bloc.dart';
 
 class RawMaterialEvent {}
 
-class GetRawMaterials extends RawMaterialEvent {}
+class GetRawMaterialsWithTypes extends RawMaterialEvent {}
 
 class RefreshRawMaterials extends RawMaterialEvent {}
 
 class CreateRawMaterial extends RawMaterialEvent {
-  final RawMaterial rawMaterial;
+  final String name;
+  final String cost;
+  final RawMaterialType type;
 
-  CreateRawMaterial(this.rawMaterial);
+  CreateRawMaterial(this.name, this.cost, this.type);
 }
 
 class DeleteRawMaterial extends RawMaterialEvent {

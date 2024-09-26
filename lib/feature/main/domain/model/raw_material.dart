@@ -6,14 +6,14 @@ class RawMaterial {
   final String? name;
   final double? price;
   final int typeId;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   RawMaterial({
     this.id,
     required this.name,
     required this.price,
     required this.typeId,
-    required this.updatedAt
+    this.updatedAt
   });
 
   RawMaterialNetwork toNetwork() {
@@ -22,7 +22,7 @@ class RawMaterial {
       name: name,
       price: price,
       typeId: typeId,
-      updatedAt: updatedAt,
+      updatedAt: updatedAt!,
     );
   }
 
@@ -50,7 +50,6 @@ class RawMaterial {
 
   RawMaterialEntity toEntity() {
     final entity = RawMaterialEntity();
-    entity.id = id!;
     entity.name = name!;
     entity.price = price!;
     entity.typeId = typeId;

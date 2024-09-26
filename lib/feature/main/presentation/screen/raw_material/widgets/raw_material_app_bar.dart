@@ -6,9 +6,13 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/widgets/tab_item.dart';
 
 AppBar rawMaterialAppBar(
-    {required VoidCallback onTapLeading, required List<String> tabs}) {
+    {required VoidCallback onTapLeading, required String title, required List<String> tabs}) {
   return AppBar(
     backgroundColor: AppColors.primary,
+    title: Text(
+      title,
+      style: bold.copyWith(fontSize: 18, color: AppColors.white),
+    ),
     leading: IconButton(
         onPressed: onTapLeading,
         icon: SvgPicture.asset(
@@ -20,14 +24,16 @@ AppBar rawMaterialAppBar(
     bottom: TabBar(
         isScrollable: true,
         labelColor: AppColors.white,
-        labelStyle: medium.copyWith(fontSize: 15),
-        unselectedLabelStyle: medium.copyWith(fontSize: 15),
-        unselectedLabelColor: AppColors.white.withOpacity(.9),
+        labelStyle: bold.copyWith(fontSize: 15),
+        unselectedLabelStyle: bold.copyWith(fontSize: 15),
+        unselectedLabelColor: AppColors.white.withOpacity(.85),
         indicatorSize: TabBarIndicatorSize.label,
         indicatorColor: AppColors.white,
         indicatorWeight: 4,
         overlayColor: WidgetStatePropertyAll(AppColors.overlay),
         padding: EdgeInsets.zero,
+        // labelPadding: EdgeInsets.zero,
+        indicatorPadding: EdgeInsets.zero,
         dividerHeight: 0.0,
         tabAlignment: TabAlignment.start,
         tabs: [for (int i = 0; i < tabs.length; i++) TabItem(title: tabs[i])]),

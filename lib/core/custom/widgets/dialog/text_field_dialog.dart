@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:omborchi/core/custom/formatters/thousand_formatter.dart';
 import 'package:omborchi/core/custom/widgets/custom_text_field.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -75,8 +77,11 @@ class _TextFieldDialogState extends State<TextFieldDialog> {
                 hint: widget.hint2!,
                 controller: widget.controller2,
                 errorText: widget.errorText2,
-                constraints: const BoxConstraints(
-                    minHeight: 100, maxWidth: double.infinity),
+                inputFormatters: [
+                  ThousandsSeparatorInputFormatter(),
+                  LengthLimitingTextInputFormatter(9),
+                ],
+                textInputType: TextInputType.number,
               ),
             const SizedBox(
               height: 32,

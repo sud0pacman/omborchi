@@ -11,9 +11,14 @@ void closeScreen(BuildContext context, {dynamic arg}) {
 }
 
 Future<void> setUpdateTime(DateTime now) async {
-    final box = Hive.box(ExpenseFields.myBox);
-    return await box.put(
-      LastUpdates.type,
-      now.toUtc().toIso8601String(),
-    );
-  }
+  final box = Hive.box(ExpenseFields.myBox);
+  return await box.put(
+    LastUpdates.type,
+    now.toUtc().toIso8601String(),
+  );
+}
+
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) return input;
+  return input[0].toUpperCase() + input.substring(1);
+}

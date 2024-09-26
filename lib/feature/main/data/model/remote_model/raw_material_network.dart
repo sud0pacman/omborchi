@@ -34,6 +34,7 @@ class RawMaterialNetwork {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'price': price,
       'type_id': typeId,

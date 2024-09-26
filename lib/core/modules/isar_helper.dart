@@ -79,6 +79,11 @@ class IsarHelper {
     return await isar.rawMaterialEntitys.get(id);
   }
 
+  Future<List<RawMaterialEntity>> getRawMaterialsByTypeId(int id) async {
+    final isar = await db;
+    return await isar.rawMaterialEntitys.filter().typeIdEqualTo(id).findAll();
+  }
+
   Future<List<RawMaterialEntity>> getAllRawMaterials() async {
     final isar = await db;
     return await isar.rawMaterialEntitys.where().findAll();

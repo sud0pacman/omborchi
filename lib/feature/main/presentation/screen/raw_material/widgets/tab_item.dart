@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omborchi/core/custom/functions/custom_functions.dart';
 
 class TabItem extends StatelessWidget {
   final String title;
@@ -8,7 +9,7 @@ class TabItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tab(
       child: Text(
-        title,
+        capitalizeFirstLetter(title),
         overflow: TextOverflow.ellipsis,
       ),
     );

@@ -20,4 +20,5 @@ class AppColors {
   static const transparent = Color(0x00000000);
   static const syanBlue = Color(0xff00C0EA);
   static Color overlay = const Color(0xFF9E9E9E).withAlpha(40);
+  static const splash = Color(0x66C8C8C8);
 }

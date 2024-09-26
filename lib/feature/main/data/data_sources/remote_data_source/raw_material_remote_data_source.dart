@@ -6,7 +6,6 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/raw_material_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 abstract interface class RawMaterialRemoteDataSource {
   Future<State> getRawMaterials(int typeId);
   Future<State> createRawMaterial(RawMaterialNetwork rawMaterial);
@@ -23,13 +22,12 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> createRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-
       final res = await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
-          .insert(rawMaterial.toJson())
-          .single();
+          .insert(rawMaterial.toJson());
 
-      return Success(RawMaterialNetwork.fromJson(res));
+      
+      return Success(null);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -37,8 +35,16 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
     } catch (e) {
-      AppRes.logger.e(e);
-      return GenericError(e);
+      // Wrap the caught error in GenericError
+      if (e is Exception) {
+        // Standard exception wrapping
+        AppRes.logger.e(e);
+        return GenericError(e);
+      } else {
+        // Non-Exception errors (like _TypeError)
+        AppRes.logger.e("Unknown Error: $e");
+        return GenericError(Exception("Unexpected error occurred: $e"));
+      }
     }
   }
 
@@ -46,14 +52,14 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> deleteRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-      final res = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
           .delete()
           .eq('id', rawMaterial.id!)
           .select()
           .single();
 
-      return Success(RawMaterialNetwork.fromJson(res));
+      return Success(null);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -80,8 +86,7 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
       AppRes.logger.t(res.length);
 
       return Success(res);
-    }
-    on SocketException catch (e) {
+    } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
     } on TimeoutException catch (e) {
@@ -97,14 +102,14 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> updateRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-      final newRawMaterial = await supabaseClient.from(ExpenseFields.rawMaterialTable)
-        .update(rawMaterial.toJson())
-        .eq('id', rawMaterial.id!)
-        .single();
+      final newRawMaterial = await supabaseClient
+          .from(ExpenseFields.rawMaterialTable)
+          .update(rawMaterial.toJson())
+          .eq('id', rawMaterial.id!)
+          .single();
 
       return Success(RawMaterialNetwork.fromJson(newRawMaterial));
-    }
-    on SocketException catch (e) {
+    } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
     } on TimeoutException catch (e) {
