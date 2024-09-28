@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
+import 'package:omborchi/core/custom/widgets/dialog/info_dialog.dart';
 import 'package:omborchi/core/custom/widgets/dialog/text_field_dialog.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
+import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material/raw_material_bloc.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/widgets/raw_materail_page.dart';
@@ -55,12 +57,18 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                   children: [
                     Container(
                       height: 32,
-                      color: AppColors.steelGrey.withOpacity(0.2),
+                      color: AppColors.splash,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text("Xomashyo".tr, style: medium.copyWith(fontSize: 16),),
-                          Text("Narx".tr, style: medium.copyWith(fontSize: 16),),
+                          Text(
+                            "Xomashyo".tr,
+                            style: medium.copyWith(fontSize: 16),
+                          ),
+                          Text(
+                            "Narx".tr,
+                            style: medium.copyWith(fontSize: 16),
+                          ),
                         ],
                       ),
                     ),
@@ -68,10 +76,18 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                       child: TabBarView(children: [
                         for (var typeKey in state.rawMaterials.keys)
                           RawMaterailPage(
-                              listRawMaterials: state.rawMaterials[typeKey]!,
-                              onTapFloatingAction: () {
-                                showAddDialog(context, typeKey);
-                              })
+                            listRawMaterials: state.rawMaterials[typeKey]!,
+                            onTapFloatingAction: () {
+                              showAddDialog(context, typeKey);
+                            },
+                            onDelete: (RawMaterial rawMaterial) {
+                              showDeleteDialog(context, rawMaterial);
+                            },
+                            onEdit: (RawMaterial rawMaterial) {
+                              showEditDialog(
+                                  context: context, rawMaterial: rawMaterial);
+                            },
+                          )
                       ]),
                     ),
                   ],
@@ -81,6 +97,48 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
       ),
     );
   }
+
+  void showDeleteDialog(BuildContext context, RawMaterial rawMaterial) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return InfoDialog(
+            title: "O'chirish".tr,
+            message: "Ushbu xomashyoni o'chirmoqchimisiz?".tr,
+            positiveText: "O'chirish".tr,
+            negativeText: "Bekor qilish",
+            onPositiveTap: () {
+              // _bloc.add(DeleteType(type));
+              closeDialog(context);
+            },
+            onNegativeTap: () {
+              closeDialog(context);
+            },
+          );
+        });
+  }
+
+
+  void showEditDialog(
+      {required BuildContext context, required RawMaterial rawMaterial}) {
+    _nameController.text = rawMaterial.name!;
+    _costController.text = rawMaterial.price.toString();
+    dialogErrorText1 = null;
+    dialogErrorText2 = null;
+    showPrimaryDialog(
+      context: context,
+      onTapPositive: () {
+        // _bloc.add(UpdateType(type.copyWith(name: _typeNameController.text)));
+      },
+      onTapNegative: () {
+        closeDialog(context);
+      },
+      title: "Xomashyo turi".tr,
+      positiveButton: "O'zgartir".tr,
+    );
+  }
+
+
 
   void showAddDialog(BuildContext context, RawMaterialType rawMaterialType) {
     _nameController.clear();
@@ -136,7 +194,6 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                 if (dialogErrorText1 != null || dialogErrorText2 != null) {
                   return;
                 }
-
 
                 closeDialog(context);
                 onTapPositive();

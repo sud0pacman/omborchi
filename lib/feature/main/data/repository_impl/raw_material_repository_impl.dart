@@ -10,7 +10,6 @@ import 'package:omborchi/feature/main/data/data_sources/remote_data_source/raw_m
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
-import '../model/remote_model/raw_material_network.dart';
 
 class RawMaterialRepositoryImpl implements RawMaterialRepository {
   final RawMaterialRemoteDataSource rawMaterialRemoteDataSource;
@@ -86,7 +85,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
       if (networkRes is Success) {
         await setUpdateTime(now);
         await isarHelper.updateRawMaterial(rawMaterial.toEntity());
-        return Success(rawMaterial);
+        return Success(await _getRawMaterialsFromLocalByTypeId(rawMaterial.typeId));
       } else {
         return networkRes;
       }

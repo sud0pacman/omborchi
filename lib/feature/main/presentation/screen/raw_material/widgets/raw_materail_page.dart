@@ -1,17 +1,29 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/floating_action_button.dart';
+import 'package:omborchi/core/custom/widgets/pop_up_menu.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
+import 'package:omborchi/feature/main/presentation/screen/raw_material/widgets/raw_material_item.dart';
+import 'package:popover/popover.dart';
 
 class RawMaterailPage extends StatelessWidget {
   final List<RawMaterial> listRawMaterials;
   final VoidCallback onTapFloatingAction;
+  final Function(RawMaterial rawMaterial) onEdit;
+  final Function(RawMaterial rawMaterial) onDelete;
+
   const RawMaterailPage(
       {super.key,
       required this.listRawMaterials,
-      required this.onTapFloatingAction});
+      required this.onTapFloatingAction,
+      required this.onEdit,
+      required this.onDelete,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -23,29 +35,11 @@ class RawMaterailPage extends StatelessWidget {
         shrinkWrap: true,
         itemCount: listRawMaterials.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            splashColor: ,
-            onTap: () {},
-            title: Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text(
-                      listRawMaterials[index].name!,
-                      style: regular,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    )),
-                Expanded(
-                    flex: 1,
-                    child: Text(
-                      listRawMaterials[index].price.toString(),
-                      style: regular,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    )),
-              ],
-            ),
+          return RawMaterialItem(
+            name: listRawMaterials[index].name!,
+            price: listRawMaterials[index].price.toString(),
+            onTapEdit: onEdit(listRawMaterials[index]),
+            onTapDelete: onDelete(listRawMaterials[index]),
           );
         },
         separatorBuilder: (context, index) => Container(

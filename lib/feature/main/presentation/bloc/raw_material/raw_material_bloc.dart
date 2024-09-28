@@ -57,5 +57,44 @@ class RawMaterialBloc extends Bloc<RawMaterialEvent, RawMaterialState> {
         emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
       }
     });
+
+    on<DeleteRawMaterial>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+
+      final deleteRes = await repo.deleteRawMaterial(event.rawMaterial);
+
+      AppRes.logger.i(deleteRes.toString());
+
+      if (deleteRes is Success) {
+        state.rawMaterials[event.type]!.remove(event.rawMaterial);
+        emit(state.copyWith(isLoading: false, isCRUD: true, rawMaterials: state.rawMaterials));
+      } else if (deleteRes is NoInternet) {
+        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+      } else if (deleteRes is GenericError) {
+        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+      } else {
+        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+      }
+    });
+
+
+    on<UpdateRawMaterial>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+
+      final updateRes = await repo.updateRawMaterial(event.rawMaterial);
+
+      AppRes.logger.i(updateRes.toString());
+
+      if (updateRes is Success) {
+        state.rawMaterials[event.type] = updateRes.value;
+        emit(state.copyWith(isLoading: false, isCRUD: true, rawMaterials: state.rawMaterials));
+      } else if (updateRes is NoInternet) {
+        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+      } else if (updateRes is GenericError) {
+        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+      } else {
+        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+      }
+    });
   }
 }

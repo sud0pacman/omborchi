@@ -4,7 +4,6 @@ import 'package:omborchi/core/modules/app_module.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/raw_material_screen.dart';
-import 'package:omborchi/feature/main/presentation/screen/raw_material_type/raw_material_type_screen.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
