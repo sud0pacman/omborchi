@@ -31,20 +31,24 @@ class RawMaterailPage extends StatelessWidget {
       floatingActionButton:
           primaryFloatingActionButton(onTap: onTapFloatingAction),
       backgroundColor: AppColors.background,
-      body: ListView.separated(
-        shrinkWrap: true,
-        itemCount: listRawMaterials.length,
-        itemBuilder: (context, index) {
-          return RawMaterialItem(
-            name: listRawMaterials[index].name!,
-            price: listRawMaterials[index].price.toString(),
-            onTapEdit: onEdit(listRawMaterials[index]),
-            onTapDelete: onDelete(listRawMaterials[index]),
-          );
-        },
-        separatorBuilder: (context, index) => Container(
-          height: 1,
-          color: AppColors.steelGrey.withOpacity(0.2),
+      body: SizedBox(
+        height: 400,
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: listRawMaterials.length,
+          itemBuilder: (context, index) {
+            // return Text(listRawMaterials[index].name!);
+            return RawMaterialItem(
+              name: listRawMaterials[index].name!,
+              price: listRawMaterials[index].price.toString(),
+              onTapEdit: () => onEdit(listRawMaterials[index]),
+              onTapDelete: () => onDelete(listRawMaterials[index]),
+            );
+          },
+          separatorBuilder: (context, index) => Container(
+            height: 1,
+            color: AppColors.steelGrey.withOpacity(0.2),
+          ),
         ),
       ),
     );

@@ -50,6 +50,7 @@ class RawMaterial {
 
   RawMaterialEntity toEntity() {
     final entity = RawMaterialEntity();
+    if (id != null) entity.id = id!;
     entity.name = name!;
     entity.price = price!;
     entity.typeId = typeId;

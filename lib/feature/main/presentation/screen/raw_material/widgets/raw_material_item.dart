@@ -22,18 +22,10 @@ class RawMaterialItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () {
-        final renderBox = context.findAncestorRenderObjectOfType<RenderBox>();
-
-        AppRes.logger.wtf(renderBox);
-
-        if (renderBox != null) {
-          final Offset position = renderBox.localToGlobal(Offset.zero);
-          final double tileWidth = renderBox.size.width;
-          final double popoverWidth = MediaQuery.of(context).size.width / 2;
-          final double centerOffset = (tileWidth - popoverWidth) / 2;
-
+    return SizedBox(
+      height: 56,
+      child: ListTile(
+        onTap: () {
           showPopover(
             context: context,
             transition: PopoverTransition.other,
@@ -48,7 +40,7 @@ class RawMaterialItem extends StatelessWidget {
               ],
               onPressed: (ind) {
                 closeDialog(context);
-
+      
                 if (ind == 0) {
                   onTapEdit();
                 } else if (ind == 1) {
@@ -63,30 +55,30 @@ class RawMaterialItem extends StatelessWidget {
             arrowWidth: 0,
             contentDxOffset: 100,
           );
-        }
-      },
-      title: Row(
-        children: [
-          Expanded(
-              flex: 1,
-              child: Text(
-                name,
-                style: regular,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              )),
-          const SizedBox(
-            width: 12,
-          ),
-          Expanded(
-              flex: 1,
-              child: Text(
-                price.toString(),
-                style: regular,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              )),
-        ],
+        },
+        title: Row(
+          children: [
+            Expanded(
+                flex: 1,
+                child: Text(
+                  name,
+                  style: regular,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )),
+            const SizedBox(
+              width: 12,
+            ),
+            Expanded(
+                flex: 1,
+                child: Text(
+                  price.toString(),
+                  style: regular,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )),
+          ],
+        ),
       ),
     );
   }

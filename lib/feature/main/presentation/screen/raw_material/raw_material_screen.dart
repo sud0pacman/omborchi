@@ -81,11 +81,10 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                               showAddDialog(context, typeKey);
                             },
                             onDelete: (RawMaterial rawMaterial) {
-                              showDeleteDialog(context, rawMaterial);
+                              showDeleteDialog(context, typeKey, rawMaterial);
                             },
                             onEdit: (RawMaterial rawMaterial) {
-                              showEditDialog(
-                                  context: context, rawMaterial: rawMaterial);
+                              showEditDialog(context, typeKey, rawMaterial);
                             },
                           )
                       ]),
@@ -98,7 +97,8 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
     );
   }
 
-  void showDeleteDialog(BuildContext context, RawMaterial rawMaterial) {
+  void showDeleteDialog(
+      BuildContext context, RawMaterialType type, RawMaterial rawMaterial) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -108,7 +108,7 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
             positiveText: "O'chirish".tr,
             negativeText: "Bekor qilish",
             onPositiveTap: () {
-              // _bloc.add(DeleteType(type));
+              _bloc.add(DeleteRawMaterial(type, rawMaterial));
               closeDialog(context);
             },
             onNegativeTap: () {
@@ -118,9 +118,8 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
         });
   }
 
-
   void showEditDialog(
-      {required BuildContext context, required RawMaterial rawMaterial}) {
+      BuildContext context, RawMaterialType type, RawMaterial rawMaterial) {
     _nameController.text = rawMaterial.name!;
     _costController.text = rawMaterial.price.toString();
     dialogErrorText1 = null;
@@ -128,7 +127,13 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
     showPrimaryDialog(
       context: context,
       onTapPositive: () {
-        // _bloc.add(UpdateType(type.copyWith(name: _typeNameController.text)));
+        _bloc.add(UpdateRawMaterial(
+          type,
+          rawMaterial.copyWith(
+            name: _nameController.text,
+            price: double.parse(_costController.text),
+          ),
+        ));
       },
       onTapNegative: () {
         closeDialog(context);
@@ -137,8 +142,6 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
       positiveButton: "O'zgartir".tr,
     );
   }
-
-
 
   void showAddDialog(BuildContext context, RawMaterialType rawMaterialType) {
     _nameController.clear();
@@ -181,13 +184,13 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
               onTapPositive: () {
                 if (_nameController.text.isEmpty) {
                   setState(() {
-                    dialogErrorText1 = "Nom bo'sh";
+                    dialogErrorText1 = "Nom bo'sh".tr;
                   });
                 }
 
                 if (_costController.text.isEmpty) {
                   setState(() {
-                    dialogErrorText2 = "Narxi bo'sh";
+                    dialogErrorText2 = "Narx bo'sh".tr;
                   });
                 }
 
@@ -201,7 +204,7 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
               onNegativeTap: () {
                 closeDialog(context);
               },
-              title2: 'Xomashyo narxi',
+              title2: 'Xomashyo narxi'.tr,
               title1: 'Xomashyo nomi'.tr,
               hint1: '6 tunuka'.tr,
               hint2: '1000',

@@ -18,12 +18,12 @@ class DeleteRawMaterial extends RawMaterialEvent {
   final RawMaterial rawMaterial;
   final RawMaterialType type;
 
-  DeleteRawMaterial(this.rawMaterial, this.type);
+  DeleteRawMaterial(this.type, this.rawMaterial);
 }
 
 class UpdateRawMaterial extends RawMaterialEvent {
   final RawMaterial rawMaterial;
   final RawMaterialType type;
 
-  UpdateRawMaterial(this.rawMaterial, this.type);
+  UpdateRawMaterial(this.type, this.rawMaterial);
 }
