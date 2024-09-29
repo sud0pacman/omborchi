@@ -15,9 +15,9 @@ AppBar simpleAppBar({
     elevation: 0.0,
     leading: IconButton(
         onPressed: onTapLeading,
-        icon: Image.asset(
+        icon: SvgPicture.asset(
           leadingIcon,
-          color: AppColors.white,
+          colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
           width: 24,
           height: 24,
           // colorFilter:

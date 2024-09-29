@@ -1,10 +1,11 @@
-
 import 'package:flutter/material.dart';
+import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:omborchi/core/utils/consants.dart';
-import 'package:omborchi/feature/main/presentation/screen/raw_material/raw_material_screen.dart';
 import 'package:hive/hive.dart';
+import 'package:omborchi/feature/main/presentation/screen/category/category_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/main/main_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           title: 'Omborchi',
           themeMode: ThemeMode.light,
           // onGenerateRoute: (settings) => RouteManager.generateRoute(settings),
-          home: RawMaterialScreen(),
+          home: CategoryScreen(),
         );
       },
     );

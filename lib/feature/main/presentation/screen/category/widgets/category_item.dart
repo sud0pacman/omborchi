@@ -6,18 +6,12 @@ import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:popover/popover.dart';
 
-class RawMaterialItem extends StatelessWidget {
+class CategoryItem extends StatelessWidget {
   final String name;
-  final String price;
-  final VoidCallback onTapEdit;
-  final VoidCallback onTapDelete;
+  VoidCallback onTapEdit;
+  VoidCallback onTapDelete;
 
-  const RawMaterialItem(
-      {super.key,
-      required this.name,
-      required this.price,
-      required this.onTapEdit,
-      required this.onTapDelete});
+  CategoryItem({super.key, required this.name, required this.onTapEdit, required this.onTapDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -53,28 +47,11 @@ class RawMaterialItem extends StatelessWidget {
           contentDxOffset: 100,
         );
       },
-      title: Row(
-        children: [
-          Expanded(
-              flex: 1,
-              child: Text(
-                name,
-                style: regular,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              )),
-          const SizedBox(
-            width: 12,
-          ),
-          Expanded(
-              flex: 1,
-              child: Text(
-                price.toString(),
-                style: regular,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              )),
-        ],
+      title: Text(
+        name,
+        style: regular,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.start,
       ),
     );
   }

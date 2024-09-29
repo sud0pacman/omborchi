@@ -9,6 +9,7 @@ import 'package:omborchi/feature/main/data/repository_impl/type_repository_impl.
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
 import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
 import 'package:omborchi/feature/main/domain/repository/type_repository.dart';
+import 'package:omborchi/feature/main/presentation/bloc/category/category_bloc.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material/raw_material_bloc.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material_type/raw_material_type_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -26,7 +27,6 @@ Future<void> initDependencies() async {
   final supabase = Supabase.instance.client;
 
   serviceLocator.registerLazySingleton(() => supabase);
-  // serviceLocator.registerLazySingleton(() => MyDatabaseHelper());
 
   _initCategory();
   _initType();
@@ -55,7 +55,8 @@ void _initCategory() {
       () => CategoryRepositoryImpl(
         serviceLocator(),
       ),
-    );
+    )
+    ..registerFactory(() => CategoryBloc(serviceLocator()));
 }
 
 void _initType() {

@@ -5,14 +5,12 @@ class CategoryNetwork {
   final int? id;
   final String name;
   final DateTime updatedAt;
-  final String status;
 
 
   CategoryNetwork(
       {this.id,
       required this.name,
       required this.updatedAt,
-      required this.status
       });
 
   Map<String, dynamic> toJson() {
@@ -20,7 +18,6 @@ class CategoryNetwork {
       'id': id,
       'name': name,
       'updated_at': updatedAt.toUtc().toIso8601String(),
-      'status': status,
     };
   }
 
@@ -29,7 +26,6 @@ class CategoryNetwork {
       id: json['id'],
       name: json['name'],
       updatedAt: DateTime.parse(json['updated_at']),
-      status: json['status'],
     );
   }
 
@@ -38,7 +34,6 @@ class CategoryNetwork {
       id: id,
       name: name,
       updatedAt: updatedAt,
-      status: status,
     );
   }
 
@@ -51,21 +46,18 @@ class CategoryNetwork {
       id: id ?? this.id,
       name: name ?? this.name,
       updatedAt: updatedAt ?? this.updatedAt,
-      status: status,
     );
   }
 
   @override
   String toString() {
-    return 'CategoryNetwork{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
+    return 'CategoryNetwork{id: $id, name: $name, updatedAt: $updatedAt,}';
   }
 
   CategoryEntity toLocal() {
     final CategoryEntity entity = CategoryEntity();
     entity.id = id!;
     entity.name = name;
-    entity.updatedAt = updatedAt;
-    entity.status = status;
 
     return entity;
   }

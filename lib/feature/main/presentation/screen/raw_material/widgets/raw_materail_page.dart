@@ -1,15 +1,9 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/floating_action_button.dart';
-import 'package:omborchi/core/custom/widgets/pop_up_menu.dart';
 import 'package:omborchi/core/theme/colors.dart';
-import 'package:omborchi/core/theme/style_res.dart';
-import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/widgets/raw_material_item.dart';
-import 'package:popover/popover.dart';
 
 class RawMaterailPage extends StatelessWidget {
   final List<RawMaterial> listRawMaterials;
@@ -31,24 +25,20 @@ class RawMaterailPage extends StatelessWidget {
       floatingActionButton:
           primaryFloatingActionButton(onTap: onTapFloatingAction),
       backgroundColor: AppColors.background,
-      body: SizedBox(
-        height: 400,
-        child: ListView.separated(
-          shrinkWrap: true,
-          itemCount: listRawMaterials.length,
-          itemBuilder: (context, index) {
-            // return Text(listRawMaterials[index].name!);
-            return RawMaterialItem(
-              name: listRawMaterials[index].name!,
-              price: listRawMaterials[index].price.toString(),
-              onTapEdit: () => onEdit(listRawMaterials[index]),
-              onTapDelete: () => onDelete(listRawMaterials[index]),
-            );
-          },
-          separatorBuilder: (context, index) => Container(
-            height: 1,
-            color: AppColors.steelGrey.withOpacity(0.2),
-          ),
+      body: ListView.separated(
+        shrinkWrap: true,
+        itemCount: listRawMaterials.length,
+        itemBuilder: (context, index) {
+          return RawMaterialItem(
+            name: listRawMaterials[index].name!,
+            price: listRawMaterials[index].price.toString(),
+            onTapEdit: () => onEdit(listRawMaterials[index]),
+            onTapDelete: () => onDelete(listRawMaterials[index]),
+          );
+        },
+        separatorBuilder: (context, index) => Container(
+          height: 1,
+          color: AppColors.steelGrey.withOpacity(0.2),
         ),
       ),
     );

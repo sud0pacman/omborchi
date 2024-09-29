@@ -22,7 +22,7 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> createRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-      final res = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
           .insert(rawMaterial.toJson());
 
@@ -54,9 +54,7 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
       await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
           .delete()
-          .eq('id', rawMaterial.id!)
-          .select()
-          .single();
+          .eq('id', rawMaterial.id!);
 
       return Success(null);
     } on SocketException catch (e) {
@@ -101,10 +99,13 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> updateRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-      await supabaseClient
+      final res = await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
           .update(rawMaterial.toJson())
-          .eq('id', rawMaterial.id!);
+          .eq('id', rawMaterial.id!)
+          .select();
+
+      AppRes.logger.i(res.toString());
 
       return Success(null);
     } on SocketException catch (e) {

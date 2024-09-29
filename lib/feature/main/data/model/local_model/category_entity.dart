@@ -6,15 +6,13 @@ part 'category_entity.g.dart';
 class CategoryEntity {
   Id id = Isar.autoIncrement;
   late String name;
-  late DateTime updatedAt;
-  late String status;
 
   @override
   String toString() {
-    return 'CategoryEntity{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
+    return 'CategoryEntity{id: $id, name: $name,}';
   }
 
   CategoryModel toModel(DateTime dateTime) {
-    return CategoryModel(name: name, updatedAt: updatedAt, status: status);
+    return CategoryModel(id: id, name: name, updatedAt: dateTime,);
   }
 }

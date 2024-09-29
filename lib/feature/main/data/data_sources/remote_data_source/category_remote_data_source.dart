@@ -50,7 +50,6 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
           .select()
           .single();
 
-
       AppRes.logger.t(newCategory);
 
       return Success(CategoryNetwork.fromJson(newCategory));
@@ -61,24 +60,30 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
     } catch (e) {
-      AppRes.logger.e(e);
-      return GenericError(e);
+      // Wrap the caught error in GenericError
+      if (e is Exception) {
+        // Standard exception wrapping
+        AppRes.logger.e(e);
+        return GenericError(e);
+      } else {
+        // Non-Exception errors (like _TypeError)
+        AppRes.logger.e("Unknown Error: $e");
+        return GenericError(Exception("Unexpected error occurred: $e"));
+      }
     }
   }
-
 
   @override
   Future<State> deleteCategory(CategoryNetwork category) async {
     AppRes.logger.t(category.toString());
 
     try {
-      final res = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.categoryTable)
           .delete()
-          .eq('id', category.id!)
-          .single();
+          .eq('id', category.id!);
 
-      return Success(CategoryNetwork.fromJson(res));
+      return Success(null);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -99,13 +104,11 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       final res = await supabaseClient
           .from(ExpenseFields.categoryTable)
           .update(category.toJson())
-          .eq('id', category.id!)
-          .select()
-          .single();
+          .eq('id', category.id!);
 
       AppRes.logger.t(res);
 
-      return Success(CategoryNetwork.fromJson(res));
+      return Success(null);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -117,5 +120,4 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       return GenericError(e);
     }
   }
-
 }

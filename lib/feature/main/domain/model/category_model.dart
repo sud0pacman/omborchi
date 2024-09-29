@@ -4,14 +4,12 @@ import 'package:omborchi/feature/main/data/model/remote_model/category_network.d
 class CategoryModel {
   final int? id;
   final String name;
-  final DateTime updatedAt;
-  final String status;
+  final DateTime? updatedAt;
 
   CategoryModel({
     this.id,
     required this.name,
-    required this.updatedAt,
-    required this.status,
+    this.updatedAt,
   });
 
   CategoryModel copyWith({
@@ -24,7 +22,6 @@ class CategoryModel {
       id: id ?? this.id,
       name: name ?? this.name,
       updatedAt: updatedAt ?? this.updatedAt,
-      status: status ?? this.status,
     );
   }
 
@@ -32,23 +29,20 @@ class CategoryModel {
     return CategoryNetwork(
       id: id,
       name: name,
-      updatedAt: updatedAt,
-      status: status,
+      updatedAt: updatedAt!,
     );
   }
 
   CategoryEntity toLocal() {
     final CategoryEntity entity = CategoryEntity();
-    entity.id = id!;
+    if (id != null) entity.id = id!;
     entity.name = name;
-    entity.updatedAt = updatedAt;
-    entity.status = status;
 
     return entity;
   }
 
   @override
   String toString() {
-    return 'CategoryModel{id: $id, name: $name, updatedAt: $updatedAt, status: $status}';
+    return 'CategoryModel{id: $id, name: $name, updatedAt: $updatedAt,}';
   }
 }

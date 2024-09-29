@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   List<CategoryModel> cts = [];
 
   final CategoryModel categoryModel = CategoryModel(
-      name: "Nj", updatedAt: DateTime.now(), status: MainStatus.add.name);
+      name: "Nj", updatedAt: DateTime.now(),);
 
   @override
   Widget build(BuildContext context) {

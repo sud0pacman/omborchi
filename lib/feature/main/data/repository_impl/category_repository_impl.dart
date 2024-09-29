@@ -25,9 +25,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
-      final Id localId = await isarHelper.addCategory(category.toLocal());
-
       now = DateTime.now();
+
+      final Id localId = await isarHelper.addCategory(category.copyWith(id: null, updatedAt: now).toLocal());
+
       final networkRes = await categoryRemoteDataSource.createCategory(
           category.copyWith(id: localId, updatedAt: now).toNetwork());
 
@@ -78,7 +79,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
       if (res is Success) {
         await setUpdateTime(now);
         await isarHelper.updateCategory(category.toLocal());
-        return Success(category);
+        return Success(await _getCategoriesFromLocal());
       } else {
         return res;
       }
@@ -103,19 +104,19 @@ class CategoryRepositoryImpl implements CategoryRepository {
         now = DateTime.now();
         await setUpdateTime(now);
 
-        final List<int> categoryId =
+        final List<int> categoryIdList =
             await _getCategoriesFromLocal().then((value) {
           return value.map((e) => e.id!).toList();
         });
 
-        await isarHelper.deleteAllCategories(categoryId);
         final List<CategoryNetwork> categories = networkRes.value;
         final List<CategoryEntity> categoriesEntity =
             categories.map((e) => e.toLocal()).toList();
 
+        await isarHelper.deleteAllCategories(categoryIdList);
         await isarHelper.insertAllCategories(categoriesEntity);
 
-        return Success(_getCategoriesFromLocal);
+        return Success(await _getCategoriesFromLocal());
       } else {
         return networkRes;
       }
