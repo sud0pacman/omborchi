@@ -1,3 +1,4 @@
+import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 
 class RawMaterialNetwork {
@@ -7,14 +8,12 @@ class RawMaterialNetwork {
   final int typeId;
   final DateTime updatedAt;
 
-
-  RawMaterialNetwork({
-    this.id,
-    required this.name,
-    required this.price,
-    required this.typeId,
-    required this.updatedAt
-  });
+  RawMaterialNetwork(
+      {this.id,
+      required this.name,
+      required this.price,
+      required this.typeId,
+      required this.updatedAt});
 
   RawMaterialNetwork copyWith({
     int? id,
@@ -46,9 +45,15 @@ class RawMaterialNetwork {
     return RawMaterialNetwork(
       id: map['id'] != null ? map['id'] as int : null,
       name: map['name'] != null ? map['name'] as String : null,
-      price: map['price'] != null ? map['price'] as double : null,
+      price: map['price'] != null
+          ? (map['price'] is int
+              ? (map['price'] as int).toDouble()
+              : map['price'] as double)
+          : null,
       typeId: map['type_id'] != null ? map['type_id'] as int : -1,
-      updatedAt: map['updated_at'] != null ? map['updated_at'] as DateTime : DateTime.now(),
+      updatedAt: map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'])
+          : DateTime.now(),
     );
   }
 
@@ -66,5 +71,14 @@ class RawMaterialNetwork {
   String toString() {
     return 'RawMaterialNetwork{id: $id, name: $name, price: $price, typeId: $typeId}';
   }
-}
 
+  RawMaterialEntity toEntity() {
+    final RawMaterialEntity entity = RawMaterialEntity();
+    entity.id = id!;
+    entity.name = name!;
+    entity.price = price!;
+    entity.typeId = typeId;
+
+    return entity;
+  }
+}

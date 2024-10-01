@@ -6,6 +6,8 @@ import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/raw_material_remote_data_source.dart';
+import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/raw_material_network.dart';
 
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
@@ -36,7 +38,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
 
       if (networkRes is Success) {
         await setUpdateTime(now);
-      
+
         return Success(rawMaterial.copyWith(id: localId));
       } else if (networkRes is GenericError) {
         AppRes.logger.wtf("Generic error encountered: ${networkRes.exception}");
@@ -85,7 +87,8 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
       if (networkRes is Success) {
         await setUpdateTime(now);
         await isarHelper.updateRawMaterial(rawMaterial.toEntity());
-        return Success(await _getRawMaterialsFromLocalByTypeId(rawMaterial.typeId));
+        return Success(
+            await _getRawMaterialsFromLocalByTypeId(rawMaterial.typeId));
       } else {
         return networkRes;
       }
@@ -95,8 +98,43 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
   }
 
   @override
-  Future<State> getRawMaterials(int typeId, bool isFullRefresh) async {
-    return Success(null);
+  Future<State> getRawMaterials() async {
+    final bool hasNetwork = await networkChecker.hasConnection;
+
+    if (hasNetwork) {
+      final typeList = await _getTypesFromLocal();
+      await isarHelper.deleteAllRawMaterials(
+          typeList.map((element) => element.id!).toList());
+
+      for (var type in typeList) {
+        final networkRes =
+            await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
+
+        if (networkRes is Success) {
+          final List<RawMaterialNetwork> networkRawMaterialList =
+              networkRes.value;
+
+          final List<RawMaterialEntity> rawMaterialEntity =
+              networkRawMaterialList
+                  .map((element) => element.toEntity())
+                  .toList();
+
+          await isarHelper.insertAllRawMaterials(rawMaterialEntity);
+        }
+      }
+
+      
+      final Map<RawMaterialType, List<RawMaterial>> rawMaterials = {};
+
+      for (var rawMaterialType in typeList) {
+        rawMaterials[rawMaterialType] =
+            await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
+      }
+
+      return Success(rawMaterials);
+    } else {
+      return NoInternet(Exception("Weak Internet"));
+    }
   }
 
   @override

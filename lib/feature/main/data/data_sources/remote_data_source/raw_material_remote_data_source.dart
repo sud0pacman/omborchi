@@ -76,7 +76,10 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
       final response = await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
           .select()
-          .eq('type_id', typeId);
+          .eq('type_id', typeId)
+          .select();
+
+      AppRes.logger.t(response.toString());
 
       final res = response.map((e) => RawMaterialNetwork.fromJson(e)).toList();
 

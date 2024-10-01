@@ -6,17 +6,27 @@ import 'package:path_provider/path_provider.dart'; // For getting the directory 
 
 class IsarHelper {
   late Future<Isar> db;
+  static Isar? _isarInstance; // Store the Isar instance
 
   IsarHelper() {
     db = _initDb();
   }
 
   Future<Isar> _initDb() async {
+    // If the instance already exists, return it
+    if (_isarInstance != null) {
+      return _isarInstance!;
+    }
+
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
-      [TypeEntitySchema, RawMaterialEntitySchema, CategoryEntitySchema], // List of schemas
+
+    // Open the Isar instance only if it's not already opened
+    _isarInstance = await Isar.open(
+      [TypeEntitySchema, RawMaterialEntitySchema, CategoryEntitySchema],
       directory: dir.path,
     );
+
+    return _isarInstance!;
   }
 
   // Type CRUD Operations
@@ -53,7 +63,12 @@ class IsarHelper {
 
   Future<void> deleteType(int id) async {
     final isar = await db;
+
     await isar.writeTxn(() async {
+      // Find and delete all raw materials that have the specified typeId
+      await isar.rawMaterialEntitys.filter().typeIdEqualTo(id).deleteAll();
+
+      // Then, delete the type itself
       await isar.typeEntitys.delete(id);
     });
   }
@@ -96,7 +111,8 @@ class IsarHelper {
     });
   }
 
-  Future<void> insertAllRawMaterials(List<RawMaterialEntity> rawMaterials) async {
+  Future<void> insertAllRawMaterials(
+      List<RawMaterialEntity> rawMaterials) async {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.rawMaterialEntitys.putAll(rawMaterials);

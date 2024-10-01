@@ -10,4 +10,6 @@ abstract interface class ProductRepository {
   Future<State> deleteProduct(ProductModel product);
   Future<State> uploadImage(String imageName, XFile file);
   Future<State> downloadImage({required String path, required String name});
+  Future<State> getCategories();
+  Future<State> getRawMaterialsWithTypes();
 }

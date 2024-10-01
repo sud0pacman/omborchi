@@ -6,7 +6,7 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/widgets/tab_item.dart';
 
 AppBar rawMaterialAppBar(
-    {required VoidCallback onTapLeading, required String title, required List<String> tabs}) {
+    {required VoidCallback onTapLeading, required String title, required List<String> tabs, List<Widget>? actions}) {
   return AppBar(
     backgroundColor: AppColors.primary,
     title: Text(
@@ -21,6 +21,7 @@ AppBar rawMaterialAppBar(
           width: 24,
           height: 24,
         )),
+    actions: actions,
     bottom: TabBar(
         isScrollable: true,
         labelColor: AppColors.white,

@@ -67,7 +67,8 @@ class RawMaterialBloc extends Bloc<RawMaterialEvent, RawMaterialState> {
 
       if (deleteRes is Success) {
         state.rawMaterials[event.type]!.remove(event.rawMaterial);
-        emit(state.copyWith(isLoading: false, isCRUD: true, rawMaterials: state.rawMaterials));
+        emit(state.copyWith(
+            isLoading: false, isCRUD: true, rawMaterials: state.rawMaterials));
       } else if (deleteRes is NoInternet) {
         emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
       } else if (deleteRes is GenericError) {
@@ -76,7 +77,6 @@ class RawMaterialBloc extends Bloc<RawMaterialEvent, RawMaterialState> {
         emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
       }
     });
-
 
     on<UpdateRawMaterial>((event, emit) async {
       emit(state.copyWith(isLoading: true));
@@ -87,10 +87,32 @@ class RawMaterialBloc extends Bloc<RawMaterialEvent, RawMaterialState> {
 
       if (updateRes is Success) {
         state.rawMaterials[event.type] = updateRes.value;
-        emit(state.copyWith(isLoading: false, isCRUD: true, rawMaterials: state.rawMaterials));
+        emit(state.copyWith(
+            isLoading: false, isCRUD: true, rawMaterials: state.rawMaterials));
       } else if (updateRes is NoInternet) {
         emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
       } else if (updateRes is GenericError) {
+        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+      } else {
+        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+      }
+    });
+
+    on<RefreshRawMaterials>((evnt, emit) async {
+      emit(state.copyWith(isLoading: true));
+
+      final refreshRes = await repo.getRawMaterials();
+
+      AppRes.logger.i(refreshRes.value);
+
+      if (refreshRes is Success) {
+        final Map<RawMaterialType, List<RawMaterial>> rawMaterials =
+            refreshRes.value;
+
+        emit(state.copyWith(rawMaterials: rawMaterials, isLoading: false));
+      } else if (refreshRes is NoInternet) {
+        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+      } else if (refreshRes is GenericError) {
         emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
       } else {
         emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));

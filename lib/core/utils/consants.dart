@@ -40,6 +40,8 @@ class AssetRes {
   static const icTrash = '${_base}ic_trash.svg';
   static const icEdit = '${_base}ic_edit.svg';
   static const icSynchronization = '${_base}ic_synch.svg';
+  static const icGallery = '${_base}ic_gallery.svg';
+  static const icDropDownUpArrow = '${_base}ic_drop_down_up_arrow.svg';
 }
 
 class LastUpdates {

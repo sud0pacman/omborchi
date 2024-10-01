@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/dialog/info_dialog.dart';
@@ -7,6 +8,7 @@ import 'package:omborchi/core/custom/widgets/dialog/text_field_dialog.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
+import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material/raw_material_bloc.dart';
@@ -49,6 +51,13 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                 appBar: rawMaterialAppBar(
                     title: "Xomashyolar".tr,
                     onTapLeading: () {},
+                    actions: [
+                      IconButton(
+                          onPressed: () {
+                            _bloc.add(RefreshRawMaterials());
+                          },
+                          icon: SvgPicture.asset(AssetRes.icSynchronization))
+                    ],
                     tabs: state.rawMaterials.keys
                         .toList()
                         .map((e) => e.name)

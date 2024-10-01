@@ -6,8 +6,8 @@ import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
 
 class TextWithTextFieldSmokeWhiteWidget extends StatefulWidget {
-  final String title;
-  final String hint;
+  final String? title;
+  final String? hint;
   final String? errorText;
   final bool isPassword;
   final TextEditingController? controller;
@@ -19,8 +19,8 @@ class TextWithTextFieldSmokeWhiteWidget extends StatefulWidget {
 
   const TextWithTextFieldSmokeWhiteWidget(
       {super.key,
-      required this.title,
-      required this.hint,
+      this.title,
+      this.hint,
       this.errorText,
       this.isPassword = false,
       this.controller,
@@ -60,15 +60,15 @@ class _TextWithTextFieldSmokeWhiteWidgetState
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.title.isNotEmpty)
+          if (widget.title != null)
             Text(
-              widget.title,
+              widget.title!,
               style: boldTheme.copyWith(
                 color: AppColors.steelGrey,
                 fontSize: 12,
               ),
             ),
-          if (widget.title.isNotEmpty)
+          if (widget.title != null)
             const SizedBox(
               height: 8,
             ),

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:omborchi/core/theme/colors.dart';
 
 FloatingActionButton primaryFloatingActionButton(
-    {required VoidCallback onTap}) {
+    {required VoidCallback onTap, IconData icon = Icons.add}) {
   return FloatingActionButton(
     onPressed: onTap,
     shape: const CircleBorder(),
     backgroundColor: AppColors.primary,
-    child: const Icon(
-      Icons.add,
+    child: Icon(
+      icon,
       color: AppColors.white,
     ),
   );
