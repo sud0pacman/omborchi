@@ -90,6 +90,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 const SizedBox(
                   height: 32,
                 ),
+                
                 // rawMaterialItem(context)
                 for (int i = 0; i < rawMaterialsWidget.length; i++)
                   Column(
