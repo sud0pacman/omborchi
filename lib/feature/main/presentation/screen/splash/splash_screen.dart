@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:omborchi/core/modules/app_module.dart';
-import 'package:omborchi/core/utils/main_status.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
 

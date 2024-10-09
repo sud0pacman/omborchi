@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
@@ -10,14 +11,19 @@ part 'raw_material_type_state.dart';
 class RawMaterialTypeBloc
     extends Bloc<RawMaterialTypeEvent, RawMaterialTypeState> {
   final TypeRepository repo;
+  final InternetConnectionChecker networkChecker = InternetConnectionChecker();
 
   RawMaterialTypeBloc(this.repo) : super(RawMaterialTypeInitial()) {
     on<GetTypes>((event, emit) async {
       emit(state.copyWith(isLoading: true));
-      final typesRes = await repo.getTypes(false);
 
-      AppRes.logger.i(typesRes.toString());
-
+      final bool hasNetwork = await networkChecker.hasConnection;
+      final State typesRes;
+      if (hasNetwork) {
+        typesRes = await repo.getTypes(true);
+      } else {
+        typesRes = await repo.getTypes(false);
+      }
       if (typesRes is Success) {
         emit(state.copyWith(types: typesRes.value, isLoading: false));
       } else if (typesRes is NoInternet) {
@@ -49,10 +55,11 @@ class RawMaterialTypeBloc
 
     on<CreateType>((event, emit) async {
       emit(state.copyWith(isLoading: true));
+      AppRes.logger.t(event.rawMaterialType.name);
       final createRes = await repo.createType(event.rawMaterialType);
 
       if (createRes is Success) {
-        emit(state.copyWith(isLoading: false));
+        add(GetTypes());
       }
     });
 

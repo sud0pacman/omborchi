@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
 
@@ -8,12 +10,18 @@ part 'category_state.dart';
 
 class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   final CategoryRepository categoryRepository;
+  final InternetConnectionChecker networkChecker = InternetConnectionChecker();
 
   CategoryBloc(this.categoryRepository) : super(CategoryState(categories: [])) {
     on<GetCategories>((event, emit) async {
       emit(state.copyWith(isLoading: true));
-
-      final getResponse = await categoryRepository.getCategories();
+      final bool hasNetwork = await networkChecker.hasConnection;
+      final State getResponse;
+      if (hasNetwork) {
+        getResponse = await categoryRepository.syncCategories();
+      } else {
+        getResponse = await categoryRepository.getCategories();
+      }
 
       if (getResponse is Success) {
         emit(state.copyWith(categories: getResponse.value));
@@ -48,7 +56,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
     on<CreateCategory>((event, emit) async {
       emit(state.copyWith(isLoading: true));
-
+      AppRes.logger.f(event.category.name);
       final createResponse =
           await categoryRepository.createCategory(event.category);
 

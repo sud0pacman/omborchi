@@ -30,7 +30,6 @@ class RawMaterialType {
 
   TypeEntity toEntity() {
     final entity = TypeEntity();
-    entity.id = id!;
     entity.name = name;
 
     return entity;
@@ -40,4 +39,11 @@ class RawMaterialType {
   String toString() {
     return 'RawMaterialType{id: $id, name: $name, updatedAt: $updatedAt}';
   }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is RawMaterialType && runtimeType == other.runtimeType && name == other.name;
+
+  @override
+  int get hashCode => name.hashCode;
 }

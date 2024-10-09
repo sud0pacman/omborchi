@@ -1,53 +1,203 @@
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:isar/isar.dart';
 import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
-import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
-import 'package:omborchi/feature/main/domain/model/category_model.dart';
-
+import 'package:omborchi/feature/main/data/model/local_model/product_entity.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:omborchi/feature/main/domain/model/raw_material.dart';
-import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
+
+import '../../../../core/utils/consants.dart';
+import '../../domain/model/category_model.dart';
+import '../../domain/model/raw_material.dart';
+import '../../domain/model/raw_material_type.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDataSource productRemoteDataSource;
+  final IsarHelper isarHelper = IsarHelper();
+
   final InternetConnectionChecker networkChecker = InternetConnectionChecker();
-  final isarHelper = IsarHelper();
-  late DateTime now;
 
   ProductRepositoryImpl(this.productRemoteDataSource);
 
   @override
-  Future<State> createProduct(ProductModel product) {
-    return productRemoteDataSource.createProduct(product.toNetwork());
+  Future<State> createProduct(ProductModel product) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        return productRemoteDataSource.createProduct(product.toNetwork());
+      } else {
+        await saveProductToLocal(product.toEntity()); // Save to Hive locally
+        return Success("Saved locally, will sync when online.");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
   }
 
   @override
-  Future<State> deleteProduct(ProductModel product) {
-    return productRemoteDataSource.deleteProduct(product.toNetwork());
+  Future<State> deleteProduct(ProductModel product) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        return productRemoteDataSource.deleteProduct(product.toNetwork());
+      } else {
+        await removeProductFromLocal(product.id!); // Remove from Hive locally
+        return Success("Deleted locally, will sync when online.");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
   }
 
   @override
-  Future<State> getProducts(int categoryId) {
-    return productRemoteDataSource.getProducts(categoryId);
+  Future<State> getProducts(int categoryId) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        return productRemoteDataSource.getProducts(categoryId);
+      } else {
+        final localProducts = await fetchAllProductsFromLocal();
+        return Success(localProducts
+            .map((p) => p.toModel())
+            .toList()); // Convert local entities back to ProductModel
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
   }
 
   @override
-  Future<State> updateProduct(ProductModel product) {
-    return productRemoteDataSource.updateProduct(product.toNetwork());
+  Future<State> updateProduct(ProductModel product) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        return productRemoteDataSource.updateProduct(product.toNetwork());
+      } else {
+        await updateLocalProduct(product.toEntity()); // Update in Hive locally
+        return Success("Updated locally, will sync when online.");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
   }
 
   @override
-  Future<State> uploadImage(String imageName, XFile file) async {
-    return productRemoteDataSource.uploadImage(imageName, file);
+  Future<State> uploadImage(String imageName, String image) async {
+    try {
+      return productRemoteDataSource.uploadImage(imageName, image);
+    } catch (e) {
+      return GenericError(e);
+    }
   }
 
   @override
-  Future<State> downloadImage({required String path, required String name}) {
-    return productRemoteDataSource.downloadImage(path: path, name: name);
+  Future<State> downloadImage(
+      {required String path, required String name}) async {
+    try {
+      return productRemoteDataSource.downloadImage(path: path, name: name);
+    } catch (e) {
+      return GenericError(e);
+    }
+  }
+
+  // Method to save a product to Isar local storage
+  @override
+  Future<void> saveProductToLocal(ProductEntity product) async {
+    await isarHelper.addProduct(product); // Save product using IsarHelper
+  }
+
+// Method to fetch a single product from Isar by ID
+  @override
+  Future<List<ProductModel?>> fetchProductFromLocalById(int id) async {
+    var res = await isarHelper.getProduct(id);
+    return res
+        .map((product) => product?.toModel())
+        .toList(); // Get product by its ID using IsarHelper
+  }
+
+// Method to fetch products by categoryId from Isar
+  @override
+  Future<List<ProductModel?>> fetchProductFromLocalByCategoryId(
+      int categoryId) async {
+    final isar = await isarHelper.db;
+    final products = await isar.productEntitys
+        .filter()
+        .categoryIdEqualTo(categoryId)
+        .findAll(); // Filter products by categoryId in Isar
+
+    return products.map((product) => product.toModel()).toList();
+  }
+
+// Method to fetch all products from Isar
+  @override
+  Future<List<ProductModel>> fetchAllProductsFromLocal() async {
+    final products =
+        await isarHelper.getAllProducts(); // This returns List<ProductEntity>
+    final productModels =
+        products.map((productEntity) => productEntity.toModel()).toList();
+
+    return productModels; // Return List<ProductModel>
+  }
+  @override
+  Future<List<ProductModel?>> fetchProductFromLocalByQuery(
+      String nomer,
+      String eni,
+      String boyi,
+      String narxi,
+      String marja,
+      int categoryId) async {
+
+    final isar = await isarHelper.db;
+
+    final query = isar.productEntitys.filter().categoryIdEqualTo(categoryId);
+
+    // Helper function to extract lower and upper bo unds
+    void applyBetweenFilter(String? value, Function(int lower, int upper) applyFilter) {
+      if (value != null && value.isNotEmpty) {
+        final parts = value.split(' ');
+        if (parts.length == 2) {
+          final lower = parts[0];
+          final upper = parts[1];
+          applyFilter(lower as int, upper as int);
+        }
+      }
+    }
+
+    // Apply filters conditionally based on whether values are provided
+    applyBetweenFilter(nomer, query.nomerBetween);
+    // applyBetweenFilter(eni, query.eniBetween);
+    // applyBetweenFilter(boyi, query.boyiBetween);
+    // applyBetweenFilter(narxi, query.narxiBetween);
+    // applyBetweenFilter(marja, query.marjaBetween);
+
+    // Execute query and map result
+    final products = await query.findAll();
+
+    return products.map((productEntity) => productEntity?.toModel()).toList();
+  }
+
+
+
+// Method to update a product in Isar
+  @override
+  Future<void> updateLocalProduct(ProductEntity product) async {
+    await isarHelper
+        .updateProduct(product); // Update product in Isar using IsarHelper
+  }
+
+// Method to remove a product from Isar by its ID
+  @override
+  Future<void> removeProductFromLocal(int id) async {
+    await isarHelper.deleteProduct(id); // Delete product by its ID in Isar
+  }
+
+// Method to remove multiple products by their IDs in Isar
+  @override
+  Future<void> removeProductsFromLocal(List<int> ids) async {
+    await isarHelper
+        .deleteProductsByIds(ids); // Delete products by IDs using IsarHelper
   }
 
   @override
@@ -99,4 +249,6 @@ class ProductRepositoryImpl implements ProductRepository {
       return e.toModel(DateTime.now());
     }).toList();
   }
+
+
 }

@@ -1,4 +1,7 @@
+import 'package:isar/isar.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
+
+import '../../data/model/local_model/product_entity.dart';
 
 class ProductModel {
   final int? id;
@@ -79,5 +82,43 @@ class ProductModel {
   @override
   String toString() {
     return 'ProductModel{id: $id, nomer: $nomer, pathOfPicture: $pathOfPicture, razmer: $razmer, xizmat: $xizmat, foyda: $foyda, sotuv: $sotuv, description: $description, categoryId: $categoryId, createdAt: $createdAt, isVerified: $isVerified, updatedAt: $updatedAt}';
+  }
+
+  // Inside ProductMode
+
+// Inside ProductEntity
+  ProductModel toModel() {
+    return ProductModel(
+      id: this.id,
+      nomer: this.nomer,
+      pathOfPicture: this.pathOfPicture,
+      razmer: this.razmer,
+      xizmat: this.xizmat,
+      foyda: this.foyda,
+      sotuv: this.sotuv,
+      description: this.description,
+      categoryId: this.categoryId,
+      createdAt: this.createdAt,
+      isVerified: this.isVerified,
+      updatedAt: this.updatedAt,
+    );
+  }
+}
+extension ProductModelExtension on ProductModel {
+  ProductEntity toEntity() {
+    return ProductEntity(
+      //Handling null id with auto-increment
+      nomer: nomer,
+      pathOfPicture: pathOfPicture,
+      razmer: razmer,
+      xizmat: xizmat,
+      foyda: foyda,
+      sotuv: sotuv,
+      description: description,
+      categoryId: categoryId,
+      createdAt: createdAt,
+      isVerified: isVerified,
+      updatedAt: updatedAt,
+    );
   }
 }

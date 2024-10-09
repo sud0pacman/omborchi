@@ -66,12 +66,11 @@ class TypeRepositoryImpl implements TypeRepository {
 
   @override
   Future<State> getTypes(bool isFullRefresh) async {
-    final bool hasNetwork = await networkChecker.hasConnection;
 
-    if (isFullRefresh && hasNetwork) {
+    if (isFullRefresh) {
       final res = await typeRemoteDataSource.getTypes();
       now = DateTime.now();
-
+      AppRes.logger.w(res.exception);
       if (res is Success) {
       await setUpdateTime();
       

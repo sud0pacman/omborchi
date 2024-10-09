@@ -61,7 +61,6 @@ class ProductNetwork {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'nomer': nomer,
       'path_of_picture': pathOfPicture,
       'razmer': razmer,
@@ -70,9 +69,7 @@ class ProductNetwork {
       'sotuv': sotuv,
       'description': description,
       'category_id': categoryId,
-      'created_at': createdAt?.toUtc().toIso8601String(),
       'is_verified': isVerified,
-      'updated_at': updatedAt?.toUtc().toIso8601String(),
     };
   }
 

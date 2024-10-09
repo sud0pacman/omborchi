@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:lottie/lottie.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
 import 'package:omborchi/core/custom/widgets/dialog/info_dialog.dart';
@@ -12,6 +13,8 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material_type/raw_material_type_bloc.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material_type/widget/type_item.dart';
+
+import '../../../../../core/custom/widgets/shimmer_loading.dart';
 
 class RawMaterialTypeScreen extends StatefulWidget {
   const RawMaterialTypeScreen({super.key});
@@ -64,7 +67,9 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
           backgroundColor: AppColors.background,
           appBar: simpleAppBar(
             leadingIcon: AssetRes.icBack,
-            onTapLeading: () {},
+            onTapLeading: () {
+              Navigator.pop(context);
+            },
             title: 'Xomashyo turi',
             actions: [AssetRes.icSynchronization],
             onTapAction: (p0) {
@@ -76,40 +81,41 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
           floatingActionButton: primaryFloatingActionButton(onTap: () {
             showAddDialog(context);
           }),
-          body: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Container(
-                // Use Container here to ensure the ListView is a RenderBox
-                decoration: const BoxDecoration(
-                  color: AppColors.white,
-                ),
-                child: ListView.separated(
-                  itemCount: state.types.length,
-                  shrinkWrap: true,
-                  itemBuilder: (itemBuilderContext, index) {
-                    return RawMaterialTypeItem(
-                      name: state.types[index].name,
-                      onTapEdit: () {
-                        showEditDialog(
-                            context: context, type: state.types[index]);
+          body: state.isLoading == true
+              ? const ShimmerLoading() // Show shimmer loading while data is being fetched
+              : state.types.isEmpty
+                  ? Center(
+                      child: Lottie.asset(
+                        'assets/lottie/empty.json',
+                        // Load the Lottie animation for empty state
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: state.types.length,
+                      shrinkWrap: true,
+                      itemBuilder: (itemBuilderContext, index) {
+                        return RawMaterialTypeItem(
+                          name: state.types[index].name,
+                          onTapEdit: () {
+                            showEditDialog(
+                                context: context,
+                                type: state.types[index]);
+                          },
+                          onTapDelete: () {
+                            showDeleteDialog(context, state.types[index]);
+                          },
+                        );
                       },
-                      onTapDelete: () {
-                        showDeleteDialog(context, state.types[index]);
+                      separatorBuilder: (context, index) {
+                        return Container(
+                          height: 1,
+                          color: AppColors.steelGrey.withOpacity(0.2),
+                        );
                       },
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return Container(
-                      height: 1,
-                      color: AppColors.steelGrey.withOpacity(0.2),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+                    ),
         ),
       ),
     );

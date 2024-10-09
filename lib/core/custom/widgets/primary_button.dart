@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../theme/style_res.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
     required this.title,
+    this.backgroundColor,
     this.onPressed,
     this.width,
     this.height = 48,
@@ -12,6 +14,7 @@ class PrimaryButton extends StatelessWidget {
   });
 
   final String title;
+  final Color? backgroundColor;
   final VoidCallback? onPressed;
   final double? width;
   final double? height;
@@ -24,7 +27,10 @@ class PrimaryButton extends StatelessWidget {
       width: width,
       child: TextButton(
           onPressed: onPressed,
-          style: kButtonShadowThemeStyle,
+          style: backgroundColor == null
+              ? kButtonShadowThemeStyle
+              : kButtonShadowThemeStyle.copyWith(
+                  backgroundColor: WidgetStateProperty.all(backgroundColor)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

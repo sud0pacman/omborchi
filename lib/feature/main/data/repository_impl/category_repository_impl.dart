@@ -6,7 +6,6 @@ import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/category_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/category_network.dart';
-
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
 
@@ -27,7 +26,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
     if (hasNetwork) {
       now = DateTime.now();
 
-      final Id localId = await isarHelper.addCategory(category.copyWith(id: null, updatedAt: now).toLocal());
+      final Id localId = await isarHelper
+          .addCategory(category.copyWith(id: null, updatedAt: now).toLocal());
 
       final networkRes = await categoryRemoteDataSource.createCategory(
           category.copyWith(id: localId, updatedAt: now).toNetwork());

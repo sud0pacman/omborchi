@@ -22,3 +22,22 @@ String capitalizeFirstLetter(String input) {
   if (input.isEmpty) return input;
   return input[0].toUpperCase() + input.substring(1);
 }
+
+String replaceSpaceWithX(String input) {
+  // String ichidagi birinchi bo'shliq indeksini topamiz
+  int spaceIndex = input.indexOf(' ');
+
+  // Agar bo'shliq topilgan bo'lsa, uni " X " bilan almashtiramiz
+  if (spaceIndex != -1) {
+    return input.substring(0, spaceIndex) +
+        ' X ' +
+        input.substring(spaceIndex + 1);
+  }
+
+  // Agar bo'shliq bo'lmasa, asl stringni qaytaramiz
+  return input;
+}
+
+int removeNonDigits(String input) {
+  return int.parse(input.replaceAll(RegExp(r'\D'), ''));
+}

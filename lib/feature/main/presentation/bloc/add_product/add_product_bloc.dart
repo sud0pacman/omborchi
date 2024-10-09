@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
+import 'package:dio/dio.dart';
+import 'package:omborchi/core/custom/extensions/string_extensions.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
+import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'add_product_event.dart';
 part 'add_product_state.dart';
@@ -30,15 +34,52 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
     });
 
     on<GetRawMaterialsWithTypes>((event, emit) async {
-      final rawMaterialsRes =
-          await productRepository.getRawMaterialsWithTypes();
+      final res = await productRepository.getRawMaterialsWithTypes();
 
-      AppRes.logger.i(rawMaterialsRes.toString());
+      AppRes.logger.i(res.toString());
 
-      if (rawMaterialsRes is Success) {
-        emit(state.copyWith(rawMaterials: rawMaterialsRes.value));
+      if (res is Success) {
+        final Map<RawMaterialType, List<RawMaterial>> rawMaterials = res.value;
+
+        emit(state.copyWith(rawMaterials: rawMaterials));
+      } else if (res is NoInternet) {
+        emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
+      } else if (res is GenericError) {
+        emit(state.copyWith(error: 'Qandaydir xatolik'));
       } else {
-        AppRes.logger.e(rawMaterialsRes.exception);
+        emit(state.copyWith(error: 'Qandaydir xatolik'));
+      }
+    });
+    on<AddProduct>((event, emit) async {
+      final imageName = "${DateTime.now()}.jpg";
+      var image = event.productModel.pathOfPicture ?? "";
+      if (image.isFilePath()) {
+        final response = await productRepository.uploadImage(imageName, image);
+        if (response is Success) {
+          image = response.value;
+          AppRes.logger.w(image);
+          final res = await productRepository
+              .createProduct(event.productModel.copyWith(pathOfPicture: image));
+          if (res is Success) {
+            final Directory appDir = await getApplicationDocumentsDirectory();
+            final String localImagePath = '${appDir.path}/$imageName';
+
+            await Dio().download(image, localImagePath);
+
+            AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
+            AppRes.logger.w(localImagePath);
+            emit(state.copyWith(isSuccess: true, isBack: true));
+            productRepository.saveProductToLocal(event.productModel
+                .copyWith(pathOfPicture: localImagePath)
+                .toEntity());
+          } else if (res is NoInternet) {
+            emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
+          } else if (res is GenericError) {
+            emit(state.copyWith(error: 'Qandaydir xatolik'));
+          } else {
+            emit(state.copyWith(error: 'Qandaydir xatolik'));
+          }
+        } else if (response is GenericError) {}
       }
     });
   }

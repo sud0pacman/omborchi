@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
+import 'package:omborchi/feature/main/data/model/local_model/product_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
 import 'package:path_provider/path_provider.dart'; // For getting the directory path
@@ -22,7 +23,12 @@ class IsarHelper {
 
     // Open the Isar instance only if it's not already opened
     _isarInstance = await Isar.open(
-      [TypeEntitySchema, RawMaterialEntitySchema, CategoryEntitySchema],
+      [
+        TypeEntitySchema,
+        RawMaterialEntitySchema,
+        CategoryEntitySchema,
+        ProductEntitySchema
+      ],
       directory: dir.path,
     );
 
@@ -33,7 +39,7 @@ class IsarHelper {
   Future<int> addType(TypeEntity type) async {
     final isar = await db;
     return await isar.writeTxn<int>(() async {
-      return await isar.typeEntitys.put(type); // Insert type and return id
+      return await isar.typeEntitys.put(type);
     });
   }
 
@@ -176,6 +182,71 @@ class IsarHelper {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.categoryEntitys.deleteAll(ids);
+    });
+  }
+
+  // Add a single Product
+  Future<int> addProduct(ProductEntity product) async {
+    final isar = await db;
+    return await isar.writeTxn<int>(() async {
+      return await isar.productEntitys.put(product);
+    });
+  }
+
+  // Add a list of Products
+  Future<void> addProducts(List<ProductEntity> products) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.putAll(products);
+    });
+  }
+
+  Future<List<ProductEntity?>> getProduct(int nomer) async {
+    final isar = await db;
+    final res = await isar.productEntitys.where().findAll();
+    final nomerString = nomer.toString();
+    final filteredRes = res.where((product) {
+      return product.nomer.toString().startsWith(nomerString);
+    }).toList();
+
+    return filteredRes;
+  }
+
+  // Get all products
+  Future<List<ProductEntity>> getAllProducts() async {
+    final isar = await db;
+    return await isar.productEntitys.where().findAll();
+  }
+
+  // Update a product
+  Future<void> updateProduct(ProductEntity product) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.put(product);
+    });
+  }
+
+  // Delete a product by ID
+  Future<void> deleteProduct(int id) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.delete(id);
+    });
+  }
+
+  // Delete all products by a list of IDs
+  Future<void> deleteProductsByIds(List<int> ids) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.deleteAll(ids);
+    });
+  }
+
+  // Additional bulk insert for products
+  Future<void> insertAllProducts(List<ProductEntity> products) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.putAll(products);
     });
   }
 

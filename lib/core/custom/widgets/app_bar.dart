@@ -7,6 +7,7 @@ AppBar simpleAppBar({
   required String leadingIcon,
   required VoidCallback onTapLeading,
   required String title,
+  String? actionTitle,
   List<String>? actions,
   Function(int)? onTapAction,
 }) {
@@ -24,6 +25,14 @@ AppBar simpleAppBar({
           //     const ColorFilter.mode(AppColors.midnightBlue, BlendMode.srcIn),
         )),
     actions: [
+      if (actionTitle != null)
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Text(
+            actionTitle,
+            style: boldWhite.copyWith(fontSize: 18),
+          ),
+        ),
       if (actions != null) 
         for (int i = 0; i < actions.length; ++i) 
           IconButton(

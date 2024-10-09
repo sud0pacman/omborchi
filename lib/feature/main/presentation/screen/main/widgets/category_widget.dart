@@ -19,33 +19,36 @@ class CategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      style: kButtonThemeStyle.copyWith(
-          padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(
-            vertical: 8,
-          )),
-          backgroundColor: WidgetStatePropertyAll(
-              isActive ? AppColors.primary.withOpacity(.8) : AppColors.white)),
-      icon: Container(
-        width: 86,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.asset(
-              AssetRes.icFolder,
-              width: 46,
-              height: 46,
-            ),
-            Text(
-              '$name ($count)',
-              style: psemibold.copyWith(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            )
-          ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: IconButton(
+        onPressed: onTap,
+        style: kButtonThemeStyle.copyWith(
+            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(
+              vertical: 8,
+            )),
+            backgroundColor: WidgetStatePropertyAll(
+                isActive ? AppColors.primary.withOpacity(.8) : AppColors.white)),
+        icon: Container(
+          width: 86,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                AssetRes.icFolder,
+                width: 46,
+                height: 46,
+              ),
+              Text(
+                '$name ($count)',
+                style: psemibold.copyWith(fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              )
+            ],
+          ),
         ),
       ),
     );

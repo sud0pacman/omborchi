@@ -6,14 +6,17 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:image_picker/image_picker.dart';
-
 abstract interface class ProductRemoteDataSource {
   Future<State> getProducts(int categoryId);
+
   Future<State> createProduct(ProductNetwork product);
+
   Future<State> updateProduct(ProductNetwork product);
+
   Future<State> deleteProduct(ProductNetwork product);
-  Future<State> uploadImage(String imageName, XFile file);
+
+  Future<State> uploadImage(String imageName, String image);
+
   Future<State> downloadImage({required String path, required String name});
 }
 
@@ -120,17 +123,23 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<State> uploadImage(String imageName, XFile image) async {
+  Future<State> uploadImage(String imageName, String image) async {
     try {
-      final bytes = await image.readAsBytes();
-      String path = 'images/$imageName'; // Supabase'da rasm saqlanadigan yo'l
-      final response = await Supabase.instance.client.storage
+      final bytes = await File(image).readAsBytes();
+      String path = 'images/$imageName';
+      await Supabase.instance.client.storage
           .from(ExpenseFields.productImageBucket)
-          .uploadBinary(path, bytes);
+          .uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
 
-      AppRes.logger.t(response);
+      final String downloadUrl = Supabase.instance.client.storage
+          .from(ExpenseFields.productImageBucket)
+          .getPublicUrl(path);
 
-      return Success(response);
+      return Success(downloadUrl);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));

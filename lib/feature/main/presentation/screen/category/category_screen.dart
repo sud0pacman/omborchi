@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:lottie/lottie.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
 import 'package:omborchi/core/custom/widgets/dialog/info_dialog.dart';
 import 'package:omborchi/core/custom/widgets/dialog/text_field_dialog.dart';
 import 'package:omborchi/core/custom/widgets/floating_action_button.dart';
+import 'package:omborchi/core/custom/widgets/shimmer_loading.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/presentation/bloc/category/category_bloc.dart';
 import 'package:omborchi/feature/main/presentation/screen/category/widgets/category_item.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -36,9 +39,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   void initState() {
     super.initState();
-
     _bloc.add(GetCategories());
-
     _nameController.addListener(_onNameChanged);
   }
 
@@ -51,11 +52,41 @@ class _CategoryScreenState extends State<CategoryScreen> {
           // TODO: implement listener
         },
         builder: (context, state) {
+          if (state.isLoading == true) {
+            return Scaffold(
+              appBar: simpleAppBar(
+                leadingIcon: AssetRes.icBack,
+                onTapLeading: () {
+                  Navigator.pop(context);
+                },
+                title: 'Kategoriyalar'.tr,
+              ),
+              body: const ShimmerLoading(),
+            );
+          }
+
+          if (state.categories.isEmpty) {
+            return Scaffold(
+              appBar: simpleAppBar(
+                leadingIcon: AssetRes.icBack,
+                onTapLeading: () {
+                  Navigator.pop(context);
+                },
+                title: 'Kategoriyalar'.tr,
+              ),
+              body: Center(
+                child: Lottie.asset('assets/lottie/empty.json'),
+              ),
+            );
+          }
+
           return Scaffold(
             backgroundColor: AppColors.background,
             appBar: simpleAppBar(
               leadingIcon: AssetRes.icBack,
-              onTapLeading: () {},
+              onTapLeading: () {
+                Navigator.pop(context);
+              },
               title: 'Kategoriyalar'.tr,
               actions: [AssetRes.icSynchronization],
               onTapAction: (p0) {
@@ -89,6 +120,28 @@ class _CategoryScreenState extends State<CategoryScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    return ListView.builder(
+      itemCount: 6, // number of shimmer items
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: ListTile(
+              title: Container(
+                width: double.infinity,
+                height: 20.0, // height of the text
+                color: Colors.white, // shimmer effect for text
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

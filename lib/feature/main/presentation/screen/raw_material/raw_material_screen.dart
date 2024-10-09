@@ -41,7 +41,8 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
     return BlocProvider.value(
       value: _bloc,
       child: BlocConsumer<RawMaterialBloc, RawMaterialState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+        },
         builder: (context, state) {
           return DefaultTabController(
               length: state.rawMaterials.length,
@@ -50,7 +51,9 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                 backgroundColor: AppColors.background,
                 appBar: rawMaterialAppBar(
                     title: "Xomashyolar".tr,
-                    onTapLeading: () {},
+                    onTapLeading: () {
+                      Navigator.pop(context);
+                    },
                     actions: [
                       IconButton(
                           onPressed: () {
@@ -224,3 +227,4 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
     );
   }
 }
+

@@ -46,3 +46,6 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
     return TextSelection.collapsed(offset: text.length);
   }
 }
+String formatNumber(String number) {
+  return number.replaceAll(RegExp(r'[,\.]'), '');
+}

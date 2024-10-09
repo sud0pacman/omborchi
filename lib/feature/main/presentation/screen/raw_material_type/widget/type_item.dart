@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/pop_up_menu.dart';
+import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:popover/popover.dart';
@@ -21,6 +22,7 @@ class RawMaterialTypeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: kButtonWhiteStyle.copyWith(
+        backgroundColor: MaterialStateProperty.all(AppColors.background),
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
         shape: const WidgetStatePropertyAll(RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(0)),

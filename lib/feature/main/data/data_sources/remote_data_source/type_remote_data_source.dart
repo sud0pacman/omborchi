@@ -69,12 +69,12 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
     try {
       final response = await supabaseClient
           .from(ExpenseFields.rawMaterialTypeTable)
-          .select();
-
+          .select('*');
+      AppRes.logger.t(response.length);
       final res =
-          response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
+              response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
 
-      AppRes.logger.t(res.length);
+
 
       return Success(res);
     } on SocketException catch (e) {
