@@ -41,3 +41,24 @@ String replaceSpaceWithX(String input) {
 int removeNonDigits(String input) {
   return int.parse(input.replaceAll(RegExp(r'\D'), ''));
 }
+
+extension StringExtensions on String {
+  int toIntOrZero() {
+    return convertToInt(this);
+  }
+}
+
+int convertToInt(String number) {
+  if (number.isEmpty) {
+    return 0;
+  }
+  // Remove commas from the string
+  String cleanedNumber = number.replaceAll(',', '');
+
+  // Convert the cleaned string to an integer
+  return int.parse(cleanedNumber);
+}
+
+Future<bool?> navigateToRoute(BuildContext context, String routeName) async {
+  return await Navigator.pushNamed<bool?>(context, routeName);
+}

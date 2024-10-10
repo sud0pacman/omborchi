@@ -6,7 +6,8 @@ class ProductNetwork {
   final int? id;
   final int nomer;
   final String? pathOfPicture;
-  final String? razmer;
+  final int? boyi;
+  final int? eni; // Yangi field qo'shildi
   final int? xizmat;
   final int? foyda;
   final int? sotuv;
@@ -20,7 +21,8 @@ class ProductNetwork {
     this.id,
     required this.nomer,
     this.pathOfPicture,
-    this.razmer,
+    this.boyi,
+    this.eni, // Constructorga qo'shildi
     this.xizmat,
     this.foyda,
     this.sotuv,
@@ -35,7 +37,8 @@ class ProductNetwork {
     int? id,
     int? nomer,
     String? pathOfPicture,
-    String? razmer,
+    int? boyi,
+    int? eni, // CopyWith metodiga qo'shildi
     int? xizmat,
     int? foyda,
     int? sotuv,
@@ -49,7 +52,8 @@ class ProductNetwork {
       id: id ?? this.id,
       nomer: nomer ?? this.nomer,
       pathOfPicture: pathOfPicture ?? this.pathOfPicture,
-      razmer: razmer ?? this.razmer,
+      boyi: boyi ?? this.boyi,
+      eni: eni ?? this.eni, // Yangi fieldda ham nusxa olinadi
       xizmat: xizmat ?? this.xizmat,
       foyda: foyda ?? this.foyda,
       sotuv: sotuv ?? this.sotuv,
@@ -65,7 +69,8 @@ class ProductNetwork {
     return {
       'nomer': nomer,
       'path_of_picture': pathOfPicture,
-      'razmer': razmer,
+      'boyi': boyi,
+      'eni': eni, // toJson ga qo'shildi
       'xizmat': xizmat,
       'foyda': foyda,
       'sotuv': sotuv,
@@ -82,19 +87,16 @@ class ProductNetwork {
       pathOfPicture: map['path_of_picture'] != null
           ? map['path_of_picture'] as String
           : null,
-      razmer: map['razmer'] != null ? map['razmer'] as String : null,
+      boyi: map['boyi'] != null ? map['boyi'] as int : null,
+      eni: map['eni'] != null ? map['eni'] as int : null, // fromJson uchun qo'shildi
       xizmat: map['xizmat'] != null ? map['xizmat'] as int : null,
       foyda: map['foyda'] != null ? map['foyda'] as int : null,
       sotuv: map['sotuv'] != null ? map['sotuv'] as int : null,
-      description:
-          map['description'] != null ? map['description'] as String : null,
+      description: map['description'] != null ? map['description'] as String : null,
       categoryId: map['category_id'] != null ? map['category_id'] as int : null,
-      createdAt:
-          map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
-      isVerified:
-          map['is_verified'] != null ? map['is_verified'] as bool : false,
-      updatedAt:
-          map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
+      createdAt: map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
+      isVerified: map['is_verified'] != null ? map['is_verified'] as bool : false,
+      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
     );
   }
 
@@ -103,7 +105,8 @@ class ProductNetwork {
       id: id,
       nomer: nomer,
       pathOfPicture: pathOfPicture,
-      razmer: razmer,
+      boyi: boyi,
+      eni: eni, // Modelga ham qo'shildi
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,
@@ -117,16 +120,17 @@ class ProductNetwork {
 
   @override
   String toString() {
-    return 'ProductNetwork{id: $id, nomer: $nomer, pathOfPicture: $pathOfPicture, razmer: $razmer, xizmat: $xizmat, foyda: $foyda, sotuv: $sotuv, description: $description, categoryId: $categoryId, createdAt: $createdAt, isVerified: $isVerified, updatedAt: $updatedAt}';
+    return 'ProductNetwork{id: $id, nomer: $nomer, pathOfPicture: $pathOfPicture, boyi: $boyi, eni: $eni, xizmat: $xizmat, foyda: $foyda, sotuv: $sotuv, description: $description, categoryId: $categoryId, createdAt: $createdAt, isVerified: $isVerified, updatedAt: $updatedAt}';
   }
 }
+
 extension ProductNetworkExtension on ProductNetwork {
   ProductEntity toEntity() {
     return ProductEntity(
-      //Handling null id with auto-increment
       nomer: nomer,
       pathOfPicture: pathOfPicture,
-      razmer: razmer,
+      boyi: boyi,
+      eni: eni, // Entityga qo'shildi
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,

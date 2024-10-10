@@ -70,8 +70,12 @@ class TypeRepositoryImpl implements TypeRepository {
     if (isFullRefresh) {
       final res = await typeRemoteDataSource.getTypes();
       now = DateTime.now();
-      AppRes.logger.w(res.exception);
       if (res is Success) {
+        // final List<RawMaterialTypeNetwork> response =(res.value);
+        // if(response.isEmpty)
+        //   {
+        //
+        //   }
       await setUpdateTime();
       
         final List<TypeEntity> typeEntityList =

@@ -57,26 +57,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
               appBar: simpleAppBar(
                 leadingIcon: AssetRes.icBack,
                 onTapLeading: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 },
                 title: 'Kategoriyalar'.tr,
               ),
               body: const ShimmerLoading(),
-            );
-          }
-
-          if (state.categories.isEmpty) {
-            return Scaffold(
-              appBar: simpleAppBar(
-                leadingIcon: AssetRes.icBack,
-                onTapLeading: () {
-                  Navigator.pop(context);
-                },
-                title: 'Kategoriyalar'.tr,
-              ),
-              body: Center(
-                child: Lottie.asset('assets/lottie/empty.json'),
-              ),
             );
           }
 
@@ -98,25 +83,29 @@ class _CategoryScreenState extends State<CategoryScreen> {
             floatingActionButton: primaryFloatingActionButton(onTap: () {
               showAddDialog(context);
             }),
-            body: ListView.separated(
-              shrinkWrap: true,
-              itemCount: state.categories.length,
-              itemBuilder: (context, index) {
-                return CategoryItem(
-                  name: state.categories[index].name,
-                  onTapEdit: () {
-                    showEditDialog(context, state.categories[index]);
-                  },
-                  onTapDelete: () {
-                    showDeleteDialog(context, state.categories[index]);
-                  },
-                );
-              },
-              separatorBuilder: (context, index) => Container(
-                height: 1,
-                color: AppColors.steelGrey.withOpacity(0.2),
-              ),
-            ),
+            body: state.categories.isEmpty
+                ? Center(
+                    child: Lottie.asset('assets/lottie/empty.json'),
+                  )
+                : ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: state.categories.length,
+                    itemBuilder: (context, index) {
+                      return CategoryItem(
+                        name: state.categories[index].name,
+                        onTapEdit: () {
+                          showEditDialog(context, state.categories[index]);
+                        },
+                        onTapDelete: () {
+                          showDeleteDialog(context, state.categories[index]);
+                        },
+                      );
+                    },
+                    separatorBuilder: (context, index) => Container(
+                      height: 1,
+                      color: AppColors.steelGrey.withOpacity(0.2),
+                    ),
+                  ),
           );
         },
       ),

@@ -20,40 +20,53 @@ class RouteManager {
   static const String productViewScreen = '/productViewScreen';
   static const String syncScreen = '/syncScreen';
 
-  static generateRoute(RouteSettings settings) {
+  static Route<bool?>? generateRoute(RouteSettings settings) {
     var args = settings.arguments;
-    const duration = Duration(milliseconds: 200);
 
     switch (settings.name) {
-      case '/':
       case splashScreen:
-        return MaterialPageRoute(
+        return MaterialPageRoute<bool?>(
           builder: (_) => const SplashScreen(),
         );
 
       case mainScreen:
-        return MaterialPageRoute(builder: (_) => const MainScreen());
+        return MaterialPageRoute<bool?>(
+          builder: (_) => const MainScreen(),
+        );
 
       case addProductScreen:
-        return MaterialPageRoute(builder: (_) => const AddProductScreen());
+        return MaterialPageRoute<bool?>(
+          builder: (_) => const AddProductScreen(),
+        );
 
       case categoryScreen:
-        return MaterialPageRoute(builder: (_) => const CategoryScreen());
+        return MaterialPageRoute<bool?>(
+          builder: (_) => const CategoryScreen(),
+        );
 
       case rawMaterialScreen:
-        return MaterialPageRoute(builder: (_) => const RawMaterialScreen());
+        return MaterialPageRoute<bool?>(
+          builder: (_) => const RawMaterialScreen(),
+        );
 
       case rawMaterialTypeScreen:
-        return MaterialPageRoute(builder: (_) => const RawMaterialTypeScreen());
+        return MaterialPageRoute<bool?>(
+          builder: (_) => const RawMaterialTypeScreen(),
+        );
+
       case syncScreen:
-        return MaterialPageRoute(builder: (_) => const SyncScreen());
+        return MaterialPageRoute<bool?>(
+          builder: (_) => const SyncScreen(),
+        );
 
       case productViewScreen:
-        final product = settings.arguments
-            as ProductModel; // Argument sifatida productni qabul qilish
-        return MaterialPageRoute(
+        final product = settings.arguments as ProductModel;
+        return MaterialPageRoute<bool?>(
           builder: (_) => ProductViewScreen(product: product),
         );
+
+      default:
+        return null;
     }
   }
 }

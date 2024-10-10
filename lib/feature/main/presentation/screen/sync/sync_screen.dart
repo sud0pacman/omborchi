@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:omborchi/config/router/app_routes.dart';
-import 'package:omborchi/core/custom/widgets/app_bar.dart';
 import 'package:omborchi/core/custom/widgets/loading_dialog.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
 import 'package:omborchi/core/modules/app_module.dart';
@@ -39,9 +38,8 @@ class _SyncScreenState extends State<SyncScreen> {
           listener: (context, state) {
             if (state.isLoading) {
               showLoadingDialog(context);
-            }
-            if (state.isSuccess) {
-              Navigator.pushNamed(context, RouteManager.mainScreen);
+            } else if (state.isSuccess) {
+              Navigator.pushReplacementNamed(context, RouteManager.mainScreen); // MainScreen'ga o'tish
             }
           },
           builder: (context, state) {
@@ -56,7 +54,8 @@ class _SyncScreenState extends State<SyncScreen> {
                       children: [
                         Center(
                           child: Container(
-                            color: AppColors.background, // Lottie background color
+                            color: AppColors.background,
+                            // Lottie background color
                             child: Lottie.asset(
                               height: 172,
                               'assets/lottie/cloud.json',
@@ -80,7 +79,9 @@ class _SyncScreenState extends State<SyncScreen> {
                       _bloc.add(SyncGetDataEvent());
                     },
                   ),
-                  const SizedBox(height: 56,)
+                  const SizedBox(
+                    height: 56,
+                  )
                 ],
               ),
             );

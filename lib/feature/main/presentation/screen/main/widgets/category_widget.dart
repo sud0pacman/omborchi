@@ -43,7 +43,7 @@ class CategoryWidget extends StatelessWidget {
                 height: 46,
               ),
               Text(
-                '$name ($count)',
+                name,
                 style: psemibold.copyWith(fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               )

@@ -25,36 +25,50 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
     return Scaffold(
       appBar: simpleAppBar(
         leadingIcon: AssetRes.icBack,
-        actionTitle: replaceSpaceWithX(widget.product.razmer ?? '0 0'),
+        actionTitle: "${widget.product.boyi ?? 0} X ${widget.product.eni ?? 0}",
         onTapLeading: () {
           closeScreen(context);
         },
         title: "#${widget.product.nomer.toString()}",
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: InteractiveViewer(
-                  boundaryMargin: const EdgeInsets.all(20.0),
-                  minScale: 0.5,
-                  maxScale: 4.0, // Maximum zoom level
-                  child: Image.file(
-                    File(widget.product.pathOfPicture ?? ""),
-                    fit: BoxFit.contain, // Adjust fit to allow for zooming
+          Align(
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: InteractiveViewer(
+                        boundaryMargin: const EdgeInsets.all(20.0),
+                        minScale: 0.5,
+                        maxScale: 4.0, // Maximum zoom level
+                        child: Image.file(
+                          File(widget.product.pathOfPicture ?? ""),
+                          fit:
+                              BoxFit.contain, // Adjust fit to allow for zooming
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 108), // Leave space for UnderSaveButton
+              ],
             ),
           ),
-          UnderSaveButton(
-            title: "Malumotlarni ko'rish".tr,
-            onPressed: () {
-              showProductDetailsBottomSheet(context, widget.product);
-            },
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: UnderSaveButton(
+              title: "Malumotlarni ko'rish".tr,
+              onPressed: () {
+                showProductDetailsBottomSheet(context, widget.product);
+              },
+            ),
           ),
         ],
       ),

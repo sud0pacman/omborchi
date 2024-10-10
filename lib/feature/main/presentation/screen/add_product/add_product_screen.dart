@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:money_formatter/money_formatter.dart';
 import 'package:omborchi/core/custom/formatters/thousand_formatter.dart';
+import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
 import 'package:omborchi/core/custom/widgets/custom_text_field.dart';
 import 'package:omborchi/core/modules/app_module.dart';
@@ -72,7 +75,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String? imageErrorText;
 
   void _validateInputs() {
-    _validateRawMaterialItems();
     setState(() {
       // Kategoriya validation
       if (selectedCategory == null) {
@@ -86,6 +88,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
         numberErrorText = "Nomer to'ldirilmagan";
       } else {
         numberErrorText = null;
+      }
+      if (serviceController.text.isEmpty) {
+        serviceErrorText =
+            "Xizmat to'ldirilmagan akjsdgaaaaaaaaasf ahyufufufufufufufufufufufufufuf";
+      } else {
+        serviceErrorText = null;
+      }
+      if (benefitController.text.isEmpty) {
+        benefitErrorText = "Foyda to'ldirilmagan";
+      } else {
+        benefitErrorText = null;
       }
 
       // Height validation
@@ -105,28 +118,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     // Agar hammasi to'g'ri bo'lsa, mahsulotni qo'shish funksiyasini chaqiramiz
     // Agar rasm tanlanmagan bo'lsa, xato xabarini chiqaramiz
-    if (!isImageSelected) {
-      imageErrorText = "Iltimos, rasm tanlang";
-    } else {
-      imageErrorText = null;
-    }
+    image != null ? imageErrorText = null : imageErrorText = "Iltimos, rasm tanlang";
     if (categoryErrorText == null &&
         numberErrorText == null &&
         heightErrorText == null &&
-        isImageSelected &&
+        serviceErrorText == null &&
+        benefitErrorText == null &&
+        imageErrorText == null &&
         widthErrorText == null) {
       _submitProduct();
     }
   }
-  void _calculateMarketCost() {
-    double service = double.tryParse(serviceController.text) ?? 0.0;
-    double benefit = double.tryParse(benefitController.text) ?? 0.0;
 
+  void _calculateMarketCost() {
+    double service = serviceController.text.toIntOrZero().toDouble();
+    double benefit = benefitController.text.toIntOrZero().toDouble();
     setState(() {
       productMarketCost = productCost + service + benefit;
     });
   }
-
 
   @override
   void initState() {
@@ -142,7 +152,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     // Har bir xomashyo elementining qiymatini umumiy tannarxga qo'shamiz
     for (var item in rawMaterialItems) {
-      double quantity = double.tryParse(item.controller.text) ?? 0.0;
+      double quantity = convertToInt(item.controller.text).toDouble();
       if (item.selectedRawMaterial != null) {
         totalCost += quantity * (item.selectedRawMaterial?.price ?? 0.0);
       }
@@ -150,7 +160,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     setState(() {
       productCost = totalCost;
-      productMarketCost = productCost;
+      productMarketCost = productCost +
+          serviceController.text.toIntOrZero() +
+          benefitController.text.toIntOrZero();
     });
   }
 
@@ -161,7 +173,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       appBar: simpleAppBar(
         leadingIcon: AssetRes.icBack,
         onTapLeading: () {
-          Navigator.pop(context);
+          Navigator.pop(context, true);
         },
         title: "Maxsulot qo'shish".tr,
       ),
@@ -174,9 +186,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 content: Text("Successfully added!"),
                 behavior: SnackBarBehavior.floating,
               ));
-              Navigator.pop(context);
+              closeDialog(context);
+              Navigator.pop(context, true);
             }
-            if(state.isLoading == true) {
+            if (state.isLoading == true) {
               showLoadingDialog(context);
             }
 
@@ -192,108 +205,112 @@ class _AddProductScreenState extends State<AddProductScreen> {
             }
           },
           builder: (context, state) {
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 32),
-                        Center(
-                          child: PickedImage(
-                            image: image,
-                            onTap: () async {
-                              image = await imagePicker.pickImage(
-                                  source: ImageSource.gallery,
-                                  imageQuality: 50);
-                              imageErrorText = null;
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                        if (imageErrorText != null)
-                          Align(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: Text(imageErrorText!,
-                                  textAlign: TextAlign.start,
-                                  style: mediumTheme.copyWith(
-                                      overflow: TextOverflow.ellipsis,
-                                      fontSize: 14,
-                                      color: AppColors.red,
-                                      height: 1)),
+            return Stack(children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 32),
+                          Center(
+                            child: PickedImage(
+                              image: image,
+                              onTap: () async {
+                                image = await imagePicker.pickImage(
+                                    source: ImageSource.gallery,
+                                    imageQuality: 50);
+                                imageErrorText = null;
+                                setState(() {});
+                              },
                             ),
                           ),
-                        const SizedBox(height: 32),
-                        _categorySelectorContainer(state),
-                        const SizedBox(height: 16),
-                        _serviceContainer(),
-                        const SizedBox(height: 16),
-                        for (int i = 0; i < rawMaterialItems.length; i++)
-                          Column(
-                            children: [
-                              addRawMaterialItem(
-                                textController: rawMaterialItems[i].controller,
-                                selectedRawMaterialType:
-                                    rawMaterialItems[i].selectedRawMaterialType,
-                                selectedRawMaterial:
-                                    rawMaterialItems[i].selectedRawMaterial,
-                                changedCost: (cost) {
-                                  _calculateTotalCost();
-                                },
-                                onRawMaterialTypeChanged:
-                                    (RawMaterialType? type) {
-                                  setState(() {
-                                    rawMaterialItems[i]
-                                        .selectedRawMaterialType = type;
-                                  });
-                                },
-                                onRawMaterialChanged: (RawMaterial? material) {
-                                  setState(() {
-                                    rawMaterialItems[i].selectedRawMaterial =
-                                        material;
-                                  });
-                                  _calculateTotalCost();
-                                },
+                          if (imageErrorText != null)
+                            Align(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12.0),
+                                child: Text(imageErrorText!,
+                                    textAlign: TextAlign.start,
+                                    style: mediumTheme.copyWith(
+                                        overflow: TextOverflow.ellipsis,
+                                        fontSize: 14,
+                                        color: AppColors.red,
+                                        height: 1)),
                               ),
-                              const SizedBox(height: 16),
-                            ],
+                            ),
+                          const SizedBox(height: 32),
+                          _categorySelectorContainer(state),
+                          const SizedBox(height: 16),
+                          _serviceContainer(),
+                          const SizedBox(height: 16),
+                          for (int i = 0; i < rawMaterialItems.length; i++)
+                            Column(
+                              children: [
+                                addRawMaterialItem(
+                                  textController:
+                                      rawMaterialItems[i].controller,
+                                  selectedRawMaterialType: rawMaterialItems[i]
+                                      .selectedRawMaterialType,
+                                  selectedRawMaterial:
+                                      rawMaterialItems[i].selectedRawMaterial,
+                                  changedCost: (cost) {
+                                    _calculateTotalCost();
+                                  },
+                                  onRawMaterialTypeChanged:
+                                      (RawMaterialType? type) {
+                                    setState(() {
+                                      rawMaterialItems[i]
+                                          .selectedRawMaterialType = type;
+                                    });
+                                  },
+                                  onRawMaterialChanged:
+                                      (RawMaterial? material) {
+                                    setState(() {
+                                      rawMaterialItems[i].selectedRawMaterial =
+                                          material;
+                                    });
+                                    _calculateTotalCost();
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
+                          productCostWidget(
+                              "Tannarx", productCost.toStringAsFixed(2)),
+                          const SizedBox(height: 16),
+                          productCostWidget(
+                              "Sotuv", productMarketCost.toStringAsFixed(2)),
+                          const SizedBox(height: 16),
+                          curdRawMaterialButtons(
+                            onTapPlus: () {
+                              setState(() {
+                                rawMaterialItems.add(RawMaterialItemData(
+                                    controller: TextEditingController()));
+                              });
+                            },
+                            onTapMinus: () {
+                              setState(() {
+                                if (rawMaterialItems.isNotEmpty) {
+                                  rawMaterialItems.removeLast();
+                                  _calculateTotalCost();
+                                }
+                              });
+                            },
                           ),
-                        productCostWidget(
-                            "Tannarx", productCost.toStringAsFixed(2)),
-                        const SizedBox(height: 16),
-                        productCostWidget(
-                            "Sotuv", productMarketCost.toStringAsFixed(2)),
-                        const SizedBox(height: 16),
-                        curdRawMaterialButtons(
-                          onTapPlus: () {
-                            setState(() {
-                              rawMaterialItems.add(RawMaterialItemData(
-                                  controller: TextEditingController()));
-                            });
-                          },
-                          onTapMinus: () {
-                            setState(() {
-                              if (rawMaterialItems.isNotEmpty) {
-                                rawMaterialItems.removeLast();
-                                _calculateTotalCost();
-                              }
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 36),
-                      ],
+                          const SizedBox(height: 132),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                UnderSaveButton(
-                  title: "Qo'shish".tr,
-                  onPressed: () {
-                    _validateInputs();
-                  },
-                )
-              ],
-            );
+                ],
+              ),
+              UnderSaveButton(
+                title: "Qo'shish".tr,
+                onPressed: () {
+                  _validateInputs();
+                },
+              )
+            ]);
           },
         ),
       ),
@@ -310,6 +327,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Column(
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: TextWithTextFieldSmokeWhiteWidget(
@@ -322,6 +340,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       _calculateMarketCost();
                     });
                   },
+                  inputFormatters: [ThousandsSeparatorInputFormatter()],
                   constraints: const BoxConstraints(maxHeight: 48),
                   hint: "Xizmat".tr,
                   errorText: serviceErrorText, // Error text maydoni
@@ -338,6 +357,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       _calculateMarketCost();
                     });
                   },
+                  inputFormatters: [ThousandsSeparatorInputFormatter()],
                   constraints: const BoxConstraints(maxHeight: 48),
                   hint: "Foyda".tr,
                   errorText: benefitErrorText, // Remove individual error text
@@ -345,21 +365,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
             ],
           ),
-// Display a combined error message below the Row
-          if (heightErrorText != null || widthErrorText != null)
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(heightErrorText ?? widthErrorText ?? '',
-                    textAlign: TextAlign.start,
-                    style: mediumTheme.copyWith(
-                        overflow: TextOverflow.ellipsis,
-                        fontSize: 14,
-                        color: AppColors.red,
-                        height: 1)),
-              ),
-            ),
         ],
       ),
     );
@@ -424,6 +429,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ),
           const SizedBox(height: 16),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: TextWithTextFieldSmokeWhiteWidget(
@@ -436,7 +442,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   },
                   constraints: const BoxConstraints(maxHeight: 48),
                   hint: "Bo'yi".tr,
-                  errorText: null, // Remove individual error text
+                  errorText: heightErrorText, // Remove individual error text
                 ),
               ),
               const SizedBox(width: 16),
@@ -451,26 +457,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   },
                   constraints: const BoxConstraints(maxHeight: 48),
                   hint: "Eni".tr,
-                  errorText: null, // Remove individual error text
+                  errorText: widthErrorText, // Remove individual error text
                 ),
               ),
             ],
           ),
-// Display a combined error message below the Row
-          if (heightErrorText != null || widthErrorText != null)
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(heightErrorText ?? widthErrorText ?? '',
-                    textAlign: TextAlign.start,
-                    style: mediumTheme.copyWith(
-                        overflow: TextOverflow.ellipsis,
-                        fontSize: 14,
-                        color: AppColors.red,
-                        height: 1)),
-              ),
-            ),
         ],
       ),
     );
@@ -507,56 +498,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  void _validateRawMaterialItems() {
-    bool isValid = true;
-
-    // Validate each raw material item
-    for (var item in rawMaterialItems) {
-      if (item.selectedRawMaterialType == null) {
-        item.errorText =
-            "Xomashyo turini tanlang"; // Error for raw material type
-        isValid = false;
-      } else if (item.selectedRawMaterial == null) {
-        item.errorText = "Xomashyo tanlang"; // Error for raw material
-        isValid = false;
-      } else if (item.controller.text.isEmpty ||
-          double.tryParse(item.controller.text) == 0) {
-        item.errorText =
-            "Soni noto'g'ri yoki to'ldirilmagan"; // Error for quantity
-        isValid = false;
-      } else {
-        item.errorText = null; // Clear error if valid
-      }
-    }
-
-    // Update UI to show errors
-    setState(() {});
-
-    if (isValid) {
-      _submitProduct(); // Proceed only if everything is valid
-    }
-  }
-
   void _submitProduct() {
     List<CostModel> costModels = rawMaterialItems.map((item) {
       return CostModel(
         productId: selectedCategory?.id ?? 0, // Adjust this based on your logic
         xomashyoId: item.selectedRawMaterial?.id ?? 0,
-        quantity: int.tryParse(item.controller.text) ?? 0,
+        quantity: item.controller.text.toIntOrZero(),
       );
     }).toList();
 
     _bloc.add(AddProduct(
       productModel: ProductModel(
-        nomer: int.parse(numberController.text),
+        nomer: (numberController.text.toIntOrZero()),
         pathOfPicture: image?.path,
         categoryId: selectedCategory?.id,
-        xizmat: int.parse(
-            serviceController.text.isEmpty ? "0" : serviceController.text),
-        foyda: int.parse(
-            benefitController.text.isEmpty ? "0" : benefitController.text),
+        xizmat: serviceController.text.toIntOrZero(),
+        foyda: benefitController.text.toIntOrZero(),
         sotuv: productMarketCost.toInt(),
-        razmer: "${heightController.text} ${widthController.text}",
+        boyi: heightController.text.toIntOrZero(),
+        eni: widthController.text.toIntOrZero(),
         isVerified: true,
       ),
       costModels: costModels, // Send the gathered list
@@ -622,14 +582,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
             textInputType: TextInputType.number,
             errorText: errorText,
             onChanged: (value) {
-              double quantity = double.tryParse(formatNumber(value)) ?? 0.0;
+              double quantity = convertToInt(value).toDouble();
               if (selectedRawMaterial != null) {
                 double newCost = quantity * (selectedRawMaterial.price ?? 0.0);
+                AppRes.logger
+                    .w("${convertToInt(value).toDouble()} || $newCost");
                 changedCost(newCost);
               }
             },
             constraints: const BoxConstraints(maxHeight: 48),
-            inputFormatters: [ThousandsSeparatorInputFormatter()],
+            inputFormatters: [ThousandsSeparatorInputFormatter(), LengthLimitingTextInputFormatter(9)],
             hint: "Soni".tr,
           ),
         ],
@@ -638,6 +600,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Widget productCostWidget(String title, String cost) {
+    MoneyFormatter fmf = MoneyFormatter(amount: double.parse(cost));
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -652,7 +615,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             style: medium.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
           ),
           Text(
-            "$cost so'm",
+            "${fmf.output.withoutFractionDigits} so'm",
             style: medium.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ],

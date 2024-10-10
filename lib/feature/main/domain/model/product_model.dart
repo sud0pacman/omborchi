@@ -7,7 +7,8 @@ class ProductModel {
   final int? id;
   final int nomer;
   final String? pathOfPicture;
-  final String? razmer;
+  final int? boyi;
+  final int? eni;
   final int? xizmat;
   final int? foyda;
   final int? sotuv;
@@ -21,7 +22,8 @@ class ProductModel {
     this.id,
     required this.nomer,
     this.pathOfPicture,
-    this.razmer,
+    this.boyi,
+    this.eni,
     this.xizmat,
     this.foyda,
     this.sotuv,
@@ -36,7 +38,8 @@ class ProductModel {
     int? id,
     int? nomer,
     String? pathOfPicture,
-    String? razmer,
+    int? boyi,
+    int? eni,
     int? xizmat,
     int? foyda,
     int? sotuv,
@@ -50,7 +53,8 @@ class ProductModel {
       id: id ?? this.id,
       nomer: nomer ?? this.nomer,
       pathOfPicture: pathOfPicture ?? this.pathOfPicture,
-      razmer: razmer ?? this.razmer,
+      boyi: boyi ?? this.boyi,
+      eni: eni ?? this.eni,
       xizmat: xizmat ?? this.xizmat,
       foyda: foyda ?? this.foyda,
       sotuv: sotuv ?? this.sotuv,
@@ -67,7 +71,8 @@ class ProductModel {
       id: network.id,
       nomer: network.nomer,
       pathOfPicture: network.pathOfPicture,
-      razmer: network.razmer,
+      boyi: network.boyi,
+      eni: network.eni,
       xizmat: network.xizmat,
       foyda: network.foyda,
       sotuv: network.sotuv,
@@ -83,7 +88,8 @@ class ProductModel {
       id: id,
       nomer: nomer,
       pathOfPicture: pathOfPicture,
-      razmer: razmer,
+      boyi: boyi,
+      eni: eni,
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,
@@ -97,7 +103,7 @@ class ProductModel {
 
   @override
   String toString() {
-    return 'ProductModel{id: $id, nomer: $nomer, pathOfPicture: $pathOfPicture, razmer: $razmer, xizmat: $xizmat, foyda: $foyda, sotuv: $sotuv, description: $description, categoryId: $categoryId, createdAt: $createdAt, isVerified: $isVerified, updatedAt: $updatedAt}';
+    return 'ProductModel{id: $id, nomer: $nomer, pathOfPicture: $pathOfPicture, boyi: $boyi, xizmat: $xizmat, foyda: $foyda, sotuv: $sotuv, description: $description, categoryId: $categoryId, createdAt: $createdAt, isVerified: $isVerified, updatedAt: $updatedAt}';
   }
 
   // Inside ProductMode
@@ -108,7 +114,8 @@ class ProductModel {
       id: this.id,
       nomer: this.nomer,
       pathOfPicture: this.pathOfPicture,
-      razmer: this.razmer,
+      boyi: this.boyi,
+      eni: this.eni,
       xizmat: this.xizmat,
       foyda: this.foyda,
       sotuv: this.sotuv,
@@ -126,7 +133,8 @@ extension ProductModelExtension on ProductModel {
       //Handling null id with auto-increment
       nomer: nomer,
       pathOfPicture: pathOfPicture,
-      razmer: razmer,
+      boyi: boyi,
+      eni: eni,
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,

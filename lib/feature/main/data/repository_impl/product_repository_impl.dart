@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:isar/isar.dart';
+import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
@@ -9,6 +13,7 @@ import 'package:omborchi/feature/main/data/model/remote_model/product_network.da
 import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/utils/consants.dart';
 import '../../domain/model/category_model.dart';
@@ -96,22 +101,48 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<State> syncProducts() async {
     try {
+      // Storage permission so'rash
+
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
         final response = await productRemoteDataSource.getProducts();
-        final localProducts = await fetchAllProductsFromLocal();
 
         if (response is Success) {
+          final localProducts = await fetchAllProductsFromLocal();
           final List<int> productIdList =
               localProducts.map((e) => e.id!).toList();
 
           final List<ProductNetwork> products = response.value;
+
+          final Directory appDir = await getApplicationDocumentsDirectory();
+          List<ProductNetwork> updatedProducts = [];
+
+          for (var product in products) {
+            if (product.pathOfPicture != null &&
+                product.pathOfPicture!.isNotEmpty) {
+              try {
+                final imageName =
+                    "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                final String localImagePath = '${appDir.path}/$imageName';
+                await Dio().download(product.pathOfPicture!, localImagePath);
+                updatedProducts
+                    .add(product.copyWith(pathOfPicture: localImagePath));
+              } catch (e) {
+                updatedProducts.add(product);
+              }
+            } else {
+              updatedProducts.add(product);
+            }
+          }
           final List<ProductEntity> productsEntity =
-              products.map((e) => e.toEntity()).toList();
+              updatedProducts.map((e) => e.toEntity()).toList();
+
           await isarHelper.deleteAllProducts(productIdList);
           await isarHelper.insertAllProducts(productsEntity);
-          final local = await fetchAllProductsFromLocal();
-          return Success(local);
+
+// Mahalliy saqlangan mahsulotlarni olish
+          final localData = await fetchAllProductsFromLocal();
+          return Success(localData);
         } else {
           return GenericError("Nimadir xato ketti");
         }
@@ -198,40 +229,59 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<List<ProductModel?>> fetchProductFromLocalByQuery(
-      String nomer,
-      String eni,
-      String boyi,
-      String narxi,
-      String marja,
-      int categoryId) async {
+    String nomer,
+    String eni,
+    String boyi,
+    String narxi,
+    String marja,
+    int categoryId,
+  ) async {
     final isar = await isarHelper.db;
 
-    final query = isar.productEntitys.filter().categoryIdEqualTo(categoryId);
+    // Parsing the strings into int ranges or setting default bounds if empty
+    final List<int> nomerRange = _parseRange(nomer);
+    final List<int> eniRange = _parseRange(eni);
+    final List<int> boyiRange = _parseRange(boyi);
+    final List<int> sotuvRange = _parseRange(narxi);
+    final List<int> foydaRange = _parseRange(marja);
 
-    // Helper function to extract lower and upper bo unds
-    void applyBetweenFilter(
-        String? value, Function(int lower, int upper) applyFilter) {
-      if (value != null && value.isNotEmpty) {
-        final parts = value.split(' ');
-        if (parts.length == 2) {
-          final lower = parts[0];
-          final upper = parts[1];
-          applyFilter(lower as int, upper as int);
-        }
-      }
-    }
+    final query = categoryId == 0
+        ? isar.productEntitys
+            .filter()
+            .nomerBetween(nomerRange[0], nomerRange[1])
+            .eniBetween(eniRange[0], eniRange[1])
+            .boyiBetween(boyiRange[0], boyiRange[1])
+            .sotuvBetween(sotuvRange[0], sotuvRange[1])
+            .foydaBetween(foydaRange[0], foydaRange[1])
+        : isar.productEntitys
+            .filter()
+            .categoryIdEqualTo(categoryId)
+            .nomerBetween(nomerRange[0], nomerRange[1])
+            .eniBetween(eniRange[0], eniRange[1])
+            .boyiBetween(boyiRange[0], boyiRange[1])
+            .sotuvBetween(sotuvRange[0], sotuvRange[1])
+            .foydaBetween(foydaRange[0], foydaRange[1]);
 
-    // Apply filters conditionally based on whether values are provided
-    applyBetweenFilter(nomer, query.nomerBetween);
-    // applyBetweenFilter(eni, query.eniBetween);
-    // applyBetweenFilter(boyi, query.boyiBetween);
-    // applyBetweenFilter(narxi, query.narxiBetween);
-    // applyBetweenFilter(marja, query.marjaBetween);
-
-    // Execute query and map result
     final products = await query.findAll();
 
-    return products.map((productEntity) => productEntity?.toModel()).toList();
+    return products.map((productEntity) => productEntity.toModel()).toList();
+  }
+
+// Helper method to parse the range from a string
+  List<int> _parseRange(String value) {
+    if (value.isEmpty) {
+      // If value is empty, we set a wide default range
+      return [0, 999999];
+    }
+
+    // Splitting the string by space and parsing the range values
+    final parts = value.split(' ');
+    final lower = parts[0].toIntOrZero();
+    final upper = (parts.length > 1)
+        ? parts[1].toIntOrZero()
+        : lower; // If only one number, treat it as both lower and upper bound
+
+    return [lower, upper];
   }
 
 // Method to update a product in Isar

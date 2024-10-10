@@ -9,11 +9,20 @@ class GetProductsByCategory extends MainEvent {
 
   GetProductsByCategory(this.categoryId);
 }
+
+class SyncProducts extends MainEvent {
+  final int categoryId;
+
+  SyncProducts(this.categoryId);
+}
+
 class GetProductById extends MainEvent {
   final int nomer;
 
   GetProductById(this.nomer);
-}class GetProductsByQuery extends MainEvent {
+}
+
+class GetProductsByQuery extends MainEvent {
   final String nomer;
   final String eni;
   final String boyi;
@@ -21,5 +30,6 @@ class GetProductById extends MainEvent {
   final String marja;
   final int categoryId;
 
-  GetProductsByQuery(this.nomer, this.eni, this.boyi, this.narxi, this.marja, this.categoryId);
+  GetProductsByQuery(
+      this.nomer, this.eni, this.boyi, this.narxi, this.marja, this.categoryId);
 }

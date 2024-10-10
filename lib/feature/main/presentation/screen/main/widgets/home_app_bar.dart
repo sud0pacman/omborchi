@@ -9,6 +9,7 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback onTapLeading;
   final VoidCallback onTapSearch;
   final VoidCallback onTapCancel;
+  final VoidCallback onTapRefresh;
   final Function(String value) onChanged;
 
   const SearchAppBar({
@@ -16,6 +17,7 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.onTapLeading,
     required this.onTapSearch,
     required this.onTapCancel,
+    required this.onTapRefresh,
     required this.onChanged,
   });
 
@@ -95,6 +97,20 @@ class _SearchAppBarState extends State<SearchAppBar> {
                 _searchController.clear();
               }
             });
+          },
+        ),
+        IconButton(
+          icon: SvgPicture.asset(
+            AssetRes.icSynchronization,
+            width: 24,
+            height: 24,
+            colorFilter: const ColorFilter.mode(
+              AppColors.white,
+              BlendMode.srcIn,
+            ),
+          ),
+          onPressed: () {
+            widget.onTapRefresh.call();
           },
         ),
       ],

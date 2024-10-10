@@ -13,7 +13,8 @@ class ProductEntity {
 
   String? pathOfPicture;
 
-  String? razmer;
+  int? boyi;
+  int? eni;
 
   int? xizmat;
 
@@ -35,7 +36,8 @@ class ProductEntity {
   ProductEntity({
     required this.nomer,
     this.pathOfPicture,
-    this.razmer,
+    this.boyi,
+    this.eni,
     this.xizmat,
     this.foyda,
     this.sotuv,
@@ -53,7 +55,8 @@ extension ProductEntityExtension on ProductEntity {
       id: this.id,
       nomer: this.nomer,
       pathOfPicture: this.pathOfPicture,
-      razmer: this.razmer,
+      boyi: this.boyi,
+      eni: this.eni,
       xizmat: this.xizmat,
       foyda: this.foyda,
       sotuv: this.sotuv,

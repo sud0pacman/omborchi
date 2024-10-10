@@ -7,6 +7,7 @@ import 'package:omborchi/feature/main/domain/repository/category_repository.dart
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
 
 part 'main_event.dart';
+
 part 'main_state.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
@@ -15,7 +16,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   MainBloc(this.categoryRepository, this.productRepository)
       : super(MainState(
-            categories: [], products: [], isLoading: false, isEmpty: false)) {
+            categories: [],
+            products: [],
+            isLoading: false,
+            isOpenDialog: false,
+            isCloseDialog: false,
+            isEmpty: false)) {
     // Load categories
     on<GetCategories>((event, emit) async {
       emit(state.copyWith(isLoading: true)); // Show shimmer
@@ -29,9 +35,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     // Load products for a selected category
     on<GetProductsByCategory>((event, emit) async {
-      emit(state.copyWith(isLoading: true)); // Show shimmer while loading
+      emit(state.copyWith(isLoading: true));
       AppRes.logger.d(event.categoryId);
-      // Fetch products from Isar DB based on category ID
       final res = event.categoryId == 0
           ? await productRepository.fetchAllProductsFromLocal()
           : await productRepository
@@ -44,6 +49,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         isLoading: false,
         isEmpty: products.isEmpty, // Check if the list is empty
       ));
+    });
+    on<SyncProducts>((event, emit) async {
+      emit(state.copyWith(isOpenDialog: true));
+      final response = await productRepository.syncProducts();
+      final categoryResponse = await categoryRepository.syncCategories();
+      if (response is Success) {
+        final res = event.categoryId == 0
+            ? await productRepository.fetchAllProductsFromLocal()
+            : await productRepository
+                .fetchProductFromLocalByCategoryId(event.categoryId);
+        if (categoryResponse is Success) {
+          final products =
+              res; // Assume res.value contains the list of products
+          AppRes.logger.d(event.categoryId);
+          emit(state.copyWith(
+            products: products,
+            categories: categoryResponse.value,
+            isLoading: false,
+            isOpenDialog: false,
+            isCloseDialog: true,
+            isEmpty: products.isEmpty, // Check if the list is empty
+          ));
+        }
+      }
     });
     on<GetProductById>((event, emit) async {
       emit(state.copyWith(isLoading: true)); // Show shimmer while loading

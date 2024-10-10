@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart'; // For Lottie animation
 import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
+import 'package:omborchi/core/custom/widgets/loading_dialog.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
@@ -48,22 +49,38 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: AppColors.background,
         drawer: PrimaryNavbar(
           selectedIndex: 0,
-          onItemTapped: (index) {
+          onItemTapped: (index) async {
             if (index == 0) {
-              Navigator.pushNamed(context, RouteManager.addProductScreen);
+              bool? result = await Navigator.pushNamed(
+                  context, RouteManager.addProductScreen);
+              if (result == true) {
+                _bloc.add(GetProductsByCategory(selectedIndex));
+              }
             } else if (index == 1) {
-              Navigator.pushNamed(context, RouteManager.categoryScreen);
+              bool? result = await Navigator.pushNamed(
+                  context, RouteManager.categoryScreen);
+              if (result == true) {
+                _bloc.add(GetCategories());
+              }
             } else if (index == 2) {
-              Navigator.pushNamed(context, RouteManager.rawMaterialScreen);
+              bool? result = await Navigator.pushNamed(
+                  context, RouteManager.rawMaterialScreen);
+              if (result == true) {}
             } else if (index == 3) {
-              Navigator.pushNamed(context, RouteManager.rawMaterialTypeScreen);
+              bool? result = await Navigator.pushNamed(
+                  context, RouteManager.rawMaterialTypeScreen);
+              if (result == true) {}
             }
+
             _scaffoldKey.currentState?.closeDrawer();
           },
         ),
         appBar: SearchAppBar(
           onTapCancel: () {
             _bloc.add(GetProductsByCategory(selectedIndex));
+          },
+          onTapRefresh: () {
+            _bloc.add(SyncProducts(selectedIndex));
           },
           onTapLeading: () {
             _scaffoldKey.currentState?.openDrawer();
@@ -93,6 +110,12 @@ class _MainScreenState extends State<MainScreen> {
           listener: (context, state) {
             if (state.categories.isNotEmpty) {
               categoryList = state.categories;
+            }
+            if (state.isOpenDialog) {
+              showLoadingDialog(context);
+            }
+            if (state.isCloseDialog) {
+              closeDialog(context);
             }
           },
           builder: (context, state) {
@@ -208,6 +231,7 @@ class _MainScreenState extends State<MainScreen> {
                   top: 0,
                   left: 0,
                   child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       color: AppColors.steelGrey,
