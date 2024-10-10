@@ -3,13 +3,20 @@ import 'dart:io';
 
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../domain/model/product_model.dart';
+
 abstract interface class ProductRemoteDataSource {
-  Future<State> getProducts(int categoryId);
+  Future<State> getProductsByCategoryId(int categoryId);
+
+  Future<State> getProducts();
 
   Future<State> createProduct(ProductNetwork product);
+
+  Future<State> addProductCost(CostNetwork product);
 
   Future<State> updateProduct(ProductNetwork product);
 
@@ -32,6 +39,34 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       final newProduct = await supabaseClient
           .from(ExpenseFields.productTable)
+          .insert(product.toJson())
+          .select()
+          .single();
+
+      // Convert ProductNetwork to ProductModel here
+      final productModel =
+          ProductModel.fromNetwork(ProductNetwork.fromJson(newProduct));
+
+      return Success(productModel);
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } catch (e) {
+      AppRes.logger.e(e);
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> addProductCost(CostNetwork product) async {
+    AppRes.logger.t(product.toString());
+
+    try {
+      final newProduct = await supabaseClient
+          .from(ExpenseFields.productPriceTable)
           .insert(product.toJson())
           .select()
           .single();
@@ -73,13 +108,37 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<State> getProducts(int categoryId) async {
+  Future<State> getProductsByCategoryId(int categoryId) async {
     AppRes.logger.t(categoryId);
     try {
       final response = await supabaseClient
           .from(ExpenseFields.productTable)
           .select()
           .eq('category_id', categoryId);
+
+      final List<ProductNetwork> result =
+          response.map((e) => ProductNetwork.fromJson(e)).toList();
+
+      AppRes.logger.t(result.length);
+
+      return Success(result);
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } catch (e) {
+      AppRes.logger.e(e);
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> getProducts() async {
+    try {
+      final response =
+          await supabaseClient.from(ExpenseFields.productTable).select('*');
 
       final List<ProductNetwork> result =
           response.map((e) => ProductNetwork.fromJson(e)).toList();

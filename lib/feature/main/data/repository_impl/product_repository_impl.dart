@@ -5,6 +5,8 @@ import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/model/local_model/product_entity.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
+import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
 
@@ -12,6 +14,7 @@ import '../../../../core/utils/consants.dart';
 import '../../domain/model/category_model.dart';
 import '../../domain/model/raw_material.dart';
 import '../../domain/model/raw_material_type.dart';
+import '../model/local_model/cost_entity.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDataSource productRemoteDataSource;
@@ -29,7 +32,29 @@ class ProductRepositoryImpl implements ProductRepository {
         return productRemoteDataSource.createProduct(product.toNetwork());
       } else {
         await saveProductToLocal(product.toEntity()); // Save to Hive locally
-        return Success("Saved locally, will sync when online.");
+        return NoInternet("Saved locally, will sync when online.");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> addProductCost(List<CostModel> list) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        for (var cost in list) {
+          final result =
+              await productRemoteDataSource.addProductCost(cost.toNetwork());
+          if (result is Error) {
+            return result; // Stop and return if there's an error
+          }
+        }
+        return Success(
+            "Success added!"); // Return success if all inserts were successful
+      } else {
+        return NoInternet("No Internet");
       }
     } catch (e) {
       return GenericError(e);
@@ -56,12 +81,42 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
-        return productRemoteDataSource.getProducts(categoryId);
+        return productRemoteDataSource.getProductsByCategoryId(categoryId);
       } else {
         final localProducts = await fetchAllProductsFromLocal();
         return Success(localProducts
             .map((p) => p.toModel())
             .toList()); // Convert local entities back to ProductModel
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> syncProducts() async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        final response = await productRemoteDataSource.getProducts();
+        final localProducts = await fetchAllProductsFromLocal();
+
+        if (response is Success) {
+          final List<int> productIdList =
+              localProducts.map((e) => e.id!).toList();
+
+          final List<ProductNetwork> products = response.value;
+          final List<ProductEntity> productsEntity =
+              products.map((e) => e.toEntity()).toList();
+          await isarHelper.deleteAllProducts(productIdList);
+          await isarHelper.insertAllProducts(productsEntity);
+          final local = await fetchAllProductsFromLocal();
+          return Success(local);
+        } else {
+          return GenericError("Nimadir xato ketti");
+        }
+      } else {
+        return NoInternet("Iltimos internetingizni tekshiring");
       }
     } catch (e) {
       return GenericError(e);
@@ -117,7 +172,7 @@ class ProductRepositoryImpl implements ProductRepository {
         .toList(); // Get product by its ID using IsarHelper
   }
 
-// Method to fetch products by categoryId from Isar
+// Method to fetch products by productId from Isar
   @override
   Future<List<ProductModel?>> fetchProductFromLocalByCategoryId(
       int categoryId) async {
@@ -140,6 +195,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
     return productModels; // Return List<ProductModel>
   }
+
   @override
   Future<List<ProductModel?>> fetchProductFromLocalByQuery(
       String nomer,
@@ -148,13 +204,13 @@ class ProductRepositoryImpl implements ProductRepository {
       String narxi,
       String marja,
       int categoryId) async {
-
     final isar = await isarHelper.db;
 
     final query = isar.productEntitys.filter().categoryIdEqualTo(categoryId);
 
     // Helper function to extract lower and upper bo unds
-    void applyBetweenFilter(String? value, Function(int lower, int upper) applyFilter) {
+    void applyBetweenFilter(
+        String? value, Function(int lower, int upper) applyFilter) {
       if (value != null && value.isNotEmpty) {
         final parts = value.split(' ');
         if (parts.length == 2) {
@@ -177,8 +233,6 @@ class ProductRepositoryImpl implements ProductRepository {
 
     return products.map((productEntity) => productEntity?.toModel()).toList();
   }
-
-
 
 // Method to update a product in Isar
   @override
@@ -250,5 +304,31 @@ class ProductRepositoryImpl implements ProductRepository {
     }).toList();
   }
 
+  // Local CRUD for costs
+  @override
+  Future<void> saveCostToLocal(CostEntity cost) async {
+    await isarHelper.addCost(cost); // Save cost using IsarHelper
+  }
 
+  // Local CRUD for costs
+  @override
+  Future<void> saveCostListToLocal(List<CostModel> cost) async {
+    await isarHelper.insertAllCosts(
+        cost.map((e) => e.toEntity()).toList()); // Save cost using IsarHelper
+  }
+
+  @override
+  Future<void> updateLocalCost(CostEntity cost) async {
+    await isarHelper.updateCost(cost); // Update cost in Isar
+  }
+
+  @override
+  Future<void> deleteLocalCost(int costId) async {
+    await isarHelper.deleteCost(costId); // Delete cost from Isar
+  }
+
+  @override
+  Future<CostEntity?> getLocalCostById(int costId) async {
+    return await isarHelper.getCost(costId); // Get cost by ID from Isar
+  }
 }

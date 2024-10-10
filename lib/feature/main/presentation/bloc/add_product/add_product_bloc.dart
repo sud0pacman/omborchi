@@ -12,7 +12,10 @@ import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../domain/model/cost_model.dart';
+
 part 'add_product_event.dart';
+
 part 'add_product_state.dart';
 
 class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
@@ -51,8 +54,10 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
       }
     });
     on<AddProduct>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
       final imageName = "${DateTime.now()}.jpg";
       var image = event.productModel.pathOfPicture ?? "";
+      AppRes.logger.w(event.costModels.first.toString());
       if (image.isFilePath()) {
         final response = await productRepository.uploadImage(imageName, image);
         if (response is Success) {
@@ -61,17 +66,26 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
           final res = await productRepository
               .createProduct(event.productModel.copyWith(pathOfPicture: image));
           if (res is Success) {
-            final Directory appDir = await getApplicationDocumentsDirectory();
-            final String localImagePath = '${appDir.path}/$imageName';
+            final newProduct = await res.value as ProductModel;
+            final secondRes = await productRepository.addProductCost(event
+                .costModels
+                .map((e) => e.copyWit(productId: newProduct.id))
+                .toList());
+            if (secondRes is Success) {
+              await productRepository.saveCostListToLocal(event.costModels
+                  .map((e) => e.copyWit(productId: newProduct.id))
+                  .toList());
+              final Directory appDir = await getApplicationDocumentsDirectory();
+              final String localImagePath = '${appDir.path}/$imageName';
 
-            await Dio().download(image, localImagePath);
+              await Dio().download(image, localImagePath);
 
-            AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
-            AppRes.logger.w(localImagePath);
-            emit(state.copyWith(isSuccess: true, isBack: true));
-            productRepository.saveProductToLocal(event.productModel
-                .copyWith(pathOfPicture: localImagePath)
-                .toEntity());
+              AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
+              productRepository.saveProductToLocal(event.productModel
+                  .copyWith(pathOfPicture: localImagePath)
+                  .toEntity());
+              emit(state.copyWith(isLoading: false, isSuccess: true, isBack: true));
+            }
           } else if (res is NoInternet) {
             emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
           } else if (res is GenericError) {

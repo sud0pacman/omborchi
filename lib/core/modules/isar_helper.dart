@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
+import 'package:omborchi/feature/main/data/model/local_model/cost_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/product_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
 import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
@@ -27,7 +28,8 @@ class IsarHelper {
         TypeEntitySchema,
         RawMaterialEntitySchema,
         CategoryEntitySchema,
-        ProductEntitySchema
+        ProductEntitySchema,
+        CostEntitySchema
       ],
       directory: dir.path,
     );
@@ -185,6 +187,13 @@ class IsarHelper {
     });
   }
 
+  Future<void> deleteAllProducts(List<int> ids) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.deleteAll(ids);
+    });
+  }
+
   // Add a single Product
   Future<int> addProduct(ProductEntity product) async {
     final isar = await db;
@@ -247,6 +256,52 @@ class IsarHelper {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.productEntitys.putAll(products);
+    });
+  }
+
+  Future<int> addCost(CostEntity cost) async {
+    final isar = await db;
+    return await isar.writeTxn<int>(() async {
+      return await isar.costEntitys.put(cost); // Save the cost entry
+    });
+  }
+
+  Future<CostEntity?> getCost(int id) async {
+    final isar = await db;
+    return await isar.costEntitys.get(id); // Fetch the cost by its ID
+  }
+
+  Future<List<CostEntity>> getAllCosts() async {
+    final isar = await db;
+    return await isar.costEntitys.where().findAll(); // Fetch all cost entries
+  }
+
+  Future<void> insertAllCosts(List<CostEntity> costs) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys.putAll(costs); // Bulk insert cost entries
+    });
+  }
+
+  Future<void> deleteAllCosts(List<int> ids) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys
+          .deleteAll(ids); // Bulk delete cost entries by their IDs
+    });
+  }
+
+  Future<void> deleteCost(int id) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys.delete(id); // Delete the cost entry by its ID
+    });
+  }
+
+  Future<void> updateCost(CostEntity cost) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys.put(cost); // Update the existing cost entry
     });
   }
 

@@ -5,6 +5,7 @@ class AddProductState {
   final Map<RawMaterialType, List<RawMaterial>>? rawMaterials;
   final bool? isBack;
   final bool? isSuccess;
+  final bool? isLoading;
   final String? error;
 
   AddProductState({
@@ -12,6 +13,7 @@ class AddProductState {
     required this.rawMaterials,
     this.isBack,
     this.isSuccess,
+    this.isLoading,
     this.error,
   });
 
@@ -20,6 +22,7 @@ class AddProductState {
     Map<RawMaterialType, List<RawMaterial>>? rawMaterials,
     bool? isBack,
     bool? isSuccess,
+    bool? isLoading,
     String? error,
   }) {
     return AddProductState(
@@ -27,6 +30,7 @@ class AddProductState {
       rawMaterials: rawMaterials ?? this.rawMaterials,
       isBack: isBack,
       isSuccess: isSuccess,
+      isLoading: isLoading,
       error: error,
     );
   }

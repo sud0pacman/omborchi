@@ -5,6 +5,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:hive/hive.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/main_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/splash/splash_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           title: 'Omborchi',
           themeMode: ThemeMode.light,
           onGenerateRoute: (settings) => RouteManager.generateRoute(settings),
-          home: const MainScreen(),
+          home: const SplashScreen(),
         );
       },
     );

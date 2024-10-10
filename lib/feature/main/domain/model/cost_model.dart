@@ -1,14 +1,16 @@
 import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart';
 
+import '../../data/model/local_model/cost_entity.dart';
+
 class CostModel {
   final int? id;
-  final int? quantity;
+  final int quantity;
   final int productId;
   final int xomashyoId;
 
   CostModel({
     this.id,
-    this.quantity,
+    required this.quantity,
     required this.productId,
     required this.xomashyoId,
   });
@@ -24,6 +26,13 @@ class CostModel {
       quantity: quantity ?? this.quantity,
       productId: productId ?? this.productId,
       xomashyoId: xomashyoId ?? this.xomashyoId,
+    );
+  }
+  CostEntity toEntity() {
+    return CostEntity(
+      quantity: quantity,
+      productId: productId,
+      xomashyoId: xomashyoId,
     );
   }
 

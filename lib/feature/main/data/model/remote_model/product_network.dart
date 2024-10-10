@@ -1,5 +1,7 @@
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 
+import '../local_model/product_entity.dart';
+
 class ProductNetwork {
   final int? id;
   final int nomer;
@@ -116,5 +118,23 @@ class ProductNetwork {
   @override
   String toString() {
     return 'ProductNetwork{id: $id, nomer: $nomer, pathOfPicture: $pathOfPicture, razmer: $razmer, xizmat: $xizmat, foyda: $foyda, sotuv: $sotuv, description: $description, categoryId: $categoryId, createdAt: $createdAt, isVerified: $isVerified, updatedAt: $updatedAt}';
+  }
+}
+extension ProductNetworkExtension on ProductNetwork {
+  ProductEntity toEntity() {
+    return ProductEntity(
+      //Handling null id with auto-increment
+      nomer: nomer,
+      pathOfPicture: pathOfPicture,
+      razmer: razmer,
+      xizmat: xizmat,
+      foyda: foyda,
+      sotuv: sotuv,
+      description: description,
+      categoryId: categoryId,
+      createdAt: createdAt,
+      isVerified: isVerified,
+      updatedAt: updatedAt,
+    );
   }
 }

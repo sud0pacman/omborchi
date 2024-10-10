@@ -126,10 +126,10 @@ class _TextWithTextFieldSmokeWhiteWidgetState
           ),
           if (widget.errorText != null)
             Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 12),
+              padding: const EdgeInsets.only(top: 8),
               child: Text(
                 widget.errorText!,
-                style: mediumTheme.copyWith(
+                style: mediumTheme.copyWith(overflow: TextOverflow.ellipsis,
                     fontSize: 14, color: AppColors.red, height: 1),
               ),
             ),

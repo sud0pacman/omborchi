@@ -6,6 +6,7 @@ import 'package:omborchi/feature/main/presentation/screen/product_viewer/product
 import 'package:omborchi/feature/main/presentation/screen/raw_material/raw_material_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material_type/raw_material_type_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/splash/splash_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/sync/sync_screen.dart';
 
 import '../../feature/main/domain/model/product_model.dart';
 
@@ -17,6 +18,7 @@ class RouteManager {
   static const String rawMaterialScreen = '/rawMaterialScreen';
   static const String rawMaterialTypeScreen = '/rawMaterialTypeScreen';
   static const String productViewScreen = '/productViewScreen';
+  static const String syncScreen = '/syncScreen';
 
   static generateRoute(RouteSettings settings) {
     var args = settings.arguments;
@@ -43,6 +45,8 @@ class RouteManager {
 
       case rawMaterialTypeScreen:
         return MaterialPageRoute(builder: (_) => const RawMaterialTypeScreen());
+      case syncScreen:
+        return MaterialPageRoute(builder: (_) => const SyncScreen());
 
       case productViewScreen:
         final product = settings.arguments

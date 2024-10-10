@@ -46,5 +46,7 @@ class AssetRes {
 
 class LastUpdates {
   static const String type = 'type_last_update_time';
+  static const String product = 'product_last_update_time';
+  static const String material = 'material_last_update_time';
   static const String category = 'category_last_update_time';
 }

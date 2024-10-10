@@ -61,7 +61,23 @@ class ProductModel {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-
+  // Factory constructor to create ProductModel from ProductNetwork
+  factory ProductModel.fromNetwork(ProductNetwork network) {
+    return ProductModel(
+      id: network.id,
+      nomer: network.nomer,
+      pathOfPicture: network.pathOfPicture,
+      razmer: network.razmer,
+      xizmat: network.xizmat,
+      foyda: network.foyda,
+      sotuv: network.sotuv,
+      description: network.description,
+      categoryId: network.categoryId,
+      createdAt: network.createdAt,
+      isVerified: network.isVerified,
+      updatedAt: network.updatedAt,
+    );
+  }
   ProductNetwork toNetwork() {
     return ProductNetwork(
       id: id,

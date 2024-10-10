@@ -2,13 +2,13 @@ import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 
 class CostNetwork {
   final int? id;
-  final int? quantity;
+  final int quantity;
   final int productId;
   final int xomashyoId;
 
   CostNetwork({
     this.id,
-    this.quantity,
+    required this.quantity,
     required this.productId,
     required this.xomashyoId,
   });
@@ -38,7 +38,7 @@ class CostNetwork {
   factory CostNetwork.fromJson(Map<String, dynamic> map) {
     return CostNetwork(
       id: map['id'] != null ? map['id'] as int : null,
-      quantity: map['quantity'] != null ? map['quantity'] as int : null,
+      quantity: map['quantity'] != null ? map['quantity'] as int : 0,
       productId: map['product_id'] != null ? map['product_id'] as int : 0,
       xomashyoId: map['xomashyo_id'] != null ? map['xomashyo_id'] as int : 0,
     );
