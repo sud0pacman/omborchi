@@ -53,7 +53,8 @@ class ProductNetwork {
       nomer: nomer ?? this.nomer,
       pathOfPicture: pathOfPicture ?? this.pathOfPicture,
       boyi: boyi ?? this.boyi,
-      eni: eni ?? this.eni, // Yangi fieldda ham nusxa olinadi
+      eni: eni ?? this.eni,
+      // Yangi fieldda ham nusxa olinadi
       xizmat: xizmat ?? this.xizmat,
       foyda: foyda ?? this.foyda,
       sotuv: sotuv ?? this.sotuv,
@@ -88,15 +89,20 @@ class ProductNetwork {
           ? map['path_of_picture'] as String
           : null,
       boyi: map['boyi'] != null ? map['boyi'] as int : null,
-      eni: map['eni'] != null ? map['eni'] as int : null, // fromJson uchun qo'shildi
+      eni: map['eni'] != null ? map['eni'] as int : null,
+      // fromJson uchun qo'shildi
       xizmat: map['xizmat'] != null ? map['xizmat'] as int : null,
       foyda: map['foyda'] != null ? map['foyda'] as int : null,
       sotuv: map['sotuv'] != null ? map['sotuv'] as int : null,
-      description: map['description'] != null ? map['description'] as String : null,
+      description:
+          map['description'] != null ? map['description'] as String : null,
       categoryId: map['category_id'] != null ? map['category_id'] as int : null,
-      createdAt: map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
-      isVerified: map['is_verified'] != null ? map['is_verified'] as bool : false,
-      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
+      createdAt:
+          map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
+      isVerified:
+          map['is_verified'] != null ? map['is_verified'] as bool : false,
+      updatedAt:
+          map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
     );
   }
 
@@ -106,7 +112,8 @@ class ProductNetwork {
       nomer: nomer,
       pathOfPicture: pathOfPicture,
       boyi: boyi,
-      eni: eni, // Modelga ham qo'shildi
+      eni: eni,
+      // Modelga ham qo'shildi
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,
@@ -127,10 +134,12 @@ class ProductNetwork {
 extension ProductNetworkExtension on ProductNetwork {
   ProductEntity toEntity() {
     return ProductEntity(
+      id: id ?? 0,
       nomer: nomer,
       pathOfPicture: pathOfPicture,
       boyi: boyi,
-      eni: eni, // Entityga qo'shildi
+      eni: eni,
+      // Entityga qo'shildi
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,

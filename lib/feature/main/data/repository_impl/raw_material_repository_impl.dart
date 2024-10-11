@@ -8,7 +8,6 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/raw_material_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/raw_material_network.dart';
-
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
@@ -123,7 +122,6 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
         }
       }
 
-      
       final Map<RawMaterialType, List<RawMaterial>> rawMaterials = {};
 
       for (var rawMaterialType in typeList) {
@@ -135,6 +133,12 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
     } else {
       return NoInternet(Exception("Weak Internet"));
     }
+  }
+
+  @override
+  Future<State> getMaterialById(int id) async {
+    final material = await isarHelper.getRawMaterial(id);
+    return Success(material);
   }
 
   @override

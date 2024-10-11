@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
 import 'package:omborchi/core/theme/colors.dart';
+import 'package:omborchi/feature/main/data/model/local_model/raw_material_ui.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 
 import '../../../../../../core/theme/style_res.dart';
 
-void showProductDetailsBottomSheet(BuildContext context, ProductModel product) {
+void showProductDetailsBottomSheet(
+    BuildContext context, ProductModel product, List<RawMaterialUi> list) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -15,6 +17,8 @@ void showProductDetailsBottomSheet(BuildContext context, ProductModel product) {
     ),
     backgroundColor: AppColors.background,
     builder: (BuildContext context) {
+      var tannarx =
+          (product.sotuv ?? 0) - (product.xizmat ?? 0) - (product.foyda ?? 0);
       return SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -22,16 +26,36 @@ void showProductDetailsBottomSheet(BuildContext context, ProductModel product) {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(
+                height: 16,
+              ),
+              const Text(
+                "Xomashyolar",
+                style: bold,
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              for (var item in list)
+                _buildInfoRow(
+                    title: item.name ?? "",
+                    value: "${item.quantity.toString()} ta"),
+              const SizedBox(
+                height: 16,
+              ),
               _buildInfoRow(title: "Nomer:", value: product.nomer.toString()),
               _buildInfoRow(
                   title: "Razmer:", value: "${product.boyi} X ${product.eni}"),
+              _buildInfoRow(title: "Tannarx:", value: "$tannarx so'm"),
               _buildInfoRow(
                   title: "Xizmat narxi:",
                   value: "${product.xizmat?.toString()} so'm" ?? "N/A"),
               _buildInfoRow(
-                  title: "Foyda:", value: "${product.foyda?.toString()} so'm" ?? "N/A"),
+                  title: "Foyda:",
+                  value: "${product.foyda?.toString()} so'm" ?? "N/A"),
               _buildInfoRow(
-                  title: "Sotuv:", value: "${product.sotuv?.toString()} so'm" ?? "N/A"),
+                  title: "Sotuv:",
+                  value: "${product.sotuv?.toString()} so'm" ?? "N/A"),
               const SizedBox(height: 16),
               Center(
                 child: PrimaryButton(
@@ -42,7 +66,9 @@ void showProductDetailsBottomSheet(BuildContext context, ProductModel product) {
                   },
                 ),
               ),
-              const SizedBox(height: 16,)
+              const SizedBox(
+                height: 16,
+              )
             ],
           ),
         ),

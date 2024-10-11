@@ -15,7 +15,6 @@ import 'package:path_provider/path_provider.dart';
 import '../../../domain/model/cost_model.dart';
 
 part 'add_product_event.dart';
-
 part 'add_product_state.dart';
 
 class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
@@ -71,7 +70,12 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
                 .costModels
                 .map((e) => e.copyWit(productId: newProduct.id))
                 .toList());
+            AppRes.logger.d(event.costModels
+                .map((e) => e.copyWit(productId: newProduct.id))
+                .toList()
+                .length);
             if (secondRes is Success) {
+              AppRes.logger.d("Success secondRes");
               await productRepository.saveCostListToLocal(event.costModels
                   .map((e) => e.copyWit(productId: newProduct.id))
                   .toList());
@@ -82,9 +86,10 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
 
               AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
               productRepository.saveProductToLocal(event.productModel
-                  .copyWith(pathOfPicture: localImagePath)
+                  .copyWith(pathOfPicture: localImagePath, id: newProduct.id)
                   .toEntity());
-              emit(state.copyWith(isLoading: false, isSuccess: true, isBack: true));
+              emit(state.copyWith(
+                  isLoading: false, isSuccess: true, isBack: true));
             }
           } else if (res is NoInternet) {
             emit(state.copyWith(error: 'Internetingiz yaroqsiz'));

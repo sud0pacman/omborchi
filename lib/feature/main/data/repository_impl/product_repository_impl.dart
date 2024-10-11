@@ -9,6 +9,7 @@ import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/model/local_model/product_entity.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
@@ -71,10 +72,10 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
+        await isarHelper.deleteProduct(product.id ?? 0);
         return productRemoteDataSource.deleteProduct(product.toNetwork());
       } else {
-        await removeProductFromLocal(product.id!); // Remove from Hive locally
-        return Success("Deleted locally, will sync when online.");
+        return NoInternet("Internetga ulanmagansiz!");
       }
     } catch (e) {
       return GenericError(e);
@@ -125,8 +126,8 @@ class ProductRepositoryImpl implements ProductRepository {
                     "${DateTime.now().millisecondsSinceEpoch}.jpg";
                 final String localImagePath = '${appDir.path}/$imageName';
                 await Dio().download(product.pathOfPicture!, localImagePath);
-                updatedProducts
-                    .add(product.copyWith(pathOfPicture: localImagePath));
+                updatedProducts.add(product.copyWith(
+                    pathOfPicture: localImagePath, id: product.id));
               } catch (e) {
                 updatedProducts.add(product);
               }
@@ -139,6 +140,44 @@ class ProductRepositoryImpl implements ProductRepository {
 
           await isarHelper.deleteAllProducts(productIdList);
           await isarHelper.insertAllProducts(productsEntity);
+
+// Mahalliy saqlangan mahsulotlarni olish
+          final localData = await fetchAllProductsFromLocal();
+          return Success(localData);
+        } else {
+          return GenericError("Nimadir xato ketti");
+        }
+      } else {
+        return NoInternet("Iltimos internetingizni tekshiring");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> syncCosts() async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        final response = await productRemoteDataSource.getCosts();
+
+        if (response is Success) {
+          final localProducts = await fetchAllCostsFromLocal();
+          final List<int> productIdList =
+              localProducts.map((e) => e.id!).toList();
+
+          final List<CostNetwork> products = response.value;
+          List<CostNetwork> updatedProducts = [];
+
+          for (var product in products) {
+            updatedProducts.add(product);
+          }
+          final List<CostEntity> productsEntity =
+              updatedProducts.map((e) => e.toEntity()).toList();
+
+          await isarHelper.deleteAllCosts(productIdList);
+          await isarHelper.insertAllCosts(productsEntity);
 
 // Mahalliy saqlangan mahsulotlarni olish
           final localData = await fetchAllProductsFromLocal();
@@ -221,6 +260,16 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<ProductModel>> fetchAllProductsFromLocal() async {
     final products =
         await isarHelper.getAllProducts(); // This returns List<ProductEntity>
+    final productModels =
+        products.map((productEntity) => productEntity.toModel()).toList();
+
+    return productModels; // Return List<ProductModel>
+  }
+
+  @override
+  Future<List<CostModel>> fetchAllCostsFromLocal() async {
+    final products =
+        await isarHelper.getAllCosts(); // This returns List<ProductEntity>
     final productModels =
         products.map((productEntity) => productEntity.toModel()).toList();
 
@@ -378,7 +427,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<CostEntity?> getLocalCostById(int costId) async {
-    return await isarHelper.getCost(costId); // Get cost by ID from Isar
+  Future<List<CostEntity>> getCostListById(int productId) async {
+    return await isarHelper.getCost(productId); // Get cost by ID from Isar
   }
 }

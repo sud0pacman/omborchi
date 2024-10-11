@@ -8,6 +8,7 @@ AppBar simpleAppBar({
   required VoidCallback onTapLeading,
   required String title,
   String? actionTitle,
+  Color? actionColor,
   List<String>? actions,
   Function(int)? onTapAction,
 }) {
@@ -41,7 +42,7 @@ AppBar simpleAppBar({
             },
             icon: SvgPicture.asset(
               actions[i],
-              colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(actionColor ?? AppColors.white, BlendMode.srcIn),
               height: 24,
               width: 24,
             ),

@@ -266,9 +266,12 @@ class IsarHelper {
     });
   }
 
-  Future<CostEntity?> getCost(int id) async {
+  Future<List<CostEntity>> getCost(int id) async {
     final isar = await db;
-    return await isar.costEntitys.get(id); // Fetch the cost by its ID
+    return await isar.costEntitys
+        .filter()
+        .productIdEqualTo(id)
+        .findAll(); // Fetch the cost by its ID
   }
 
   Future<List<CostEntity>> getAllCosts() async {

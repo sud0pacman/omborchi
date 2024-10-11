@@ -22,7 +22,7 @@ class RawMaterialTypeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: kButtonWhiteStyle.copyWith(
-        backgroundColor: MaterialStateProperty.all(AppColors.background),
+        backgroundColor: WidgetStateProperty.all(AppColors.background),
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
         shape: const WidgetStatePropertyAll(RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(0)),

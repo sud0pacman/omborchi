@@ -9,4 +9,5 @@ abstract interface class RawMaterialRepository {
   Future<State> deleteRawMaterial(RawMaterial rawMaterial);
   Future<State> getRawMaterialsWithTypes();
   Future<State> getMaterialByTypeId(bool isFullRefresh, int typeId);
+  Future<State> getMaterialById(int id);
 }

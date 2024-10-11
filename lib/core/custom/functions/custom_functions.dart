@@ -29,9 +29,7 @@ String replaceSpaceWithX(String input) {
 
   // Agar bo'shliq topilgan bo'lsa, uni " X " bilan almashtiramiz
   if (spaceIndex != -1) {
-    return input.substring(0, spaceIndex) +
-        ' X ' +
-        input.substring(spaceIndex + 1);
+    return '${input.substring(0, spaceIndex)} X ${input.substring(spaceIndex + 1)}';
   }
 
   // Agar bo'shliq bo'lmasa, asl stringni qaytaramiz

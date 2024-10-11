@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:omborchi/core/network/network_state.dart';
-import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
 import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
@@ -30,9 +29,11 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
       final syncTypes = await typeRepository.getTypes(true);
       final syncMaterials = await rawMaterialRepository.getRawMaterials();
       final syncProducts = await productRepository.syncProducts();
+      final syncCosts = await productRepository.syncCosts();
       if (syncCategories is Success &&
           syncTypes is Success &&
           syncProducts is Success &&
+          syncCosts is Success &&
           syncMaterials is Success) {
         await setSyncStatus(true);
         emit(state.copyWith(isLoading: false, isSuccess: true));

@@ -6,7 +6,7 @@ part 'product_entity.g.dart'; // Isar model adapter will be generated in this fi
 
 @collection // Isar collection annotation
 class ProductEntity {
-  Id id = Isar.autoIncrement; // Use auto-incrementing IDs in Isar
+  late Id id; // Use a manually provided ID instead of auto-increment
 
   @Index()
   late int nomer;
@@ -34,6 +34,7 @@ class ProductEntity {
   DateTime? updatedAt;
 
   ProductEntity({
+    required this.id,   // Now `id` is a required field
     required this.nomer,
     this.pathOfPicture,
     this.boyi,
@@ -52,19 +53,19 @@ class ProductEntity {
 extension ProductEntityExtension on ProductEntity {
   ProductModel toModel() {
     return ProductModel(
-      id: this.id,
-      nomer: this.nomer,
-      pathOfPicture: this.pathOfPicture,
-      boyi: this.boyi,
-      eni: this.eni,
-      xizmat: this.xizmat,
-      foyda: this.foyda,
-      sotuv: this.sotuv,
-      description: this.description,
-      categoryId: this.categoryId,
-      createdAt: this.createdAt,
-      isVerified: this.isVerified,
-      updatedAt: this.updatedAt,
+      id: id,
+      nomer: nomer,
+      pathOfPicture: pathOfPicture,
+      boyi: boyi,
+      eni: eni,
+      xizmat: xizmat,
+      foyda: foyda,
+      sotuv: sotuv,
+      description: description,
+      categoryId: categoryId,
+      createdAt: createdAt,
+      isVerified: isVerified,
+      updatedAt: updatedAt,
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:isar/isar.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 
 import '../../data/model/local_model/product_entity.dart';
@@ -65,6 +64,7 @@ class ProductModel {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
   // Factory constructor to create ProductModel from ProductNetwork
   factory ProductModel.fromNetwork(ProductNetwork network) {
     return ProductModel(
@@ -83,6 +83,7 @@ class ProductModel {
       updatedAt: network.updatedAt,
     );
   }
+
   ProductNetwork toNetwork() {
     return ProductNetwork(
       id: id,
@@ -111,26 +112,28 @@ class ProductModel {
 // Inside ProductEntity
   ProductModel toModel() {
     return ProductModel(
-      id: this.id,
-      nomer: this.nomer,
-      pathOfPicture: this.pathOfPicture,
-      boyi: this.boyi,
-      eni: this.eni,
-      xizmat: this.xizmat,
-      foyda: this.foyda,
-      sotuv: this.sotuv,
-      description: this.description,
-      categoryId: this.categoryId,
-      createdAt: this.createdAt,
-      isVerified: this.isVerified,
-      updatedAt: this.updatedAt,
+      id: id,
+      nomer: nomer,
+      pathOfPicture: pathOfPicture,
+      boyi: boyi,
+      eni: eni,
+      xizmat: xizmat,
+      foyda: foyda,
+      sotuv: sotuv,
+      description: description,
+      categoryId: categoryId,
+      createdAt: createdAt,
+      isVerified: isVerified,
+      updatedAt: updatedAt,
     );
   }
 }
+
 extension ProductModelExtension on ProductModel {
   ProductEntity toEntity() {
     return ProductEntity(
       //Handling null id with auto-increment
+      id: id ?? 0,
       nomer: nomer,
       pathOfPicture: pathOfPicture,
       boyi: boyi,

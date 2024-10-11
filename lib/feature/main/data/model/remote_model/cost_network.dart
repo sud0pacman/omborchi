@@ -1,5 +1,7 @@
 import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 
+import '../local_model/cost_entity.dart';
+
 class CostNetwork {
   final int? id;
   final int quantity;
@@ -41,6 +43,13 @@ class CostNetwork {
       quantity: map['quantity'] != null ? map['quantity'] as int : 0,
       productId: map['product_id'] != null ? map['product_id'] as int : 0,
       xomashyoId: map['xomashyo_id'] != null ? map['xomashyo_id'] as int : 0,
+    );
+  }
+  CostEntity toEntity() {
+    return CostEntity(
+      quantity: quantity,
+      productId: productId,
+      xomashyoId: xomashyoId,
     );
   }
 

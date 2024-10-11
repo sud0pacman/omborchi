@@ -28,6 +28,7 @@ class AssetRes {
   static const _base = 'assets/icons/';
   static const icBack = '${_base}ic_left_arrow.svg';
   static const icSearch = '${_base}ic_search.svg';
+  static const icShare = '${_base}ic_share.svg';
   static const icLogout = '${_base}ic_logout.svg';
   static const icFolder = '${_base}folder.png';
   static const icAppLogo = '${_base}logo.png';

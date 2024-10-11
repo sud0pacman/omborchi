@@ -118,7 +118,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     // Agar hammasi to'g'ri bo'lsa, mahsulotni qo'shish funksiyasini chaqiramiz
     // Agar rasm tanlanmagan bo'lsa, xato xabarini chiqaramiz
-    image != null ? imageErrorText = null : imageErrorText = "Iltimos, rasm tanlang";
+    image != null
+        ? imageErrorText = null
+        : imageErrorText = "Iltimos, rasm tanlang";
     if (categoryErrorText == null &&
         numberErrorText == null &&
         heightErrorText == null &&
@@ -335,8 +337,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   textInputType: TextInputType.number,
                   onChanged: (value) {
                     setState(() {
-                      serviceErrorText =
-                          null; // Input bo'lsa, xatolik olib tashlanadi
+                      serviceErrorText = null;
                       _calculateMarketCost();
                     });
                   },
@@ -573,7 +574,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 errorText,
-                style: TextStyle(color: Colors.red, fontSize: 12),
+                style: const TextStyle(color: Colors.red, fontSize: 12),
               ),
             ),
           const SizedBox(height: 16),
@@ -591,7 +592,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
               }
             },
             constraints: const BoxConstraints(maxHeight: 48),
-            inputFormatters: [ThousandsSeparatorInputFormatter(), LengthLimitingTextInputFormatter(9)],
+            inputFormatters: [
+              ThousandsSeparatorInputFormatter(),
+              LengthLimitingTextInputFormatter(9)
+            ],
             hint: "Soni".tr,
           ),
         ],
