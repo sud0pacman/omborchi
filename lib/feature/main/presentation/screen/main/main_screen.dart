@@ -114,8 +114,9 @@ class _MainScreenState extends State<MainScreen> {
             if (state.isOpenDialog) {
               showLoadingDialog(context);
             }
-            if (state.isCloseDialog) {
-              closeDialog(context);
+
+            if (state.isCloseDialog && Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
             }
           },
           builder: (context, state) {
@@ -136,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
                                 selectedCategory = null;
                                 selectedIndex = 0;
                                 _bloc.add(GetProductsByCategory(
-                                    0)); // Show all products
+                                    0));
                               });
                             },
                             isActive: selectedIndex == 0,
@@ -178,11 +179,9 @@ class _MainScreenState extends State<MainScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: state.isEmpty
                           ? Center(
-                              child: Lottie.asset(
-                                  'assets/lottie/empty.json'), // Show Lottie animation when empty
-                            )
-                          : _buildProductGrid(
-                              state.products), // Show product grid
+                        child: Lottie.asset('assets/lottie/empty.json'), // Show Lottie animation when empty
+                      )
+                          : _buildProductGrid(state.products), // Ensure products are passed correctly
                     ),
                   ),
                 ],
@@ -195,6 +194,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildProductGrid(List<ProductModel?> products) {
+    if (products.isEmpty) {
+      return Center(
+        child: Lottie.asset('assets/lottie/empty.json'), // Show empty state animation
+      );
+    }
+
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -205,6 +210,9 @@ class _MainScreenState extends State<MainScreen> {
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
+        if (product == null) {
+          return const SizedBox(); // Handle null product case gracefully
+        }
         return InkWell(
           onTap: () {
             Navigator.pushNamed(context, RouteManager.productViewScreen,
@@ -222,7 +230,7 @@ class _MainScreenState extends State<MainScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.file(
-                      File(product?.pathOfPicture ?? ''),
+                      File(product.pathOfPicture ?? ''),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -237,7 +245,7 @@ class _MainScreenState extends State<MainScreen> {
                       color: AppColors.steelGrey,
                     ),
                     child: Text(
-                      '#${product?.nomer}',
+                      '#${product.nomer}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

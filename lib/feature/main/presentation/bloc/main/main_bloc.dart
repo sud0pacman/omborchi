@@ -47,6 +47,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       emit(state.copyWith(
         products: products,
         isLoading: false,
+        isCloseDialog: false,
+        isOpenDialog: false,
         isEmpty: products.isEmpty, // Check if the list is empty
       ));
     });
@@ -54,26 +56,29 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       emit(state.copyWith(isOpenDialog: true));
       final response = await productRepository.syncProducts();
       final categoryResponse = await categoryRepository.syncCategories();
-      if (response is Success) {
+
+      if (response is Success && categoryResponse is Success) {
         final res = event.categoryId == 0
             ? await productRepository.fetchAllProductsFromLocal()
-            : await productRepository
-                .fetchProductFromLocalByCategoryId(event.categoryId);
-        if (categoryResponse is Success) {
-          final products =
-              res; // Assume res.value contains the list of products
-          AppRes.logger.d(event.categoryId);
-          emit(state.copyWith(
-            products: products,
-            categories: categoryResponse.value,
-            isLoading: false,
-            isOpenDialog: false,
-            isCloseDialog: true,
-            isEmpty: products.isEmpty, // Check if the list is empty
-          ));
-        }
+            : await productRepository.fetchProductFromLocalByCategoryId(event.categoryId);
+
+        final products = res;
+        emit(state.copyWith(
+          products: products,
+          categories: categoryResponse.value,
+          isLoading: false,
+          isOpenDialog: false,
+          isCloseDialog: true,
+          isEmpty: products.isEmpty,
+        ));
+
+        // Trigger the category-based product fetch after syncing
+        add(GetProductsByCategory(event.categoryId));
+      } else {
+        emit(state.copyWith(isLoading: false, isOpenDialog: false, isCloseDialog: true));
       }
     });
+
     on<GetProductById>((event, emit) async {
       emit(state.copyWith(isLoading: true)); // Show shimmer while loading
       AppRes.logger.d(event.nomer);
