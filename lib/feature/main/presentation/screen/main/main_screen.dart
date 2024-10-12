@@ -114,7 +114,6 @@ class _MainScreenState extends State<MainScreen> {
             if (state.isOpenDialog) {
               showLoadingDialog(context);
             }
-
             if (state.isCloseDialog && Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }

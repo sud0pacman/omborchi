@@ -7,7 +7,6 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/type_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/raw_material_type_network.dart';
-
 import 'package:omborchi/feature/main/domain/model/raw_material_type.dart';
 import 'package:omborchi/feature/main/domain/repository/type_repository.dart';
 
@@ -29,7 +28,7 @@ class TypeRepositoryImpl implements TypeRepository {
       AppRes.logger.t(id);
       now = DateTime.now();
       final networkRes = await typeRemoteDataSource
-          .createType(type.copyWith(id: id, updatedAt: now).toNetwork());
+          .createType(type.copyWith(id: type.id, updatedAt: now).toNetwork());
 
       if (networkRes is Success) {
         await setUpdateTime();
@@ -48,8 +47,8 @@ class TypeRepositoryImpl implements TypeRepository {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
-      final networkRes = await typeRemoteDataSource
-          .deleteType(type.toNetwork());
+      final networkRes =
+          await typeRemoteDataSource.deleteType(type.toNetwork());
 
       if (networkRes is Success) {
         now = DateTime.now();
@@ -66,7 +65,6 @@ class TypeRepositoryImpl implements TypeRepository {
 
   @override
   Future<State> getTypes(bool isFullRefresh) async {
-
     if (isFullRefresh) {
       final res = await typeRemoteDataSource.getTypes();
       now = DateTime.now();
@@ -76,19 +74,19 @@ class TypeRepositoryImpl implements TypeRepository {
         //   {
         //
         //   }
-      await setUpdateTime();
-      
+        await setUpdateTime();
+
         final List<TypeEntity> typeEntityList =
             (res.value as List<RawMaterialTypeNetwork>)
                 .map((e) => e.toEntity())
                 .toList();
 
-        await isarHelper.deleteAllTypes(await _getTypesFromLocal().then((List<RawMaterialType> value) {
+        await isarHelper.deleteAllTypes(
+            await _getTypesFromLocal().then((List<RawMaterialType> value) {
           return value.map((e) => e.id!).toList();
         }));
         await isarHelper.insertAllTypes(typeEntityList);
       }
-
     }
 
     return Success(await _getTypesFromLocal());
@@ -99,7 +97,6 @@ class TypeRepositoryImpl implements TypeRepository {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
-
       now = DateTime.now();
       final networkRes = await typeRemoteDataSource
           .updateType(type.copyWith(updatedAt: now).toNetwork());

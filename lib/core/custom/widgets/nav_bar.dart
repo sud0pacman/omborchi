@@ -71,8 +71,8 @@ class PrimaryNavbar extends StatelessWidget {
 
           const Spacer(),
           NavBarItem(
-            title: "Logout".tr,
-            iconPath: AssetRes.icLogout,
+            title: "Ma'lumotlarni sinxronlash".tr,
+            iconPath: AssetRes.icSynchronization,
             onTap: () => onItemTapped(-1),
           ),
           const SizedBox(height: 36),

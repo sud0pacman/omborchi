@@ -30,7 +30,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
           .addCategory(category.copyWith(id: null, updatedAt: now).toLocal());
 
       final networkRes = await categoryRemoteDataSource.createCategory(
-          category.copyWith(id: localId, updatedAt: now).toNetwork());
+          category.copyWith(id: category.id, updatedAt: now).toNetwork());
 
       if (networkRes is Success) {
         await setUpdateTime(now);

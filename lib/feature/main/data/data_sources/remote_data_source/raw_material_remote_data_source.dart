@@ -8,8 +8,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class RawMaterialRemoteDataSource {
   Future<State> getRawMaterials(int typeId);
+
   Future<State> createRawMaterial(RawMaterialNetwork rawMaterial);
+
   Future<State> updateRawMaterial(RawMaterialNetwork rawMaterial);
+
   Future<State> deleteRawMaterial(RawMaterialNetwork rawMaterial);
 }
 
@@ -22,11 +25,12 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> createRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-      await supabaseClient
+     var res =  await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
-          .insert(rawMaterial.toJson());
+          .insert(rawMaterial.toJson())
+          .single();
 
-      return Success(null);
+      return Success(res);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));

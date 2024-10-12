@@ -31,6 +31,7 @@ class CostNetwork {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id ?? 0,
       'quantity': quantity,
       'product_id': productId,
       'xomashyo_id': xomashyoId,
@@ -45,6 +46,7 @@ class CostNetwork {
       xomashyoId: map['xomashyo_id'] != null ? map['xomashyo_id'] as int : 0,
     );
   }
+
   CostEntity toEntity() {
     return CostEntity(
       quantity: quantity,

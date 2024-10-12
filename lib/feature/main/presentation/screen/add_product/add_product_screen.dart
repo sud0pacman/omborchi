@@ -243,8 +243,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           const SizedBox(height: 32),
                           _categorySelectorContainer(state),
                           const SizedBox(height: 16),
-                          _serviceContainer(),
-                          const SizedBox(height: 16),
                           for (int i = 0; i < rawMaterialItems.length; i++)
                             Column(
                               children: [
@@ -277,6 +275,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 const SizedBox(height: 16),
                               ],
                             ),
+                          _serviceContainer(),
+                          const SizedBox(height: 16),
                           productCostWidget(
                               "Tannarx", productCost.toStringAsFixed(2)),
                           const SizedBox(height: 16),

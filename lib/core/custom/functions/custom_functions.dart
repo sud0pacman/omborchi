@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:omborchi/core/utils/consants.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void closeDialog(BuildContext context, {dynamic arg}) {
   Navigator.of(context, rootNavigator: true).pop(arg);
@@ -59,4 +60,12 @@ int convertToInt(String number) {
 
 Future<bool?> navigateToRoute(BuildContext context, String routeName) async {
   return await Navigator.pushNamed<bool?>(context, routeName);
+}
+
+Future<void> requestManageExternalStoragePermission() async {
+  if (await Permission.manageExternalStorage.request().isGranted) {
+    print('Permission granted');
+  } else {
+    print('Permission denied');
+  }
 }

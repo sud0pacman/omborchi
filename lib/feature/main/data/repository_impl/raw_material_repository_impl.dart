@@ -31,7 +31,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
 
       now = DateTime.now();
       final networkRes = await rawMaterialRemoteDataSource.createRawMaterial(
-          rawMaterial.copyWith(id: localId, updatedAt: now).toNetwork());
+          rawMaterial.copyWith(id: rawMaterial.id, updatedAt: now).toNetwork());
 
       AppRes.logger.i("Network response: $networkRes");
 
