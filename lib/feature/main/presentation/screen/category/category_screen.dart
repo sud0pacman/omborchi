@@ -49,7 +49,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
       value: _bloc,
       child: BlocConsumer<CategoryBloc, CategoryState>(
         listener: (context, state) {
-          // TODO: implement listener
+          if (state.errorMsg != null) {
+            AppRes.showSnackBar(context, state.errorMsg!);
+          }
         },
         builder: (context, state) {
           if (state.isLoading == true) {

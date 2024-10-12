@@ -25,84 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    fetchDataAndSendOnline();
+    _navigateAfterDelay();
   }
 
-  Future<String?> renameImageFile(String imageName) async {
-    String originalPath = '/storage/emulated/0/Download/omborchi/$imageName';
-    File imageFile = File(originalPath);
 
-    if (await imageFile.exists()) {
-      // Create the new file path by appending .jpg
-      String newPath = '$originalPath.jpg';
-
-      // Rename the file
-      File renamedFile = await imageFile.rename(newPath);
-
-      return renamedFile.path;
-    } else {
-      return null;
-    }
-  }
-
-  Future<void> fetchDataAndSendOnline() async {
-    final productRepository = TempProductRepository();
-    final categoryRepository = TempCategoryRepository();
-    final tannarxRepository = TempTannarxRepository();
-    final typesRepository = TempTypesRepository();
-    final xomashyoRepository = TempXomashyoRepository();
-
-    final products = await productRepository.getAllProducts();
-    final categories = await categoryRepository.getAllCategories();
-    final tannarxList = await tannarxRepository.getAllTannarx();
-    final types = await typesRepository.getAllTypes();
-    final xomashyoList = await xomashyoRepository.getAllXomashyo();
-
-    AppRes.logger.d(products.length);
-    AppRes.logger.i(categories.length);
-    AppRes.logger.f(tannarxList.length);
-    AppRes.logger.t(types.length);
-    AppRes.logger.w(xomashyoList.length);
-    final ProductRepository repository =
-        ProductRepositoryImpl(serviceLocator());
-    // Ma'lum indeksdan boshlab mahsulotlarni qo'shish uchun
-    int startIndex = 764;
-
-    for (int i = startIndex; i < products.length; i++) {
-      Product product = products[i];
-      String imageName = product.pathOfPicture ?? ""; // The image file name
-
-      // Define the directory where your image files are stored
-      File imageFile = File('/storage/emulated/0/Download/omborchi/$imageName.jpg');
-
-      if (await imageFile.exists()) {
-        final response = await repository.uploadImage("$imageName.jpg", imageFile.path);
-        if (response is NetworkState.Success) {
-          final res = await repository.createProduct(
-            product.toProductNetwork().toModel().copyWith(pathOfPicture: response.value),
-          );
-          if (res is NetworkState.Success) {
-            final newProduct = await res.value as ProductModel;
-            AppRes.logger.d("Successfully ${newProduct.pathOfPicture}");
-          }
-        } else {
-          AppRes.logger.f("uploadImage Image error ${product.id}");
-        }
-      } else {
-        AppRes.logger.d("Not Success ${product.pathOfPicture}");
-        final res = await repository.createProduct(
-          product.toProductNetwork().toModel().copyWith(
-            pathOfPicture: "https://filestore.community.support.microsoft.com/api/images/989e4699-1106-453a-9e24-3ac6347b7ba2?upload=true",
-          ),
-        );
-        if (res is NetworkState.Success) {
-          final newProduct = await res.value as ProductModel;
-          AppRes.logger.d("Successfully ${newProduct.pathOfPicture}");
-        }
-      }
-    }
-
-  }
 
   Future<void> _navigateAfterDelay() async {
     await Future.delayed(const Duration(seconds: 2)); // Adjust delay as needed

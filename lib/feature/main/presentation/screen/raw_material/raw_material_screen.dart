@@ -42,6 +42,9 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
       value: _bloc,
       child: BlocConsumer<RawMaterialBloc, RawMaterialState>(
         listener: (context, state) {
+          if (state.errorMsg != null) {
+            AppRes.showSnackBar(context, state.errorMsg!);
+          }
         },
         builder: (context, state) {
           return DefaultTabController(
@@ -59,7 +62,11 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                           onPressed: () {
                             _bloc.add(RefreshRawMaterials());
                           },
-                          icon: SvgPicture.asset(AssetRes.icSynchronization))
+                          icon: SvgPicture.asset(
+                            AssetRes.icSynchronization,
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.white, BlendMode.srcIn),
+                          ))
                     ],
                     tabs: state.rawMaterials.keys
                         .toList()
@@ -194,6 +201,12 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
               positiveTitle: positiveButton,
               negativeTitle: 'Bekor qilish'.tr,
               onTapPositive: () {
+                if (_nameController.text.isNotEmpty) {
+                  dialogErrorText1 = null;
+                }
+                if (_costController.text.isNotEmpty) {
+                  dialogErrorText2 = null;
+                }
                 if (_nameController.text.isEmpty) {
                   setState(() {
                     dialogErrorText1 = "Nom bo'sh".tr;
@@ -227,4 +240,3 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
     );
   }
 }
-

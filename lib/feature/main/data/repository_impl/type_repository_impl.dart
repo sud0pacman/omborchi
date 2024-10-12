@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:isar/isar.dart';
 import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
@@ -23,12 +22,13 @@ class TypeRepositoryImpl implements TypeRepository {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
-      final Id id = await isarHelper.addType(type.toEntity());
+      var id = DateTime.now().millisecondsSinceEpoch;
+      await isarHelper.addType(type.copyWith(id: id).toEntity());
 
       AppRes.logger.t(id);
       now = DateTime.now();
       final networkRes = await typeRemoteDataSource
-          .createType(type.copyWith(id: type.id, updatedAt: now).toNetwork());
+          .createType(type.copyWith(id: id, updatedAt: now).toNetwork());
 
       if (networkRes is Success) {
         await setUpdateTime();
@@ -38,7 +38,7 @@ class TypeRepositoryImpl implements TypeRepository {
         return networkRes;
       }
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 
@@ -59,21 +59,17 @@ class TypeRepositoryImpl implements TypeRepository {
         return networkRes;
       }
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 
   @override
-  Future<State> getTypes(bool isFullRefresh) async {
+  Future<State> getTypes(
+      bool isFullRefresh, Function(double) onProgress) async {
     if (isFullRefresh) {
       final res = await typeRemoteDataSource.getTypes();
       now = DateTime.now();
       if (res is Success) {
-        // final List<RawMaterialTypeNetwork> response =(res.value);
-        // if(response.isEmpty)
-        //   {
-        //
-        //   }
         await setUpdateTime();
 
         final List<TypeEntity> typeEntityList =
@@ -86,6 +82,8 @@ class TypeRepositoryImpl implements TypeRepository {
           return value.map((e) => e.id!).toList();
         }));
         await isarHelper.insertAllTypes(typeEntityList);
+      } else if (res is NoInternet) {
+        return NoInternet(Constants.noNetwork);
       }
     }
 
@@ -109,7 +107,7 @@ class TypeRepositoryImpl implements TypeRepository {
         return networkRes;
       }
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 

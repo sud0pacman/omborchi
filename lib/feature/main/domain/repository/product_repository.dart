@@ -7,8 +7,8 @@ import '../../data/model/local_model/cost_entity.dart';
 
 abstract interface class ProductRepository {
   Future<State> getProducts(int categoryId);
-  Future<State> syncProducts();
-  Future<State> syncCosts();
+  Future<State> syncProducts(Function(double) onProgress);
+  Future<State> syncCosts(Function(double) onProgress);
 
   Future<State> createProduct(ProductModel product);
 
@@ -30,7 +30,7 @@ abstract interface class ProductRepository {
 
   Future<void> saveProductToLocal(ProductEntity product);
 
-  Future<List<ProductModel?>> fetchProductFromLocalById(int id);
+  Future<List<ProductModel?>> fetchProductFromLocalById(int id, int categoryId);
 
   Future<List<ProductModel?>> fetchProductFromLocalByQuery(
     final String nomer,

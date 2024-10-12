@@ -194,12 +194,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
             if (state.isLoading == true) {
               showLoadingDialog(context);
             }
-
             if (state.error != null) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(state.error!),
-                behavior: SnackBarBehavior.floating,
-              ));
+              AppRes.showSnackBar(context, state.error!);
             }
             if (state.rawMaterials != null) {
               rawMaterials = state.rawMaterials;

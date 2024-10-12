@@ -3,6 +3,7 @@ import 'package:isar/isar.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/category_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/model/local_model/category_entity.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/category_network.dart';
@@ -26,11 +27,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
     if (hasNetwork) {
       now = DateTime.now();
 
+      final id = now.millisecondsSinceEpoch;
       final Id localId = await isarHelper
-          .addCategory(category.copyWith(id: null, updatedAt: now).toLocal());
+          .addCategory(category.copyWith(id: id, updatedAt: now).toLocal());
 
       final networkRes = await categoryRemoteDataSource.createCategory(
-          category.copyWith(id: category.id, updatedAt: now).toNetwork());
+          category.copyWith(id: id, updatedAt: now).toNetwork());
 
       if (networkRes is Success) {
         await setUpdateTime(now);
@@ -62,7 +64,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
         return res;
       }
     } else {
-      return NoInternet('Weak network');
+      return NoInternet(Constants.noNetwork);
     }
   }
 
@@ -84,7 +86,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
         return res;
       }
     } else {
-      return NoInternet('Weak network');
+      return NoInternet(Constants.noNetwork);
     }
   }
 
@@ -94,12 +96,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<State> syncCategories() async {
+  Future<State> syncCategories(Function(double) onProgress) async {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
       final networkRes = await categoryRemoteDataSource.getCategories();
-
       if (networkRes is Success) {
         now = DateTime.now();
         await setUpdateTime(now);
@@ -114,14 +115,18 @@ class CategoryRepositoryImpl implements CategoryRepository {
             categories.map((e) => e.toLocal()).toList();
 
         await isarHelper.deleteAllCategories(categoryIdList);
-        await isarHelper.insertAllCategories(categoriesEntity);
+        for (int i = 0; i < categoriesEntity.length; i++) {
+          await isarHelper.addCategory(categoriesEntity[i]);
+          double progress = (i + 1) / categoriesEntity.length * 100;
+          onProgress(progress); // Update progress
+        }
 
         return Success(await _getCategoriesFromLocal());
       } else {
         return networkRes;
       }
     } else {
-      return NoInternet('Weak network');
+      return NoInternet(Constants.noNetwork);
     }
   }
 

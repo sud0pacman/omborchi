@@ -9,7 +9,13 @@ class NavBarItem extends StatelessWidget {
   final String iconPath;
   final String? badge;
   final VoidCallback onTap;
-  const NavBarItem({super.key, required this.title, required this.iconPath, this.badge, required this.onTap});
+
+  const NavBarItem(
+      {super.key,
+      required this.title,
+      required this.iconPath,
+      this.badge,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -19,28 +25,28 @@ class NavBarItem extends StatelessWidget {
       child: TextButton(
         onPressed: onTap,
         style: kButtonThemeStyle.copyWith(
-          backgroundColor: const WidgetStatePropertyAll(Colors.transparent)
-        ),
+            backgroundColor: const WidgetStatePropertyAll(Colors.transparent)),
         child: Row(
           children: [
             SvgPicture.asset(
               iconPath,
               width: 26,
               height: 26,
-              colorFilter: const ColorFilter.mode(
-                   AppColors.steelGrey,
-                  BlendMode.srcIn
-              ),
+              colorFilter:
+                  const ColorFilter.mode(AppColors.steelGrey, BlendMode.srcIn),
             ),
-            const SizedBox(width: 19,),
-            Text(
-              title,
-              style: semiBold.copyWith(fontSize: 16)
+            const SizedBox(
+              width: 19,
             ),
-        
-            const Spacer(),
-        
-            if(badge != null) badgeItem(badge!)
+            Expanded(
+              child: Text(title,
+                  overflow: TextOverflow.ellipsis,
+                  style: semiBold.copyWith(
+                    fontSize: 16,
+                    overflow: TextOverflow.ellipsis,
+                  )),
+            ),
+            if (badge != null) badgeItem(badge!)
           ],
         ),
       ),
@@ -51,15 +57,10 @@ class NavBarItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.circular(12)
-      ),
+          color: Colors.red, borderRadius: BorderRadius.circular(12)),
       child: Text(
         count,
-        style: pbold.copyWith(
-          color: AppColors.white,
-          fontSize: 8
-        ),
+        style: pbold.copyWith(color: AppColors.white, fontSize: 8),
       ),
     );
   }

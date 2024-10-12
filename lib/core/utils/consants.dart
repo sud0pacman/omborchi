@@ -1,7 +1,25 @@
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+
+import '../theme/style_res.dart';
 
 class AppRes {
   static final logger = Logger();
+
+  static void showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        message,
+        style: regularWhite.copyWith(fontSize: 14),
+      ),
+      behavior: SnackBarBehavior.floating,
+    ));
+  }
+}
+
+class Constants {
+  static const String noNetwork =
+      "Iltimos, internetingizni tekshiring va qayta urinib ko'ring";
 }
 
 class ExpenseFields {

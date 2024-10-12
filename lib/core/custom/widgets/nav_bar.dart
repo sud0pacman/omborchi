@@ -71,7 +71,7 @@ class PrimaryNavbar extends StatelessWidget {
 
           const Spacer(),
           NavBarItem(
-            title: "Ma'lumotlarni sinxronlash".tr,
+            title: "Ba'zani yangilash".tr,
             iconPath: AssetRes.icSynchronization,
             onTap: () => onItemTapped(-1),
           ),

@@ -58,7 +58,9 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
       child: BlocConsumer<RawMaterialTypeBloc, RawMaterialTypeState>(
         listener: (context, state) {
           AppRes.logger.wtf(state.toString());
-
+          if (state.error != null) {
+            AppRes.showSnackBar(context, state.error!);
+          }
           if (state.isCRUD == true) {
             _bloc.add(GetTypes());
           }
@@ -101,8 +103,7 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
                           name: state.types[index].name,
                           onTapEdit: () {
                             showEditDialog(
-                                context: context,
-                                type: state.types[index]);
+                                context: context, type: state.types[index]);
                           },
                           onTapDelete: () {
                             showDeleteDialog(context, state.types[index]);

@@ -15,13 +15,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   CategoryBloc(this.categoryRepository) : super(CategoryState(categories: [])) {
     on<GetCategories>((event, emit) async {
       emit(state.copyWith(isLoading: true));
-      final bool hasNetwork = await networkChecker.hasConnection;
-      final State getResponse;
-      if (hasNetwork) {
-        getResponse = await categoryRepository.syncCategories();
-      } else {
-        getResponse = await categoryRepository.getCategories();
-      }
+      final State getResponse = await categoryRepository.getCategories();
 
       if (getResponse is Success) {
         emit(state.copyWith(categories: getResponse.value));
@@ -37,80 +31,98 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     });
 
     on<RefreshCategories>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
+      final bool hasNetwork = await networkChecker.hasConnection;
+      if (hasNetwork) {
+        emit(state.copyWith(isLoading: true));
 
-      final synchResponse = await categoryRepository.syncCategories();
+        final synchResponse =
+            await categoryRepository.syncCategories((value) {});
 
-      if (synchResponse is Success) {
-        emit(state.copyWith(categories: synchResponse.value));
-      } else if (synchResponse is NoInternet) {
-        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
-      } else if (synchResponse is GenericError) {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
-      } else {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        if (synchResponse is Success) {
+          emit(state.copyWith(categories: synchResponse.value));
+        } else if (synchResponse is NoInternet) {
+          emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+        } else if (synchResponse is GenericError) {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        } else {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        }
+
+        emit(state.copyWith(isLoading: false));
       }
-
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(errorMsg: Constants.noNetwork));
     });
 
     on<CreateCategory>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
-      AppRes.logger.f(event.category.name);
-      final createResponse =
-          await categoryRepository.createCategory(event.category);
+      final bool hasNetwork = await networkChecker.hasConnection;
+      if (hasNetwork) {
+        emit(state.copyWith(isLoading: true));
+        AppRes.logger.f(event.category.name);
+        final createResponse =
+            await categoryRepository.createCategory(event.category);
 
-      if (createResponse is Success) {
-        state.categories.add(createResponse.value);
-        emit(state.copyWith(categories: state.categories));
-      } else if (createResponse is NoInternet) {
-        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
-      } else if (createResponse is GenericError) {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        if (createResponse is Success) {
+          state.categories.add(createResponse.value);
+          emit(state.copyWith(categories: state.categories));
+        } else if (createResponse is NoInternet) {
+          emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+        } else if (createResponse is GenericError) {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        } else {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        }
+        emit(state.copyWith(isLoading: false));
       } else {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        emit(state.copyWith(errorMsg: Constants.noNetwork));
       }
-
-      emit(state.copyWith(isLoading: false));
     });
 
     on<UpdateCategory>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
+      final bool hasNetwork = await networkChecker.hasConnection;
+      if (hasNetwork) {
+        emit(state.copyWith(isLoading: true));
 
-      final updateResponse =
-          await categoryRepository.updateCategory(event.category);
+        final updateResponse =
+            await categoryRepository.updateCategory(event.category);
 
-      if (updateResponse is Success) {
-        emit(state.copyWith(categories: updateResponse.value));
-      } else if (updateResponse is NoInternet) {
-        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
-      } else if (updateResponse is GenericError) {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        if (updateResponse is Success) {
+          emit(state.copyWith(categories: updateResponse.value));
+        } else if (updateResponse is NoInternet) {
+          emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+        } else if (updateResponse is GenericError) {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        } else {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        }
+        emit(state.copyWith(isLoading: false));
       } else {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        emit(state.copyWith(errorMsg: Constants.noNetwork));
       }
-
-      emit(state.copyWith(isLoading: false));
     });
 
     on<DeleteCategory>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
+      final bool hasNetwork = await networkChecker.hasConnection;
+      if (hasNetwork) {
+        emit(state.copyWith(isLoading: true));
 
-      final deleteResponse =
-          await categoryRepository.deleteCategory(event.category);
+        final deleteResponse =
+            await categoryRepository.deleteCategory(event.category);
 
-      if (deleteResponse is Success) {
-        state.categories.remove(event.category);
-        emit(state.copyWith(categories: state.categories));
-      } else if (deleteResponse is NoInternet) {
-        emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
-      } else if (deleteResponse is GenericError) {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        if (deleteResponse is Success) {
+          state.categories.remove(event.category);
+          emit(state.copyWith(categories: state.categories));
+        } else if (deleteResponse is NoInternet) {
+          emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
+        } else if (deleteResponse is GenericError) {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        } else {
+          emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        }
+
+        emit(state.copyWith(isLoading: false));
       } else {
-        emit(state.copyWith(errorMsg: 'Qandaydir xatolik'));
+        emit(state.copyWith(errorMsg: Constants.noNetwork));
       }
-
-      emit(state.copyWith(isLoading: false));
     });
   }
 }

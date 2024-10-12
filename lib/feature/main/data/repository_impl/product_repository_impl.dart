@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:isar/isar.dart';
@@ -14,7 +11,6 @@ import 'package:omborchi/feature/main/data/model/remote_model/product_network.da
 import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/utils/consants.dart';
 import '../../domain/model/category_model.dart';
@@ -100,96 +96,58 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<State> syncProducts() async {
-    try {
-      // Storage permission so'rash
-
-      final hasConnection = await networkChecker.hasConnection;
-      if (hasConnection) {
-        final response = await productRemoteDataSource.getProducts();
-
-        if (response is Success) {
-          final localProducts = await fetchAllProductsFromLocal();
-          final List<int> productIdList =
-              localProducts.map((e) => e.id!).toList();
-
-          final List<ProductNetwork> products = response.value;
-
-          final Directory appDir = await getApplicationDocumentsDirectory();
-          List<ProductNetwork> updatedProducts = [];
-
-          for (var product in products) {
-            if (product.pathOfPicture != null &&
-                product.pathOfPicture!.isNotEmpty) {
-              try {
-                final imageName =
-                    "${DateTime.now().millisecondsSinceEpoch}.jpg";
-                final String localImagePath = '${appDir.path}/$imageName';
-                await Dio().download(product.pathOfPicture!, localImagePath);
-                updatedProducts.add(product.copyWith(
-                    pathOfPicture: localImagePath, id: product.id));
-              } catch (e) {
-                updatedProducts.add(product);
-              }
-            } else {
-              updatedProducts.add(product);
-            }
-          }
-          final List<ProductEntity> productsEntity =
-              updatedProducts.map((e) => e.toEntity()).toList();
-
-          await isarHelper.deleteAllProducts(productIdList);
-          await isarHelper.insertAllProducts(productsEntity);
-
-// Mahalliy saqlangan mahsulotlarni olish
-          final localData = await fetchAllProductsFromLocal();
-          return Success(localData);
-        } else {
-          return GenericError("Nimadir xato ketti");
+  Future<State> syncProducts(Function(double) onProgress) async {
+    final bool hasNetwork = await networkChecker.hasConnection;
+    if (hasNetwork) {
+      final networkRes = await productRemoteDataSource.getProducts();
+      if (networkRes is Success) {
+        final List<int> productIdList =
+            await isarHelper.getAllProducts().then((value) {
+          return value.map((e) => e.id).toList();
+        });
+        final List<ProductNetwork> products = networkRes.value;
+        final List<ProductEntity> productEntities =
+            products.map((e) => e.toEntity()).toList();
+        isarHelper.deleteAllProducts(productIdList);
+        for (int i = 0; i < productEntities.length; i++) {
+          await isarHelper.addProduct(productEntities[i]);
+          double progress = (i + 1) / productEntities.length * 100;
+          onProgress(progress); // Update progress
         }
+        return Success(await isarHelper.getAllProducts());
       } else {
-        return NoInternet("Iltimos internetingizni tekshiring");
+        return networkRes;
       }
-    } catch (e) {
-      return GenericError(e);
+    } else {
+      return NoInternet(Constants.noNetwork);
     }
   }
 
   @override
-  Future<State> syncCosts() async {
-    try {
-      final hasConnection = await networkChecker.hasConnection;
-      if (hasConnection) {
-        final response = await productRemoteDataSource.getCosts();
-
-        if (response is Success) {
-          final localProducts = await fetchAllCostsFromLocal();
-          final List<int> productIdList =
-              localProducts.map((e) => e.id!).toList();
-
-          final List<CostNetwork> products = response.value;
-          List<CostNetwork> updatedProducts = [];
-
-          for (var product in products) {
-            updatedProducts.add(product);
-          }
-          final List<CostEntity> productsEntity =
-              updatedProducts.map((e) => e.toEntity()).toList();
-
-          await isarHelper.deleteAllCosts(productIdList);
-          await isarHelper.insertAllCosts(productsEntity);
-
-// Mahalliy saqlangan mahsulotlarni olish
-          final localData = await fetchAllProductsFromLocal();
-          return Success(localData);
-        } else {
-          return GenericError("Nimadir xato ketti");
+  Future<State> syncCosts(Function(double) onProgress) async {
+    final bool hasNetwork = await networkChecker.hasConnection;
+    if (hasNetwork) {
+      final networkRes = await productRemoteDataSource.getCosts();
+      if (networkRes is Success) {
+        final List<int> costIdList =
+            await isarHelper.getAllCosts().then((value) {
+          return value.map((e) => e.id).toList();
+        });
+        final List<CostNetwork> costs = networkRes.value;
+        final List<CostEntity> costEntities =
+            costs.map((e) => e.toEntity()).toList();
+        await isarHelper.deleteAllCosts(costIdList);
+        for (int i = 0; i < costEntities.length; i++) {
+          await isarHelper.addCost(costEntities[i]);
+          double progress = (i + 1) / costEntities.length * 100;
+          onProgress(progress); // Update progress
         }
+        return Success(await isarHelper.getAllCosts());
       } else {
-        return NoInternet("Iltimos internetingizni tekshiring");
+        return networkRes;
       }
-    } catch (e) {
-      return GenericError(e);
+    } else {
+      return NoInternet(Constants.noNetwork);
     }
   }
 
@@ -235,8 +193,9 @@ class ProductRepositoryImpl implements ProductRepository {
 
 // Method to fetch a single product from Isar by ID
   @override
-  Future<List<ProductModel?>> fetchProductFromLocalById(int id) async {
-    var res = await isarHelper.getProduct(id);
+  Future<List<ProductModel?>> fetchProductFromLocalById(
+      int id, int categoryId) async {
+    var res = await isarHelper.getProduct(id, categoryId);
     return res
         .map((product) => product?.toModel())
         .toList(); // Get product by its ID using IsarHelper
@@ -246,11 +205,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<ProductModel?>> fetchProductFromLocalByCategoryId(
       int categoryId) async {
-    final isar = await isarHelper.db;
-    final products = await isar.productEntitys
-        .filter()
-        .categoryIdEqualTo(categoryId)
-        .findAll(); // Filter products by categoryId in Isar
+    final products = await isarHelper.getAllProductByCategoryId(categoryId);
 
     return products.map((product) => product.toModel()).toList();
   }
@@ -310,6 +265,11 @@ class ProductRepositoryImpl implements ProductRepository {
             .boyiBetween(boyiRange[0], boyiRange[1])
             .sotuvBetween(sotuvRange[0], sotuvRange[1])
             .foydaBetween(foydaRange[0], foydaRange[1]);
+    AppRes.logger.w("${nomerRange[0]} || ${nomerRange[1]}");
+    AppRes.logger.w("${eniRange[0]} || ${eniRange[1]}");
+    AppRes.logger.w("${boyiRange[0]} || ${boyiRange[1]}");
+    AppRes.logger.w("${sotuvRange[0]} || ${sotuvRange[1]}");
+    AppRes.logger.w("${sotuvRange[0]} || ${sotuvRange[1]}");
 
     final products = await query.findAll();
 
@@ -324,13 +284,14 @@ class ProductRepositoryImpl implements ProductRepository {
     }
 
     // Splitting the string by space and parsing the range values
+    int maxInt = (1 << 63) - 1; // For 64-bit platforms
+
     final parts = value.split(' ');
     final lower = parts[0].toIntOrZero();
     final upper = (parts.length > 1)
         ? parts[1].toIntOrZero()
         : lower; // If only one number, treat it as both lower and upper bound
-
-    return [lower, upper];
+    return [lower, upper == 0 ? maxInt : upper];
   }
 
 // Method to update a product in Isar

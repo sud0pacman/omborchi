@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:isar/isar.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
@@ -25,31 +24,27 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
-      final Id localId =
-          await isarHelper.addRawMaterial(rawMaterial.toEntity());
-      AppRes.logger.t(localId);
-
+      int id = DateTime.now().millisecondsSinceEpoch;
       now = DateTime.now();
       final networkRes = await rawMaterialRemoteDataSource.createRawMaterial(
-          rawMaterial.copyWith(id: rawMaterial.id, updatedAt: now).toNetwork());
+          rawMaterial.copyWith(id: id, updatedAt: now).toNetwork());
 
       AppRes.logger.i("Network response: $networkRes");
 
       if (networkRes is Success) {
         await setUpdateTime(now);
-
-        return Success(rawMaterial.copyWith(id: localId));
+        await isarHelper
+            .addRawMaterial(rawMaterial.copyWith(id: id).toEntity());
+        return Success(rawMaterial.copyWith(id: id));
       } else if (networkRes is GenericError) {
         AppRes.logger.wtf("Generic error encountered: ${networkRes.exception}");
-        await isarHelper.deleteRawMaterial(localId); // cleanup on error
         return networkRes;
       } else {
         AppRes.logger.wtf("Unhandled error: $networkRes");
-        await isarHelper.deleteRawMaterial(localId);
         return networkRes;
       }
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 
@@ -70,7 +65,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
         return networkRes;
       }
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 
@@ -92,19 +87,37 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
         return networkRes;
       }
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 
   @override
-  Future<State> getRawMaterials() async {
+  Future<State> getRawMaterials(Function(double) onProgress) async {
     final bool hasNetwork = await networkChecker.hasConnection;
 
     if (hasNetwork) {
+      // Get all types from local storage
       final typeList = await _getTypesFromLocal();
+
+      // Delete all existing raw materials in Isar based on the type IDs
       await isarHelper.deleteAllRawMaterials(
           typeList.map((element) => element.id!).toList());
 
+      int totalRawMaterials = 0;
+      int processedRawMaterials = 0;
+
+      // Calculate the total raw materials to track progress
+      for (var type in typeList) {
+        final networkRes =
+            await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
+
+        if (networkRes is Success) {
+          totalRawMaterials +=
+              (networkRes.value as List<RawMaterialNetwork>).length;
+        }
+      }
+
+      // Fetch raw materials and insert them with progress updates
       for (var type in typeList) {
         final networkRes =
             await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
@@ -119,9 +132,17 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
                   .toList();
 
           await isarHelper.insertAllRawMaterials(rawMaterialEntity);
+
+          // Update progress for each inserted raw material
+          for (int i = 0; i < rawMaterialEntity.length; i++) {
+            processedRawMaterials++;
+            double progress = (processedRawMaterials / totalRawMaterials) * 100;
+            onProgress(progress); // Send progress update
+          }
         }
       }
 
+      // Retrieve and return the final raw materials
       final Map<RawMaterialType, List<RawMaterial>> rawMaterials = {};
 
       for (var rawMaterialType in typeList) {
@@ -131,7 +152,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
 
       return Success(rawMaterials);
     } else {
-      return NoInternet(Exception("Weak Internet"));
+      return NoInternet(Exception(Constants.noNetwork));
     }
   }
 

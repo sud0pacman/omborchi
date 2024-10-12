@@ -53,6 +53,7 @@ dependencies:
   money_formatter: ^0.0.6
   share_plus: ^10.0.3
   permission_handler: ^11.3.1
+  wakelock_plus: ^1.2.8
 
 
 dev_dependencies:

@@ -210,9 +210,15 @@ class IsarHelper {
     });
   }
 
-  Future<List<ProductEntity?>> getProduct(int nomer) async {
+  Future<List<ProductEntity?>> getProduct(int nomer, int categoryId) async {
     final isar = await db;
-    final res = await isar.productEntitys.where().findAll();
+    final res = categoryId != 0
+        ? await isar.productEntitys
+            .where()
+            .filter()
+            .categoryIdEqualTo(categoryId)
+            .findAll()
+        : await isar.productEntitys.where().findAll();
     final nomerString = nomer.toString();
     final filteredRes = res.where((product) {
       return product.nomer.toString().startsWith(nomerString);
@@ -225,6 +231,15 @@ class IsarHelper {
   Future<List<ProductEntity>> getAllProducts() async {
     final isar = await db;
     return await isar.productEntitys.where().findAll();
+  }
+
+  // Get all products
+  Future<List<ProductEntity>> getAllProductByCategoryId(int categoryId) async {
+    final isar = await db;
+    return await isar.productEntitys
+        .filter()
+        .categoryIdEqualTo(categoryId)
+        .findAll();
   }
 
   // Update a product

@@ -15,8 +15,11 @@ import 'package:omborchi/feature/main/presentation/bloc/main/main_bloc.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/category_widget.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/home_app_bar.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/search_dialog.dart';
+import 'package:omborchi/feature/main/presentation/screen/main/widgets/sync_dialog.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../../../core/modules/app_module.dart';
+import '../../../../../core/utils/consants.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -26,19 +29,117 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final MainBloc _bloc = MainBloc(serviceLocator(), serviceLocator());
+  final MainBloc _bloc = MainBloc(
+      serviceLocator(), serviceLocator(), serviceLocator(), serviceLocator());
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int selectedIndex = 0;
   CategoryModel? selectedCategory;
   List<CategoryModel>? categoryList;
+  bool isSyncDialogOpen = false; // Keep track of dialog state
 
   @override
   void initState() {
     super.initState();
-    _bloc.add(GetCategories()); // Load categories when screen initializes
-    _bloc.add(GetProductsByCategory(
-        selectedIndex)); // Load categories when screen initializes
+    WakelockPlus.enable();
+    _bloc.add(GetCategories());
+    _bloc.add(GetProductsByCategory(selectedIndex));
   }
+
+  @override
+  void dispose() {
+    WakelockPlus.disable();
+    super.dispose();
+  }
+
+  void showSyncProgressDialog(BuildContext context) {
+    if (!isSyncDialogOpen) {
+      isSyncDialogOpen = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return BlocBuilder<MainBloc, MainState>(
+            bloc: _bloc,
+            builder: (context, state) {
+              return Dialog(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "${state.currentRepository ?? ''} sinxronlanmoqda... "
+                        "(${state.currentRepositoryIndex ?? 0}/$syncedNumber)",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      LinearProgressIndicator(
+                        backgroundColor: AppColors.paleBlue,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.primary),
+                        value: (state.syncProgress ?? 0) / 100,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "${state.syncProgress?.toInt() ?? 0}%",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      );
+    }
+  }
+
+  void hideSyncProgressDialog(BuildContext context) {
+    if (isSyncDialogOpen) {
+      isSyncDialogOpen = false;
+      Navigator.of(context).pop();
+    }
+  }
+
+  void showSyncDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SyncWarningDialog(
+            title: "E'tibor bering!".tr,
+            message:
+                "Internetning holati yaxshi ekanligini tekshiring. Sinxronlash tugallanmaguncha bu oynani yopmang"
+                    .tr,
+            tables: const [
+              "Kategoriya",
+              "Xomashyo turi",
+              "Xomashyo",
+              "Tannarx",
+              "Mahsulot",
+            ],
+            positiveText: "Boshlash".tr,
+            negativeText: "Bekor qilish",
+            onPositiveTap: (values) {
+              syncedNumber = values.length;
+              _bloc.add(SyncAppEvent(values: values));
+              closeDialog(context);
+            },
+            onNegativeTap: () {
+              closeDialog(context);
+            },
+          );
+        });
+  }
+
+  String? currentRepository;
+
+  double? syncProgress;
+  int syncedNumber = 0;
+
+  int? currentRepositoryIndex;
+
+  String? tempError;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +151,10 @@ class _MainScreenState extends State<MainScreen> {
         drawer: PrimaryNavbar(
           selectedIndex: 0,
           onItemTapped: (index) async {
-            if (index == 0) {
+            _scaffoldKey.currentState?.closeDrawer();
+            if (index == -1) {
+              showSyncDialog(context);
+            } else if (index == 0) {
               bool? result = await Navigator.pushNamed(
                   context, RouteManager.addProductScreen);
               if (result == true) {
@@ -71,8 +175,6 @@ class _MainScreenState extends State<MainScreen> {
                   context, RouteManager.rawMaterialTypeScreen);
               if (result == true) {}
             }
-
-            _scaffoldKey.currentState?.closeDrawer();
           },
         ),
         appBar: SearchAppBar(
@@ -80,7 +182,7 @@ class _MainScreenState extends State<MainScreen> {
             _bloc.add(GetProductsByCategory(selectedIndex));
           },
           onTapRefresh: () {
-            _bloc.add(SyncProducts(selectedIndex));
+            _bloc.add(GetLocalDataEvent(selectedIndex));
           },
           onTapLeading: () {
             _scaffoldKey.currentState?.openDrawer();
@@ -89,31 +191,56 @@ class _MainScreenState extends State<MainScreen> {
             if (value.isEmpty) {
               _bloc.add(GetProductsByCategory(selectedIndex));
             } else {
-              _bloc.add(GetProductById(removeNonDigits(value)));
+              _bloc.add(GetProductById(removeNonDigits(value), selectedIndex));
             }
           },
           onTapSearch: () {
             showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return SearchDialog(
-                    categoryList: categoryList ?? [],
-                    onSearchTap: (nomer, eni, boyi, narxi, marja, category) {
-                      _bloc.add(GetProductsByQuery(
-                          nomer, eni, boyi, narxi, marja, category?.id ?? 0));
-                    },
-                  );
-                });
+              context: context,
+              builder: (BuildContext context) {
+                return SearchDialog(
+                  categoryList: categoryList ?? [],
+                  onSearchTap: (nomer, eni, boyi, narxi, marja, category) {
+                    _bloc.add(GetProductsByQuery(
+                        nomer, eni, boyi, narxi, marja, selectedIndex));
+                  },
+                );
+              },
+            );
           },
         ),
         body: BlocConsumer<MainBloc, MainState>(
           listener: (context, state) {
+            if (state.error != null) {
+              if (tempError == state.error!) {
+              } else {
+                AppRes.showSnackBar(context, state.error!);
+                tempError = state.error;
+              }
+            }
+            if (state.currentRepository != null ||
+                state.syncProgress != null ||
+                state.currentRepositoryIndex != null) {
+              setState(() {
+                currentRepository = state.currentRepository;
+                syncProgress = state.syncProgress;
+                currentRepositoryIndex = state.currentRepositoryIndex;
+              }); // Trigger UI rebuild if loading state changes
+            }
+            if (state.isLoading) {
+              showSyncProgressDialog(context);
+            } else {
+              hideSyncProgressDialog(context);
+            }
+
             if (state.categories.isNotEmpty) {
               categoryList = state.categories;
             }
+
             if (state.isOpenDialog) {
               showLoadingDialog(context);
             }
+
             if (state.isCloseDialog && Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
@@ -129,14 +256,12 @@ class _MainScreenState extends State<MainScreen> {
                     child: ListView.builder(
                       itemBuilder: (context, index) {
                         if (index == 0) {
-                          // First item is always "Umumiy"
                           return CategoryWidget(
                             onTap: () {
                               setState(() {
                                 selectedCategory = null;
                                 selectedIndex = 0;
-                                _bloc.add(GetProductsByCategory(
-                                    0));
+                                _bloc.add(GetProductsByCategory(0));
                               });
                             },
                             isActive: selectedIndex == 0,
@@ -150,37 +275,29 @@ class _MainScreenState extends State<MainScreen> {
                               setState(() {
                                 selectedCategory = category;
                                 selectedIndex = index;
-                                _bloc.add(GetProductsByCategory(
-                                    category.id!)); // Load products by category
+                                _bloc.add(GetProductsByCategory(category.id!));
                               });
                             },
                             isActive: selectedIndex == index,
                             name: category.name,
-                            count: 900, // Replace with actual count if needed
+                            count: 900, // Replace with actual count
                           );
                         }
                       },
                       itemCount: state.categories.length + 1,
                     ),
                   ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  // Separator line between categories and products
+                  const SizedBox(width: 4),
                   const VerticalDivider(
-                    color: Colors.grey, // Adjust the color
-                    thickness: 1,
-                    width: 1,
-                  ),
-
+                      color: Colors.grey, thickness: 1, width: 1),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: state.isEmpty
                           ? Center(
-                        child: Lottie.asset('assets/lottie/empty.json'), // Show Lottie animation when empty
-                      )
-                          : _buildProductGrid(state.products), // Ensure products are passed correctly
+                              child: Lottie.asset('assets/lottie/empty.json'),
+                            )
+                          : _buildProductGrid(state.products),
                     ),
                   ),
                 ],
@@ -195,7 +312,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildProductGrid(List<ProductModel?> products) {
     if (products.isEmpty) {
       return Center(
-        child: Lottie.asset('assets/lottie/empty.json'), // Show empty state animation
+        child: Lottie.asset('assets/lottie/empty.json'),
       );
     }
 
@@ -210,7 +327,7 @@ class _MainScreenState extends State<MainScreen> {
       itemBuilder: (context, index) {
         final product = products[index];
         if (product == null) {
-          return const SizedBox(); // Handle null product case gracefully
+          return const SizedBox();
         }
         return InkWell(
           onTap: () {
