@@ -16,6 +16,7 @@ import 'package:omborchi/feature/main/presentation/bloc/add_product/add_product_
 import 'package:omborchi/feature/main/presentation/bloc/category/category_bloc.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material/raw_material_bloc.dart';
 import 'package:omborchi/feature/main/presentation/bloc/raw_material_type/raw_material_type_bloc.dart';
+import 'package:omborchi/feature/main/presentation/bloc/update_product/update_product_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final serviceLocator = GetIt.instance;
@@ -48,7 +49,8 @@ void _initProduct() {
         serviceLocator(),
       ),
     )
-    ..registerFactory(() => AddProductBloc(serviceLocator()));
+    ..registerFactory(() => AddProductBloc(serviceLocator()))
+    ..registerFactory(() => UpdateProductBloc(serviceLocator(), serviceLocator(), serviceLocator()));
 }
 
 void _initRawMaterials() {

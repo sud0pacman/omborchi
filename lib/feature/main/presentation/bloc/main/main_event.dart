@@ -16,6 +16,14 @@ class GetProductsByCategory extends MainEvent {
   GetProductsByCategory(this.categoryId);
 }
 
+class DeleteProduct extends MainEvent {
+  final ProductModel product;
+  final int categoryId;
+
+  DeleteProduct(this.product, this.categoryId);
+
+}
+
 class GetLocalDataEvent extends MainEvent {
   final int categoryId;
 

@@ -5,14 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
-import 'package:omborchi/core/custom/widgets/app_bar.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_ui.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/presentation/bloc/product_view/product_view_bloc.dart';
+import 'package:omborchi/feature/main/presentation/screen/product_viewer/widgets/app_bar.dart';
 import 'package:omborchi/feature/main/presentation/screen/product_viewer/widgets/bottom_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../../config/router/app_routes.dart';
 import '../../../../../core/custom/widgets/dialog/info_dialog.dart';
 import '../../../../../core/custom/widgets/under_save_button.dart';
 import '../../../../../core/utils/consants.dart';
@@ -57,23 +58,30 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
   }
 
   List<RawMaterialUi> materials = [];
+  int materialSum = 0;
 
   @override
   Widget build(BuildContext context) {
+    var sotuv = (materialSum) + (widget.product.xizmat ?? 0) + (widget.product.foyda ?? 0);
     final marketSum =
-        MoneyFormatter(amount: widget.product.sotuv?.toDouble() ?? 0);
+        MoneyFormatter(amount: sotuv.toDouble());
     return Scaffold(
-      appBar: simpleAppBar(
+      appBar: productViewAppBar(
+        onTapDelete: () {
+          showDeleteDialog(context);
+        },
+        onTapEdit: () {
+          Navigator.pushNamed(context, RouteManager.updateProductScreen,
+              arguments: widget.product);
+        },
         leadingIcon: AssetRes.icBack,
         // actionTitle: "${widget.product.boyi ?? 0} X ${widget.product.eni ?? 0}",
         onTapLeading: () {
           closeScreen(context);
         },
-        actions: [AssetRes.icTrash, AssetRes.icShare],
+        actions: [AssetRes.icShare],
         onTapAction: (tappedIndex) async {
           if (tappedIndex == 0) {
-            showDeleteDialog(context);
-          } else {
             final result = await Share.shareXFiles([
               XFile('${widget.product.pathOfPicture}')
             ], text: "Sotuvda: ${marketSum.output.withoutFractionDigits} so'm");
@@ -91,6 +99,10 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
           listener: (context, state) {
             if (state.materials.isNotEmpty) {
               materials = state.materials;
+              for (var material in state.materials) {
+                materialSum +=
+                    (material.quantity ?? 0) * (material.price?.toInt() ?? 0);
+              }
               setState(() {});
             }
             if (state.error != null) {
@@ -143,7 +155,7 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                     title: "${marketSum.output.withoutFractionDigits} so'm",
                     onPressed: () {
                       showProductDetailsBottomSheet(
-                          context, widget.product, materials);
+                          context, widget.product.copyWith(sotuv: materialSum), materials);
                     },
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:isar/isar.dart';
 import 'package:omborchi/core/modules/isar_helper.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
@@ -61,6 +62,13 @@ class TypeRepositoryImpl implements TypeRepository {
     } else {
       return NoInternet(Exception(Constants.noNetwork));
     }
+  }
+
+  @override
+  Future<TypeEntity?> getTypeByIdLocal(int id) async {
+    var isar = await isarHelper.db;
+    var res = await isar.typeEntitys.filter().idEqualTo(id).findAll();
+    return res.isNotEmpty ? res[0] : null;
   }
 
   @override

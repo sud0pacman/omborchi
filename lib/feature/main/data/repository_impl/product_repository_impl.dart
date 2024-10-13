@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:isar/isar.dart';
@@ -11,6 +12,7 @@ import 'package:omborchi/feature/main/data/model/remote_model/product_network.da
 import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/utils/consants.dart';
 import '../../domain/model/category_model.dart';
@@ -106,13 +108,34 @@ class ProductRepositoryImpl implements ProductRepository {
           return value.map((e) => e.id).toList();
         });
         final List<ProductNetwork> products = networkRes.value;
-        final List<ProductEntity> productEntities =
-            products.map((e) => e.toEntity()).toList();
+        final appDir = await getApplicationDocumentsDirectory();
         isarHelper.deleteAllProducts(productIdList);
-        for (int i = 0; i < productEntities.length; i++) {
-          await isarHelper.addProduct(productEntities[i]);
-          double progress = (i + 1) / productEntities.length * 100;
-          onProgress(progress); // Update progress
+
+        for (int i = 0; i < products.length; i++) {
+          if (products[i].pathOfPicture != null &&
+              products[i].pathOfPicture!.isNotEmpty) {
+            try {
+              final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+              final String localImagePath = '${appDir.path}/$imageName';
+              await Dio().download(products[i].pathOfPicture!, localImagePath);
+              final data = products[i]
+                  .copyWith(pathOfPicture: localImagePath, id: products[i].id);
+              await isarHelper.addProduct(data.toEntity());
+              double progress = (i + 1) / products.length * 100;
+              onProgress(progress); // Update progress
+            } catch (e) {
+              return GenericError("Qandaydir xatolik");
+            }
+          } else {
+            final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+            final String localImagePath = '${appDir.path}/$imageName';
+            await Dio().download(Constants.noImage, localImagePath);
+            final data = products[i]
+                .copyWith(pathOfPicture: localImagePath, id: products[i].id);
+            await isarHelper.addProduct(data.toEntity());
+            double progress = (i + 1) / products.length * 100;
+            onProgress(progress); // Update progress
+          }
         }
         return Success(await isarHelper.getAllProducts());
       } else {

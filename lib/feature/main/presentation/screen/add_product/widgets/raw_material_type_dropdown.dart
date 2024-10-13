@@ -86,12 +86,12 @@ class RawMaterialTypeDropdown extends StatelessWidget {
           hint: Container(
             alignment: hintAlignment,
             child: Text(
-              hint,
+              value?.name ?? "",
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               style: mediumTheme.copyWith(
                 fontSize: 14,
-                color: Theme.of(context).hintColor,
+                color: AppColors.midnightBlue,
               ),
             ),
           ),

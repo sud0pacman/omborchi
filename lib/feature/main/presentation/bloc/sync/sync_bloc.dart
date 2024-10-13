@@ -109,7 +109,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         } else if (productSyncRes is NoInternet) {
           emit(state.copyWith(error: productSyncRes.value));
         }
-
+        await setSyncStatus(true);
         // End Sync
         emit(state.copyWith(isLoading: false, isSuccess: true));
       } else {

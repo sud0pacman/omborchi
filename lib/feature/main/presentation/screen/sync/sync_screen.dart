@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:omborchi/config/router/app_routes.dart';
-import 'package:omborchi/core/custom/widgets/loading_dialog.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/core/theme/colors.dart';
@@ -133,9 +132,7 @@ class _SyncScreenState extends State<SyncScreen> {
             } else {
               hideSyncProgressDialog(context);
             }
-            if (state.isLoading) {
-              showLoadingDialog(context);
-            } else if (state.isSuccess) {
+            if (state.isSuccess) {
               Navigator.pushReplacementNamed(
                   context, RouteManager.mainScreen); // MainScreen'ga o'tish
             }

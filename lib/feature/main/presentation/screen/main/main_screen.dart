@@ -18,6 +18,7 @@ import 'package:omborchi/feature/main/presentation/screen/main/widgets/search_di
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/sync_dialog.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../../../../core/custom/widgets/dialog/info_dialog.dart';
 import '../../../../../core/modules/app_module.dart';
 import '../../../../../core/utils/consants.dart';
 
@@ -36,6 +37,8 @@ class _MainScreenState extends State<MainScreen> {
   CategoryModel? selectedCategory;
   List<CategoryModel>? categoryList;
   bool isSyncDialogOpen = false; // Keep track of dialog state
+  int currentNomer = 0;
+  int currentNomerIndex = 1;
 
   @override
   void initState() {
@@ -309,6 +312,44 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  void showDeleteDialog(BuildContext context, ProductModel product) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return InfoDialog(
+            title: "O'chirish".tr,
+            message: "Ushbu mahsulotni o'chirmoqchimisiz?".tr,
+            positiveText: "O'chirish".tr,
+            negativeText: "Bekor qilish",
+            onPositiveTap: () {
+              _bloc.add(DeleteProduct(product, selectedIndex));
+              closeDialog(context);
+            },
+            onNegativeTap: () {
+              closeDialog(context);
+            },
+          );
+        });
+  }
+
+  void showCustomPopover(BuildContext context, Widget child) {
+    final overlay =
+        Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+    if (overlay != null) {
+      final overlayEntry = OverlayEntry(
+        builder: (_) => Positioned(
+          top: 100, // Adjust accordingly
+          left: 50, // Adjust accordingly
+          child: Material(
+            elevation: 4.0,
+            child: child,
+          ),
+        ),
+      );
+      Overlay.of(context)?.insert(overlayEntry);
+    }
+  }
+
   Widget _buildProductGrid(List<ProductModel?> products) {
     if (products.isEmpty) {
       return Center(
@@ -328,6 +369,17 @@ class _MainScreenState extends State<MainScreen> {
         final product = products[index];
         if (product == null) {
           return const SizedBox();
+        }
+        if (currentNomer == product.nomer) {
+          currentNomerIndex++;
+        } else {
+          currentNomer = product.nomer;
+          currentNomerIndex = 0;
+        }
+
+        var productNomer = "$currentNomer-$currentNomerIndex";
+        if (productNomer.endsWith("-0")) {
+          productNomer = productNomer.substring(0, productNomer.length - 2);
         }
         return InkWell(
           onTap: () {
@@ -361,7 +413,7 @@ class _MainScreenState extends State<MainScreen> {
                       color: AppColors.steelGrey,
                     ),
                     child: Text(
-                      '#${product.nomer}',
+                      '#$productNomer',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

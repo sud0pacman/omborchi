@@ -7,6 +7,7 @@ import 'package:omborchi/feature/main/presentation/screen/raw_material/raw_mater
 import 'package:omborchi/feature/main/presentation/screen/raw_material_type/raw_material_type_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/splash/splash_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/sync/sync_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/update_product/update_product_screen.dart';
 
 import '../../feature/main/domain/model/product_model.dart';
 
@@ -14,6 +15,7 @@ class RouteManager {
   static const String splashScreen = '/splashScreen';
   static const String mainScreen = '/mainScreen';
   static const String addProductScreen = '/addProductScreen';
+  static const String updateProductScreen = '/updateProductScreen';
   static const String categoryScreen = '/categoryScreen';
   static const String rawMaterialScreen = '/rawMaterialScreen';
   static const String rawMaterialTypeScreen = '/rawMaterialTypeScreen';
@@ -63,6 +65,11 @@ class RouteManager {
         final product = settings.arguments as ProductModel;
         return MaterialPageRoute<bool?>(
           builder: (_) => ProductViewScreen(product: product),
+        );
+      case updateProductScreen:
+        final product = settings.arguments as ProductModel;
+        return MaterialPageRoute<bool?>(
+          builder: (_) => UpdateProductScreen(product: product),
         );
 
       default:

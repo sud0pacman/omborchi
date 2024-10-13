@@ -178,6 +178,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             isLoading: false, isOpenDialog: false, isCloseDialog: true));
       }
     });
+    on<DeleteProduct>((event, emit) async {
+      final res = await productRepository.deleteProduct(event.product);
+
+      if (res is Success) {
+        add(GetLocalDataEvent(event.categoryId));
+      } else {
+        emit(state.copyWith(
+            isLoading: false, isOpenDialog: false, isCloseDialog: true));
+      }
+    });
 
     on<GetProductById>((event, emit) async {
       AppRes.logger.d(event.nomer);

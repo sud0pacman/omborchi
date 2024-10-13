@@ -20,6 +20,8 @@ class AppRes {
 class Constants {
   static const String noNetwork =
       "Iltimos, internetingizni tekshiring va qayta urinib ko'ring";
+  static const String noImage =
+      "https://st4.depositphotos.com/14953852/24787/v/450/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg";
 }
 
 class ExpenseFields {
@@ -60,6 +62,7 @@ class AssetRes {
   static const icEdit = '${_base}ic_edit.svg';
   static const icSynchronization = '${_base}ic_synch.svg';
   static const icGallery = '${_base}ic_gallery.svg';
+  static const icMore = '${_base}ic_more.svg';
   static const icDropDownUpArrow = '${_base}ic_drop_down_up_arrow.svg';
 }
 
