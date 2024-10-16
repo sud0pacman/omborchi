@@ -194,6 +194,37 @@ class IsarHelper {
     });
   }
 
+  Future<void> clearProducts() async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.productEntitys.clear();
+    });
+  }
+  Future<void> clearCosts() async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys.clear();
+    });
+  }
+  Future<void> clearCategories() async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.categoryEntitys.clear();
+    });
+  }
+  Future<void> clearMaterials() async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.rawMaterialEntitys.clear();
+    });
+  }
+  Future<void> clearTypes() async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.typeEntitys.clear();
+    });
+  }
+
   // Add a single Product
   Future<int> addProduct(ProductEntity product) async {
     final isar = await db;
@@ -256,6 +287,11 @@ class IsarHelper {
     await isar.writeTxn(() async {
       await isar.productEntitys.delete(id);
     });
+  }
+
+  Future<ProductEntity?> getProductById(int id) async {
+    final isar = await db;
+    return await isar.productEntitys.get(id);
   }
 
   // Delete all products by a list of IDs

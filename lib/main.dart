@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           title: 'Omborchi',
           themeMode: ThemeMode.light,
           onGenerateRoute: (settings) => RouteManager.generateRoute(settings),
-          home: const MainScreen(),
+          home: const SplashScreen(),
         );
       },
     );

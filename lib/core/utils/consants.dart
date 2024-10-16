@@ -22,6 +22,8 @@ class Constants {
       "Iltimos, internetingizni tekshiring va qayta urinib ko'ring";
   static const String noImage =
       "https://st4.depositphotos.com/14953852/24787/v/450/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg";
+
+  static const String successUpdated = "Muvaffaqiyatli yangilandi!";
 }
 
 class ExpenseFields {

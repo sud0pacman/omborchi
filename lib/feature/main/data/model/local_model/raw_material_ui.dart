@@ -32,11 +32,14 @@ class RawMaterialUpdate {
   final RawMaterial? rawMaterial;
   final RawMaterialType? rawMaterialType;
   final int? quantity;
+  final int? costId;
 
-  RawMaterialUpdate(
-      {required this.rawMaterial,
-        required this.rawMaterialType,
-        required this.quantity});
+  RawMaterialUpdate({
+    required this.rawMaterial,
+    required this.rawMaterialType,
+    required this.quantity,
+    this.costId
+  });
 
   RawMaterialUpdate copyWith({
     RawMaterial? rawMaterial,
@@ -54,4 +57,18 @@ class RawMaterialUpdate {
   String toString() {
     return 'RawMaterialUpdate{rawMaterial: $rawMaterial, rawMaterialType: $rawMaterialType, quantity: $quantity}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! RawMaterialUpdate) return false;
+
+    return other.rawMaterial == rawMaterial &&
+        other.rawMaterialType == rawMaterialType &&
+        other.quantity == quantity;
+  }
+
+  @override
+  int get hashCode => Object.hash(rawMaterial, rawMaterialType, quantity);
 }
+

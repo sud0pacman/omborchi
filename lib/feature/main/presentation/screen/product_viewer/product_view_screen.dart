@@ -62,16 +62,18 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var sotuv = (materialSum) + (widget.product.xizmat ?? 0) + (widget.product.foyda ?? 0);
-    final marketSum =
-        MoneyFormatter(amount: sotuv.toDouble());
+    var sotuv = (materialSum) +
+        (widget.product.xizmat ?? 0) +
+        (widget.product.foyda ?? 0);
+    final marketSum = MoneyFormatter(amount: sotuv.toDouble());
     return Scaffold(
       appBar: productViewAppBar(
         onTapDelete: () {
           showDeleteDialog(context);
         },
-        onTapEdit: () {
-          Navigator.pushNamed(context, RouteManager.updateProductScreen,
+        onTapEdit: () async {
+          Navigator.pushReplacementNamed(
+              context, RouteManager.updateProductScreen,
               arguments: widget.product);
         },
         leadingIcon: AssetRes.icBack,
@@ -91,7 +93,7 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
             }
           }
         },
-        title: "#${widget.product.nomer.toString()}",
+        title: "#${widget.product.description.toString()}",
       ),
       body: BlocProvider.value(
         value: _bloc,
@@ -100,8 +102,9 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
             if (state.materials.isNotEmpty) {
               materials = state.materials;
               for (var material in state.materials) {
-                materialSum +=
-                    (material.quantity ?? 0) * (material.price?.toInt() ?? 0);
+                materialSum += ((material.quantity?.toDouble() ?? 0) *
+                        (material.price?.toDouble() ?? 0))
+                    .toInt();
               }
               setState(() {});
             }
@@ -114,7 +117,7 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                     "Muvaffaqiyatli o'chirildi. Iltimos oyna malumotlarini yangilang."),
                 behavior: SnackBarBehavior.floating,
               ));
-              closeScreen(context);
+              closeScreen(context, arg: true);
             }
           },
           builder: (context, state) {
@@ -130,7 +133,6 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: InteractiveViewer(
-                              boundaryMargin: const EdgeInsets.all(20.0),
                               minScale: 0.5,
                               maxScale: 4.0, // Maximum zoom level
                               child: Image.file(
@@ -155,7 +157,9 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                     title: "${marketSum.output.withoutFractionDigits} so'm",
                     onPressed: () {
                       showProductDetailsBottomSheet(
-                          context, widget.product.copyWith(sotuv: materialSum), materials);
+                          context,
+                          widget.product.copyWith(sotuv: materialSum),
+                          materials);
                     },
                   ),
                 ),

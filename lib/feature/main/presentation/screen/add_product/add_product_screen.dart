@@ -60,8 +60,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController serviceController = TextEditingController();
   final TextEditingController benefitController = TextEditingController();
   Map<RawMaterialType, List<RawMaterial>>? rawMaterials;
-  RawMaterialType? selectedRawMaterialType;
-  RawMaterial? selectedRawMaterial;
   CategoryModel? selectedCategory;
   double productCost = 0.0;
   double productMarketCost = 0.0;
@@ -76,7 +74,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _validateInputs() {
     setState(() {
-      // Kategoriya validation
       if (selectedCategory == null) {
         categoryErrorText = "Kategoriya tanlanmagan";
       } else {
@@ -271,13 +268,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 const SizedBox(height: 16),
                               ],
                             ),
-                          _serviceContainer(),
-                          const SizedBox(height: 16),
                           productCostWidget(
                               "Tannarx", productCost.toStringAsFixed(2)),
                           const SizedBox(height: 16),
+                          _serviceContainer(),
+                          const SizedBox(height: 16),
                           productCostWidget(
-                              "Sotuv", productMarketCost.toStringAsFixed(2)),
+                              "Sotuv", roundMoney(productMarketCost.toInt())),
                           const SizedBox(height: 16),
                           curdRawMaterialButtons(
                             onTapPlus: () {
@@ -337,9 +334,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       _calculateMarketCost();
                     });
                   },
+                  title: "Xizmat",
                   inputFormatters: [ThousandsSeparatorInputFormatter()],
                   constraints: const BoxConstraints(maxHeight: 48),
-                  hint: "Xizmat".tr,
+                  hint: "0 so'm".tr,
                   errorText: serviceErrorText, // Error text maydoni
                 ),
               ),
@@ -354,9 +352,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       _calculateMarketCost();
                     });
                   },
+                  title: "Marja",
                   inputFormatters: [ThousandsSeparatorInputFormatter()],
                   constraints: const BoxConstraints(maxHeight: 48),
-                  hint: "Foyda".tr,
+                  hint: "0 so'm".tr,
                   errorText: benefitErrorText, // Remove individual error text
                 ),
               ),
@@ -420,8 +419,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 numberErrorText = null; // Input bo'lsa, xatolik olib tashlanadi
               });
             },
+            title: "Nomer",
             constraints: const BoxConstraints(maxHeight: 48),
-            hint: "Nomer".tr,
+            hint: "".tr,
             errorText: numberErrorText, // Error text maydoni
           ),
           const SizedBox(height: 16),
@@ -437,8 +437,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       heightErrorText = null; // Clear error if there is input
                     });
                   },
+                  title: "Bo'yi",
                   constraints: const BoxConstraints(maxHeight: 48),
-                  hint: "Bo'yi".tr,
                   errorText: heightErrorText, // Remove individual error text
                 ),
               ),
@@ -453,7 +453,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     });
                   },
                   constraints: const BoxConstraints(maxHeight: 48),
-                  hint: "Eni".tr,
+                  title: "Eni".tr,
                   errorText: widthErrorText, // Remove individual error text
                 ),
               ),
@@ -498,7 +498,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void _submitProduct() {
     List<CostModel> costModels = rawMaterialItems.map((item) {
       return CostModel(
-        productId: selectedCategory?.id ?? 0, // Adjust this based on your logic
+        productId: selectedCategory?.id ?? 0,
         xomashyoId: item.selectedRawMaterial?.id ?? 0,
         quantity: item.controller.text.toIntOrZero(),
       );
@@ -592,7 +592,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ThousandsSeparatorInputFormatter(),
               LengthLimitingTextInputFormatter(9)
             ],
-            hint: "Soni".tr,
+            hint: "0 ta",
+            title: "Soni".tr,
           ),
         ],
       ),

@@ -18,6 +18,10 @@ Future<void> setUpdateTime(DateTime now) async {
     now.toUtc().toIso8601String(),
   );
 }
+String roundMoney(int amount) {
+  int roundedAmount = (amount + 50) ~/ 100 * 100;
+  return roundedAmount.toString();
+}
 
 String capitalizeFirstLetter(String input) {
   if (input.isEmpty) return input;

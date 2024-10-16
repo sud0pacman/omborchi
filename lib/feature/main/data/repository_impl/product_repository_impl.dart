@@ -51,10 +51,14 @@ class ProductRepositoryImpl implements ProductRepository {
         for (var cost in list) {
           final result =
               await productRemoteDataSource.addProductCost(cost.toNetwork());
+
           if (result is Error) {
             return result; // Stop and return if there's an error
           }
         }
+        await isarHelper.insertAllCosts(list
+            .map((e) => e.toEntity())
+            .toList()); // Save cost using IsarHelper
         return Success(
             "Success added!"); // Return success if all inserts were successful
       } else {
@@ -72,6 +76,24 @@ class ProductRepositoryImpl implements ProductRepository {
       if (hasConnection) {
         await isarHelper.deleteProduct(product.id ?? 0);
         return productRemoteDataSource.deleteProduct(product.toNetwork());
+      } else {
+        return NoInternet("Internetga ulanmagansiz!");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> deleteCosts(List<int> deleteCostsIds) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        for (int costId in deleteCostsIds) {
+          await productRemoteDataSource.deleteCost(costId);
+        }
+        await isarHelper.deleteAllCosts(deleteCostsIds);
+        return Success("O'chirish muvaffaqiyatli");
       } else {
         return NoInternet("Internetga ulanmagansiz!");
       }
@@ -103,13 +125,9 @@ class ProductRepositoryImpl implements ProductRepository {
     if (hasNetwork) {
       final networkRes = await productRemoteDataSource.getProducts();
       if (networkRes is Success) {
-        final List<int> productIdList =
-            await isarHelper.getAllProducts().then((value) {
-          return value.map((e) => e.id).toList();
-        });
         final List<ProductNetwork> products = networkRes.value;
         final appDir = await getApplicationDocumentsDirectory();
-        isarHelper.deleteAllProducts(productIdList);
+        await isarHelper.clearProducts();
 
         for (int i = 0; i < products.length; i++) {
           if (products[i].pathOfPicture != null &&
@@ -152,14 +170,10 @@ class ProductRepositoryImpl implements ProductRepository {
     if (hasNetwork) {
       final networkRes = await productRemoteDataSource.getCosts();
       if (networkRes is Success) {
-        final List<int> costIdList =
-            await isarHelper.getAllCosts().then((value) {
-          return value.map((e) => e.id).toList();
-        });
         final List<CostNetwork> costs = networkRes.value;
         final List<CostEntity> costEntities =
             costs.map((e) => e.toEntity()).toList();
-        await isarHelper.deleteAllCosts(costIdList);
+        await isarHelper.clearCosts();
         for (int i = 0; i < costEntities.length; i++) {
           await isarHelper.addCost(costEntities[i]);
           double progress = (i + 1) / costEntities.length * 100;
@@ -181,7 +195,6 @@ class ProductRepositoryImpl implements ProductRepository {
       if (hasConnection) {
         return productRemoteDataSource.updateProduct(product.toNetwork());
       } else {
-        await updateLocalProduct(product.toEntity()); // Update in Hive locally
         return Success("Updated locally, will sync when online.");
       }
     } catch (e) {
@@ -320,14 +333,18 @@ class ProductRepositoryImpl implements ProductRepository {
 // Method to update a product in Isar
   @override
   Future<void> updateLocalProduct(ProductEntity product) async {
-    await isarHelper
-        .updateProduct(product); // Update product in Isar using IsarHelper
+    await isarHelper.updateProduct(product);
   }
 
 // Method to remove a product from Isar by its ID
   @override
   Future<void> removeProductFromLocal(int id) async {
     await isarHelper.deleteProduct(id); // Delete product by its ID in Isar
+  }
+  @override
+  Future<ProductModel?> getProductById(int id) async {
+    var res = await isarHelper.getProductById(id);
+    return res?.toModel();
   }
 
 // Method to remove multiple products by their IDs in Isar
@@ -362,7 +379,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
     final List<RawMaterial> rawMaterials =
         await isarHelper.getRawMaterialsByTypeId(id).then((onValue) {
-      return onValue.map((e) => e.toModel(lastUpdate)).toList();
+      return onValue.map((e) => e.toModel(DateTime(2024, 8, 19))).toList();
     });
 
     return rawMaterials;
@@ -375,7 +392,7 @@ class ProductRepositoryImpl implements ProductRepository {
             DateTime.now().toLocal().toIso8601String());
 
     return isarRes.map((e) {
-      return e.toModel(lastUpdate);
+      return e.toModel(DateTime(2024, 8, 19));
     }).toList();
   }
 

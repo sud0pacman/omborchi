@@ -13,6 +13,7 @@ abstract interface class ProductRemoteDataSource {
   Future<State> getProductsByCategoryId(int categoryId);
 
   Future<State> getProducts();
+
   Future<State> getCosts();
 
   Future<State> createProduct(ProductNetwork product);
@@ -22,6 +23,8 @@ abstract interface class ProductRemoteDataSource {
   Future<State> updateProduct(ProductNetwork product);
 
   Future<State> deleteProduct(ProductNetwork product);
+
+  Future<State> deleteCost(int costId);
 
   Future<State> uploadImage(String imageName, String image);
 
@@ -108,6 +111,27 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
+  Future<State> deleteCost(int costId) async {
+    try {
+      await supabaseClient
+          .from(ExpenseFields.productPriceTable)
+          .delete()
+          .eq('id', costId);
+
+      return Success("");
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } catch (e) {
+      AppRes.logger.e(e);
+      return GenericError(e);
+    }
+  }
+
+  @override
   Future<State> getProductsByCategoryId(int categoryId) async {
     AppRes.logger.t(categoryId);
     try {
@@ -157,11 +181,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       return GenericError(e);
     }
   }
+
   @override
   Future<State> getCosts() async {
     try {
-      final response =
-          await supabaseClient.from(ExpenseFields.productPriceTable).select('*');
+      final response = await supabaseClient
+          .from(ExpenseFields.productPriceTable)
+          .select('*');
 
       final List<CostNetwork> result =
           response.map((e) => CostNetwork.fromJson(e)).toList();
@@ -185,13 +211,12 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<State> updateProduct(ProductNetwork product) async {
     AppRes.logger.t(product.toString());
     try {
-      final newProduct = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.productTable)
           .update(product.toJson())
-          .eq('id', product.id!)
-          .single();
+          .eq("id", product.id ?? 0);
 
-      return Success(ProductNetwork.fromJson(newProduct));
+      return Success("");
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));

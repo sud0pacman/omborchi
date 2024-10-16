@@ -85,10 +85,7 @@ class TypeRepositoryImpl implements TypeRepository {
                 .map((e) => e.toEntity())
                 .toList();
 
-        await isarHelper.deleteAllTypes(
-            await _getTypesFromLocal().then((List<RawMaterialType> value) {
-          return value.map((e) => e.id!).toList();
-        }));
+        await isarHelper.clearTypes();
         await isarHelper.insertAllTypes(typeEntityList);
       } else if (res is NoInternet) {
         return NoInternet(Constants.noNetwork);

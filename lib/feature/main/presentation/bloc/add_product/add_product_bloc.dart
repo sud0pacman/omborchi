@@ -56,13 +56,14 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
     });
     on<AddProduct>((event, emit) async {
       final hasConnection = await networkChecker.hasConnection;
-      if(hasConnection) {
+      if (hasConnection) {
         emit(state.copyWith(isLoading: true));
         final imageName = "${DateTime.now()}.jpg";
         var image = event.productModel.pathOfPicture ?? "";
         AppRes.logger.w(event.costModels.first.toString());
         if (image.isFilePath()) {
-          final response = await productRepository.uploadImage(imageName, image);
+          final response =
+              await productRepository.uploadImage(imageName, image);
           if (response is Success) {
             final id = DateTime.now().millisecondsSinceEpoch;
             image = response.value;
@@ -72,18 +73,12 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
             if (res is Success) {
               final secondRes = await productRepository.addProductCost(event
                   .costModels
-                  .map((e) => e.copyWit(productId: id, id: DateTime.now().millisecondsSinceEpoch))
+                  .map((e) => e.copyWit(
+                      productId: id, id: DateTime.now().millisecondsSinceEpoch))
                   .toList());
-              AppRes.logger.d(event.costModels
-                  .map((e) => e.copyWit(productId: id))
-                  .toList()
-                  .length);
               if (secondRes is Success) {
-                AppRes.logger.d("Success secondRes");
-                await productRepository.saveCostListToLocal(event.costModels
-                    .map((e) => e.copyWit(productId: id, id: DateTime.now().millisecondsSinceEpoch))
-                    .toList());
-                final Directory appDir = await getApplicationDocumentsDirectory();
+                final Directory appDir =
+                    await getApplicationDocumentsDirectory();
                 final String localImagePath = '${appDir.path}/$imageName';
 
                 await Dio().download(image, localImagePath);
@@ -107,7 +102,6 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
       } else {
         state.copyWith(error: Constants.noNetwork);
       }
-
     });
   }
 }

@@ -51,5 +51,17 @@ class ProductViewBloc extends Bloc<ProductViewEvent, ProductViewState> {
         emit(state.copyWith(error: Constants.noNetwork));
       }
     });
+    on<GetProductById>((event, emit) async {
+      final bool hasNetwork = await networkChecker.hasConnection;
+      if (hasNetwork) {
+        emit(state.copyWith(isLoading: true));
+        final changedProduct = await productRepository.getProductById(event.product.id ?? 0);
+        if (changedProduct is Success) {
+          emit(state.copyWith(isLoading: false, product: changedProduct));
+        }
+      } else {
+        emit(state.copyWith(error: Constants.noNetwork));
+      }
+    });
   }
 }

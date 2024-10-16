@@ -61,76 +61,10 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   String? widthErrorText;
   String? benefitErrorText;
   String? serviceErrorText;
-  bool isImageSelected = false;
+  bool isImageChanged = false;
   String? imageErrorText;
 
   List<RawMaterialUpdate>? uiMaterials;
-
-  void _validateInputs() {
-    setState(() {
-      // Kategoriya validation
-      if (selectedCategory == null) {
-        categoryErrorText = "Kategoriya tanlanmagan";
-      } else {
-        categoryErrorText = null;
-      }
-
-      // Nomer validation
-      if (numberController.text.isEmpty) {
-        numberErrorText = "Nomer to'ldirilmagan";
-      } else {
-        numberErrorText = null;
-      }
-      if (serviceController.text.isEmpty) {
-        serviceErrorText =
-            "Xizmat to'ldirilmagan akjsdgaaaaaaaaasf ahyufufufufufufufufufufufufufuf";
-      } else {
-        serviceErrorText = null;
-      }
-      if (benefitController.text.isEmpty) {
-        benefitErrorText = "Foyda to'ldirilmagan";
-      } else {
-        benefitErrorText = null;
-      }
-
-      // Height validation
-      if (heightController.text.isEmpty) {
-        heightErrorText = "Bo'yi to'ldirilmagan";
-      } else {
-        heightErrorText = null;
-      }
-
-      // Width validation
-      if (widthController.text.isEmpty) {
-        widthErrorText = "Eni to'ldirilmagan";
-      } else {
-        widthErrorText = null;
-      }
-    });
-
-    // Agar hammasi to'g'ri bo'lsa, mahsulotni qo'shish funksiyasini chaqiramiz
-    // Agar rasm tanlanmagan bo'lsa, xato xabarini chiqaramiz
-    image != null
-        ? imageErrorText = null
-        : imageErrorText = "Iltimos, rasm tanlang";
-    if (categoryErrorText == null &&
-        numberErrorText == null &&
-        heightErrorText == null &&
-        serviceErrorText == null &&
-        benefitErrorText == null &&
-        imageErrorText == null &&
-        widthErrorText == null) {
-      _submitProduct();
-    }
-  }
-
-  void _calculateMarketCost() {
-    double service = serviceController.text.toIntOrZero().toDouble();
-    double benefit = benefitController.text.toIntOrZero().toDouble();
-    setState(() {
-      productMarketCost = productCost + service + benefit;
-    });
-  }
 
   @override
   void initState() {
@@ -148,23 +82,17 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
     super.initState();
   }
 
-  void _calculateTotalCost() {
-    double totalCost = 0.0;
-
-    // Har bir xomashyo elementining qiymatini umumiy tannarxga qo'shamiz
+  @override
+  void dispose() {
+    numberController.dispose();
+    heightController.dispose();
+    widthController.dispose();
+    serviceController.dispose();
+    benefitController.dispose();
     for (var item in rawMaterialItems) {
-      double quantity = convertToInt(item.controller.text).toDouble();
-      if (item.selectedRawMaterial != null) {
-        totalCost += quantity * (item.selectedRawMaterial?.price ?? 0.0);
-      }
+      item.controller.dispose();
     }
-
-    setState(() {
-      productCost = totalCost;
-      productMarketCost = productCost +
-          serviceController.text.toIntOrZero() +
-          benefitController.text.toIntOrZero();
-    });
+    super.dispose();
   }
 
   @override
@@ -184,7 +112,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
           listener: (context, state) {
             if (state.isSuccess == true) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text("Successfully added!"),
+                content: Text(Constants.successUpdated),
                 behavior: SnackBarBehavior.floating,
               ));
               closeDialog(context);
@@ -207,9 +135,10 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
             }
             if (state.uiMaterials.isNotEmpty) {
               uiMaterials = state.uiMaterials;
-              for (var value in uiMaterials ?? []) {
-                productCost += (value.rawMaterial?.price?.toInt() ?? 0) *
-                    (value.quantity ?? 0);
+              for (var value in uiMaterials!) {
+                productCost +=
+                    ((value.rawMaterial?.price ?? 0) * (value.quantity ?? 0))
+                        .toInt();
               }
               setState(() {
                 productMarketCost = productCost;
@@ -219,13 +148,30 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
             }
             if (state.rawMaterials != null) {
               rawMaterials = state.rawMaterials;
-              for (var value in uiMaterials ?? []) {
-                rawMaterialItems.add(RawMaterialItemData(
-                    controller: TextEditingController(),
+              var now = DateTime(2024, 8, 19);
+              rawMaterials!.keys
+                  .toList()
+                  .map((item) => item.copyWith(updatedAt: now));
+              rawMaterials!.keys.toList().forEach((item) {
+                print(item);
+              });
+              for (var value in uiMaterials!) {
+                var cont = TextEditingController();
+                cont.text = value.quantity.toString().toIntOrZero().toString();
+
+                if (!rawMaterials!.containsKey(
+                    value.rawMaterialType?.copyWith(updatedAt: now))) {
+                  print('Error: ${value.rawMaterialType} mavjud emas.');
+                  continue; // Agar topilmasa, o'tkazib yuboriladi.
+                }
+
+                rawMaterialItems.add(
+                  RawMaterialItemData(
+                    controller: cont,
+                    selectedRawMaterialType: value.rawMaterialType,
                     selectedRawMaterial: value.rawMaterial,
-                    selectedRawMaterialType: value.rawMaterialType));
-                productCost += (value.rawMaterial?.price?.toInt() ?? 0) *
-                    (value.quantity ?? 0);
+                  ),
+                );
               }
 
               setState(() {});
@@ -247,7 +193,12 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                                 image = await imagePicker.pickImage(
                                     source: ImageSource.gallery,
                                     imageQuality: 50);
-                                imageErrorText = null;
+                                if (image != null) {
+                                  imageErrorText = null;
+                                  isImageChanged = true;
+                                } else {
+                                  isImageChanged = false;
+                                }
                                 setState(() {});
                               },
                             ),
@@ -398,6 +349,142 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
     );
   }
 
+  Widget addRawMaterialItem({
+    required TextEditingController textController,
+    required Function(double value) changedCost,
+    RawMaterialType? selectedRawMaterialType,
+    RawMaterial? selectedRawMaterial,
+    required Function(RawMaterialType?) onRawMaterialTypeChanged,
+    required Function(RawMaterial?) onRawMaterialChanged,
+    String? errorText, // Add errorText here
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RawMaterialTypeDropdown(
+                hint: "Turini tanlang",
+                value: selectedRawMaterialType,
+                itemColor: AppColors.background,
+                buttonColor: AppColors.white,
+                buttonTextStyle: medium.copyWith(fontSize: 16),
+                itemTextStyle: medium.copyWith(fontSize: 16),
+                dropdownItems: rawMaterials?.keys.toList() ?? [],
+                onChanged: onRawMaterialTypeChanged,
+              ),
+              RawMaterialDropdown(
+                hint: "Xomashyo tanlang",
+                value: selectedRawMaterial,
+                itemColor: AppColors.background,
+                buttonColor: AppColors.white,
+                buttonTextStyle: medium.copyWith(fontSize: 16),
+                itemTextStyle: medium.copyWith(fontSize: 16),
+                dropdownItems:
+                    rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
+                onChanged: onRawMaterialChanged,
+              ),
+            ],
+          ),
+          if (errorText != null) // Agar xatolik bo'lsa, xabarni ko'rsatamiz
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                errorText,
+                style: const TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            ),
+          const SizedBox(height: 16),
+          TextWithTextFieldSmokeWhiteWidget(
+            controller: textController,
+            textInputType: TextInputType.number,
+            errorText: errorText,
+            onChanged: (value) {
+              double quantity = convertToInt(value).toDouble();
+              if (selectedRawMaterial != null) {
+                double newCost = quantity * (selectedRawMaterial.price ?? 0.0);
+                AppRes.logger
+                    .w("${convertToInt(value).toDouble()} || $newCost");
+                changedCost(newCost);
+              }
+            },
+            constraints: const BoxConstraints(maxHeight: 48),
+            inputFormatters: [
+              ThousandsSeparatorInputFormatter(),
+              LengthLimitingTextInputFormatter(9)
+            ],
+            hint: "Soni".tr,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _validateInputs() {
+    setState(() {
+      categoryErrorText =
+          selectedCategory == null ? "Kategoriya tanlanmagan" : null;
+      numberErrorText =
+          numberController.text.isEmpty ? "Nomer to'ldirilmagan" : null;
+      serviceErrorText =
+          serviceController.text.isEmpty ? "Xizmat to'ldirilmagan" : null;
+      benefitErrorText =
+          benefitController.text.isEmpty ? "Foyda to'ldirilmagan" : null;
+      heightErrorText =
+          heightController.text.isEmpty ? "Bo'yi to'ldirilmagan" : null;
+      widthErrorText =
+          widthController.text.isEmpty ? "Eni to'ldirilmagan" : null;
+      imageErrorText = image == null ? "Iltimos, rasm tanlang" : null;
+    });
+
+    if ([
+      categoryErrorText,
+      numberErrorText,
+      serviceErrorText,
+      benefitErrorText,
+      heightErrorText,
+      widthErrorText,
+      imageErrorText
+    ].every((element) => element == null)) {
+      _submitProduct();
+    }
+  }
+
+  void _calculateMarketCost() {
+    double service = serviceController.text.toIntOrZero().toDouble();
+    double benefit = benefitController.text.toIntOrZero().toDouble();
+    setState(() {
+      productMarketCost = productCost + service + benefit;
+    });
+  }
+
+  void _calculateTotalCost() {
+    double totalCost = 0.0;
+
+    // Har bir xomashyo elementining qiymatini umumiy tannarxga qo'shamiz
+    for (var item in rawMaterialItems) {
+      double quantity = convertToInt(item.controller.text).toDouble();
+      if (item.selectedRawMaterial != null) {
+        totalCost += quantity * (item.selectedRawMaterial?.price ?? 0.0);
+      }
+    }
+
+    setState(() {
+      productCost = totalCost;
+      productMarketCost = productCost +
+          serviceController.text.toIntOrZero() +
+          benefitController.text.toIntOrZero();
+    });
+  }
+
   Widget _categorySelectorContainer(UpdateProductState state) {
     return Container(
       width: double.infinity,
@@ -532,16 +619,18 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   void _submitProduct() {
     List<CostModel> costModels = rawMaterialItems.map((item) {
       return CostModel(
-        productId: selectedCategory?.id ?? 0, // Adjust this based on your logic
+        productId: selectedCategory?.id ?? 0,
         xomashyoId: item.selectedRawMaterial?.id ?? 0,
         quantity: item.controller.text.toIntOrZero(),
       );
     }).toList();
 
     _bloc.add(UpdateProduct(
-      productModel: ProductModel(
+      isImageChanged: isImageChanged,
+      productModel: widget.product.copyWith(
         nomer: (numberController.text.toIntOrZero()),
-        pathOfPicture: image?.path,
+        pathOfPicture:
+            isImageChanged ? image?.path : widget.product.pathOfPicture,
         categoryId: selectedCategory?.id,
         xizmat: serviceController.text.toIntOrZero(),
         foyda: benefitController.text.toIntOrZero(),
@@ -552,85 +641,6 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       ),
       costModels: costModels, // Send the gathered list
     ));
-  }
-
-  Widget addRawMaterialItem({
-    required TextEditingController textController,
-    required Function(double value) changedCost,
-    RawMaterialType? selectedRawMaterialType,
-    RawMaterial? selectedRawMaterial,
-    required Function(RawMaterialType?) onRawMaterialTypeChanged,
-    required Function(RawMaterial?) onRawMaterialChanged,
-    String? errorText, // Add errorText here
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RawMaterialTypeDropdown(
-                hint: "Turini tanlang",
-                value: selectedRawMaterialType,
-                itemColor: AppColors.background,
-                buttonColor: AppColors.white,
-                buttonTextStyle: medium.copyWith(fontSize: 16),
-                itemTextStyle: medium.copyWith(fontSize: 16),
-                dropdownItems: rawMaterials?.keys.toList() ?? [],
-                onChanged: onRawMaterialTypeChanged,
-              ),
-              RawMaterialDropdown(
-                hint: "Xomashyo tanlang",
-                value: selectedRawMaterial,
-                itemColor: AppColors.background,
-                buttonColor: AppColors.white,
-                buttonTextStyle: medium.copyWith(fontSize: 16),
-                itemTextStyle: medium.copyWith(fontSize: 16),
-                dropdownItems:
-                    rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
-                onChanged: onRawMaterialChanged,
-              ),
-            ],
-          ),
-          if (errorText != null) // Agar xatolik bo'lsa, xabarni ko'rsatamiz
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                errorText,
-                style: const TextStyle(color: Colors.red, fontSize: 12),
-              ),
-            ),
-          const SizedBox(height: 16),
-          TextWithTextFieldSmokeWhiteWidget(
-            controller: textController,
-            textInputType: TextInputType.number,
-            errorText: errorText,
-            onChanged: (value) {
-              double quantity = convertToInt(value).toDouble();
-              if (selectedRawMaterial != null) {
-                double newCost = quantity * (selectedRawMaterial.price ?? 0.0);
-                AppRes.logger
-                    .w("${convertToInt(value).toDouble()} || $newCost");
-                changedCost(newCost);
-              }
-            },
-            constraints: const BoxConstraints(maxHeight: 48),
-            inputFormatters: [
-              ThousandsSeparatorInputFormatter(),
-              LengthLimitingTextInputFormatter(9)
-            ],
-            hint: "Soni".tr,
-          ),
-        ],
-      ),
-    );
   }
 
   Widget productCostWidget(String title, String cost) {

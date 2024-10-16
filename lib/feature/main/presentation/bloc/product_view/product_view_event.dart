@@ -13,3 +13,9 @@ class DeleteProduct extends ProductViewEvent {
 
   DeleteProduct({required this.product});
 }
+
+class GetProductById extends ProductViewEvent {
+  final ProductModel product;
+
+  GetProductById({required this.product});
+}

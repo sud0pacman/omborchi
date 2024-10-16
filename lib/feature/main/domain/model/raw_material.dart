@@ -57,4 +57,16 @@ class RawMaterial {
 
     return entity;
   }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is RawMaterial &&
+              runtimeType == other.runtimeType &&
+              id == other.id &&
+              name == other.name &&
+              price == other.price &&
+              typeId == other.typeId;
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode ^ price.hashCode ^ typeId.hashCode;
 }

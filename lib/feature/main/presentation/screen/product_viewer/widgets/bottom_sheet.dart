@@ -37,7 +37,7 @@ void showProductDetailsBottomSheet(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 16,
               ),
               const Text(
@@ -54,7 +54,7 @@ void showProductDetailsBottomSheet(
               const SizedBox(
                 height: 16,
               ),
-              _buildInfoRow(title: "Nomer:", value: product.nomer.toString()),
+              _buildInfoRow(title: "Nomer:", value: product.description.toString()),
               _buildInfoRow(
                   title: "Razmer:", value: "${product.boyi} X ${product.eni}"),
               _buildInfoRow(title: "Tannarx:", value: "$tannarx so'm"),

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:omborchi/core/custom/extensions/string_extensions.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
@@ -28,6 +27,7 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
   final RawMaterialRepository rawMaterialRepository;
   final TypeRepository typeRepository;
   final InternetConnectionChecker networkChecker = InternetConnectionChecker();
+  final List<int> costDeleteIds = [];
 
   UpdateProductBloc(
       this.productRepository, this.rawMaterialRepository, this.typeRepository)
@@ -35,10 +35,10 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
             categories: [], rawMaterials: {}, uiMaterials: [])) {
     on<GetProductMaterials>((event, emit) async {
       final costRes = await productRepository.getCostListById(event.productId);
-      AppRes.logger
-          .d("Cost length in local ${costRes.length} ID = ${event.productId}");
+      costDeleteIds.clear();
       final List<RawMaterialUpdate> materialUiList = [];
       for (var cost in costRes) {
+        costDeleteIds.add(cost.id);
         final materialRes =
             await rawMaterialRepository.getMaterialById(cost.xomashyoId);
         if (materialRes is Success) {
@@ -48,8 +48,8 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
               await typeRepository.getTypeByIdLocal(rawMaterialEntity.typeId);
           AppRes.logger.w("$rawMaterialEntity $typeEntity");
           materialUiList.add(RawMaterialUpdate(
-              rawMaterial: rawMaterialEntity.toModel(DateTime.now()),
-              rawMaterialType: typeEntity?.toModel(DateTime.now()),
+              rawMaterial: rawMaterialEntity.toModel(DateTime(2024, 8, 19)),
+              rawMaterialType: typeEntity?.toModel(DateTime(2024, 8, 19)),
               quantity: cost.quantity));
         }
       }
@@ -87,58 +87,56 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
     });
     on<UpdateProduct>((event, emit) async {
       final hasConnection = await networkChecker.hasConnection;
+      String image = event.productModel.pathOfPicture ?? Constants.noImage;
+      final imageName = "${DateTime.now()}.jpg";
       if (hasConnection) {
         emit(state.copyWith(isLoading: true));
-        final imageName = "${DateTime.now()}.jpg";
-        var image = event.productModel.pathOfPicture ?? "";
-        AppRes.logger.w(event.costModels.first.toString());
-        if (image.isFilePath()) {
+
+        if (event.isImageChanged) {
           final response =
               await productRepository.uploadImage(imageName, image);
           if (response is Success) {
-            final id = DateTime.now().millisecondsSinceEpoch;
             image = response.value;
-            AppRes.logger.w(image);
-            final res = await productRepository.createProduct(
-                event.productModel.copyWith(id: id, pathOfPicture: image));
-            if (res is Success) {
-              final secondRes = await productRepository.addProductCost(event
-                  .costModels
-                  .map((e) => e.copyWit(
-                      productId: id, id: DateTime.now().millisecondsSinceEpoch))
-                  .toList());
-              AppRes.logger.d(event.costModels
-                  .map((e) => e.copyWit(productId: id))
-                  .toList()
-                  .length);
-              if (secondRes is Success) {
-                AppRes.logger.d("Success secondRes");
-                await productRepository.saveCostListToLocal(event.costModels
-                    .map((e) => e.copyWit(
-                        productId: id,
-                        id: DateTime.now().millisecondsSinceEpoch))
-                    .toList());
+          }
+        }
+        final res = await productRepository
+            .updateProduct(event.productModel.copyWith(pathOfPicture: image));
+        if (res is Success) {
+          AppRes.logger.t("updateProduct Success");
+          final deleteCostsRes =
+              await productRepository.deleteCosts(costDeleteIds);
+          if (deleteCostsRes is Success) {
+            AppRes.logger.t("deleteCostsRes Success");
+            final insertCostRes = await productRepository.addProductCost(event
+                .costModels
+                .map((e) => e.copyWit(
+                    productId: event.productModel.id,
+                    id: DateTime.now().millisecondsSinceEpoch))
+                .toList());
+            if (insertCostRes is Success) {
+              AppRes.logger.t("insertCostRes Success");
+              String? localImagePath = event.productModel.pathOfPicture;
+              if (event.isImageChanged) {
                 final Directory appDir =
                     await getApplicationDocumentsDirectory();
-                final String localImagePath = '${appDir.path}/$imageName';
+                localImagePath = '${appDir.path}/$imageName';
 
                 await Dio().download(image, localImagePath);
-
                 AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
-                productRepository.saveProductToLocal(event.productModel
-                    .copyWith(pathOfPicture: localImagePath, id: id)
-                    .toEntity());
-                emit(state.copyWith(
-                    isLoading: false, isSuccess: true, isBack: true));
               }
-            } else if (res is NoInternet) {
-              emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
-            } else if (res is GenericError) {
-              emit(state.copyWith(error: 'Qandaydir xatolik'));
-            } else {
-              emit(state.copyWith(error: 'Qandaydir xatolik'));
+              productRepository.updateLocalProduct(event.productModel
+                  .copyWith(pathOfPicture: localImagePath)
+                  .toEntity());
+              emit(state.copyWith(
+                  isLoading: false, isSuccess: true, isBack: true));
             }
-          } else if (response is GenericError) {}
+          }
+        } else if (res is NoInternet) {
+          emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
+        } else if (res is GenericError) {
+          emit(state.copyWith(error: 'Qandaydir xatolik'));
+        } else {
+          emit(state.copyWith(error: 'Qandaydir xatolik'));
         }
       } else {
         state.copyWith(error: Constants.noNetwork);

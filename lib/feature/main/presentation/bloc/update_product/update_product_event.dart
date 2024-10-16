@@ -5,10 +5,13 @@ class UpdateProductEvent {}
 
 class UpdateProduct extends UpdateProductEvent {
   final ProductModel productModel;
-  final List<CostModel> costModels;  // Add the costModels field
+  final bool isImageChanged;
+  final List<CostModel> costModels;
+
 
   UpdateProduct({
     required this.productModel,
+    required this.isImageChanged,
     required this.costModels,  // Initialize it in the constructor
   });
 }

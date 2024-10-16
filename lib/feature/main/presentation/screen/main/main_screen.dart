@@ -247,6 +247,10 @@ class _MainScreenState extends State<MainScreen> {
             if (state.isCloseDialog && Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
+            if(state.products.isNotEmpty) {
+              currentNomer = 0;
+              currentNomerIndex = 0;
+            }
           },
           builder: (context, state) {
             return Padding(
@@ -384,7 +388,7 @@ class _MainScreenState extends State<MainScreen> {
         return InkWell(
           onTap: () {
             Navigator.pushNamed(context, RouteManager.productViewScreen,
-                arguments: product);
+                arguments: product.copyWith(description: productNomer));
           },
           child: Container(
             height: 72,

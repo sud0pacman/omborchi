@@ -105,16 +105,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
         now = DateTime.now();
         await setUpdateTime(now);
 
-        final List<int> categoryIdList =
-            await _getCategoriesFromLocal().then((value) {
-          return value.map((e) => e.id!).toList();
-        });
-
         final List<CategoryNetwork> categories = networkRes.value;
         final List<CategoryEntity> categoriesEntity =
             categories.map((e) => e.toLocal()).toList();
 
-        await isarHelper.deleteAllCategories(categoryIdList);
+        await isarHelper.clearCategories();
         for (int i = 0; i < categoriesEntity.length; i++) {
           await isarHelper.addCategory(categoriesEntity[i]);
           double progress = (i + 1) / categoriesEntity.length * 100;

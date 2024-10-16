@@ -100,8 +100,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
       final typeList = await _getTypesFromLocal();
 
       // Delete all existing raw materials in Isar based on the type IDs
-      await isarHelper.deleteAllRawMaterials(
-          typeList.map((element) => element.id!).toList());
+      await isarHelper.clearMaterials();
 
       int totalRawMaterials = 0;
       int processedRawMaterials = 0;
