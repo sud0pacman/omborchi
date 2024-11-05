@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -49,8 +51,9 @@ class ProductRepositoryImpl implements ProductRepository {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
         for (var cost in list) {
+          AppRes.logger.t(cost.toString());
           final result =
-              await productRemoteDataSource.addProductCost(cost.toNetwork());
+          await productRemoteDataSource.addProductCost(cost.toNetwork());
 
           if (result is Error) {
             return result; // Stop and return if there's an error
@@ -85,14 +88,12 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<State> deleteCosts(List<int> deleteCostsIds) async {
+  Future<State> deleteCosts(int id) async {
     try {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
-        for (int costId in deleteCostsIds) {
-          await productRemoteDataSource.deleteCost(costId);
-        }
-        await isarHelper.deleteAllCosts(deleteCostsIds);
+        await productRemoteDataSource.deleteCost(id);
+        await isarHelper.deleteAllCostsById(id);
         return Success("O'chirish muvaffaqiyatli");
       } else {
         return NoInternet("Internetga ulanmagansiz!");
@@ -130,7 +131,8 @@ class ProductRepositoryImpl implements ProductRepository {
         await isarHelper.clearProducts();
 
         for (int i = 0; i < products.length; i++) {
-          if (products[i].pathOfPicture != null && !(products[i].pathOfPicture!.startsWith("/data")) &&
+          if (products[i].pathOfPicture != null &&
+              !(products[i].pathOfPicture!.startsWith("/data")) &&
               products[i].pathOfPicture!.isNotEmpty) {
             // AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
             try {
@@ -180,7 +182,7 @@ class ProductRepositoryImpl implements ProductRepository {
       if (networkRes is Success) {
         final List<CostNetwork> costs = networkRes.value;
         final List<CostEntity> costEntities =
-            costs.map((e) => e.toEntity()).toList();
+        costs.map((e) => e.toEntity()).toList();
         await isarHelper.clearCosts();
         for (int i = 0; i < costEntities.length; i++) {
           await isarHelper.addCost(costEntities[i]);
@@ -258,9 +260,9 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<ProductModel>> fetchAllProductsFromLocal() async {
     final products =
-        await isarHelper.getAllProducts(); // This returns List<ProductEntity>
+    await isarHelper.getAllProducts(); // This returns List<ProductEntity>
     final productModels =
-        products.map((productEntity) => productEntity.toModel()).toList();
+    products.map((productEntity) => productEntity.toModel()).toList();
 
     return productModels; // Return List<ProductModel>
   }
@@ -268,22 +270,22 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<CostModel>> fetchAllCostsFromLocal() async {
     final products =
-        await isarHelper.getAllCosts(); // This returns List<ProductEntity>
+    await isarHelper.getAllCosts(); // This returns List<ProductEntity>
     final productModels =
-        products.map((productEntity) => productEntity.toModel()).toList();
+    products.map((productEntity) => productEntity.toModel()).toList();
 
     return productModels; // Return List<ProductModel>
   }
 
   @override
   Future<List<ProductModel?>> fetchProductFromLocalByQuery(
-    String nomer,
-    String eni,
-    String boyi,
-    String narxi,
-    String marja,
-    int categoryId,
-  ) async {
+      String nomer,
+      String eni,
+      String boyi,
+      String narxi,
+      String marja,
+      int categoryId,
+      ) async {
     final isar = await isarHelper.db;
 
     // Parsing the strings into int ranges or setting default bounds if empty
@@ -295,20 +297,20 @@ class ProductRepositoryImpl implements ProductRepository {
 
     final query = categoryId == 0
         ? isar.productEntitys
-            .filter()
-            .nomerBetween(nomerRange[0], nomerRange[1])
-            .eniBetween(eniRange[0], eniRange[1])
-            .boyiBetween(boyiRange[0], boyiRange[1])
-            .sotuvBetween(sotuvRange[0], sotuvRange[1])
-            .foydaBetween(foydaRange[0], foydaRange[1])
+        .filter()
+        .nomerBetween(nomerRange[0], nomerRange[1])
+        .eniBetween(eniRange[0], eniRange[1])
+        .boyiBetween(boyiRange[0], boyiRange[1])
+        .sotuvBetween(sotuvRange[0], sotuvRange[1])
+        .foydaBetween(foydaRange[0], foydaRange[1])
         : isar.productEntitys
-            .filter()
-            .categoryIdEqualTo(categoryId)
-            .nomerBetween(nomerRange[0], nomerRange[1])
-            .eniBetween(eniRange[0], eniRange[1])
-            .boyiBetween(boyiRange[0], boyiRange[1])
-            .sotuvBetween(sotuvRange[0], sotuvRange[1])
-            .foydaBetween(foydaRange[0], foydaRange[1]);
+        .filter()
+        .categoryIdEqualTo(categoryId)
+        .nomerBetween(nomerRange[0], nomerRange[1])
+        .eniBetween(eniRange[0], eniRange[1])
+        .boyiBetween(boyiRange[0], boyiRange[1])
+        .sotuvBetween(sotuvRange[0], sotuvRange[1])
+        .foydaBetween(foydaRange[0], foydaRange[1]);
     AppRes.logger.w("${nomerRange[0]} || ${nomerRange[1]}");
     AppRes.logger.w("${eniRange[0]} || ${eniRange[1]}");
     AppRes.logger.w("${boyiRange[0]} || ${boyiRange[1]}");
@@ -375,7 +377,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
     for (var rawMaterialType in types) {
       rawMaterials[rawMaterialType] =
-          await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
+      await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
     }
 
     return Success(rawMaterials);
@@ -387,7 +389,7 @@ class ProductRepositoryImpl implements ProductRepository {
             DateTime.now().toLocal().toIso8601String());
 
     final List<RawMaterial> rawMaterials =
-        await isarHelper.getRawMaterialsByTypeId(id).then((onValue) {
+    await isarHelper.getRawMaterialsByTypeId(id).then((onValue) {
       return onValue.map((e) => e.toModel(DateTime(2024, 8, 19))).toList();
     });
 
@@ -439,5 +441,11 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<CostEntity>> getCostListById(int productId) async {
     return await isarHelper.getCost(productId); // Get cost by ID from Isar
+  }
+
+  @override
+  Future<State> getProductByIdRemote(int id) async {
+    var res = await productRemoteDataSource.getProductById(id);
+    return res;
   }
 }

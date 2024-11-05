@@ -468,8 +468,6 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
 
   void _calculateTotalCost() {
     double totalCost = 0.0;
-
-    // Har bir xomashyo elementining qiymatini umumiy tannarxga qo'shamiz
     for (var item in rawMaterialItems) {
       double quantity = convertToInt(item.controller.text).toDouble();
       if (item.selectedRawMaterial != null) {

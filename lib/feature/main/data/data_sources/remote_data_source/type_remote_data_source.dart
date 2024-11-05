@@ -8,8 +8,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class TypeRemoteDataSource {
   Future<State> getTypes();
+
   Future<State> createType(RawMaterialTypeNetwork type);
+
   Future<State> updateType(RawMaterialTypeNetwork type);
+
   Future<State> deleteType(RawMaterialTypeNetwork type);
 }
 
@@ -23,13 +26,11 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
     AppRes.logger.t(type.toString());
 
     try {
-      final newType = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.rawMaterialTypeTable)
-          .insert(type.toJson())
-          .select()
-          .single();
+          .insert(type.toJson());
 
-      return Success(RawMaterialTypeNetwork.fromJson(newType));
+      return Success("Success");
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -72,9 +73,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .select('*');
       AppRes.logger.t(response.length);
       final res =
-              response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
-
-
+      response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
 
       return Success(res);
     } on SocketException catch (e) {

@@ -36,7 +36,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         emit(state.copyWith(isLoading: true));
 
         final synchResponse =
-            await categoryRepository.syncCategories((value) {});
+        await categoryRepository.syncCategories((value) {});
 
         if (synchResponse is Success) {
           emit(state.copyWith(categories: synchResponse.value));
@@ -59,7 +59,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         emit(state.copyWith(isLoading: true));
         AppRes.logger.f(event.category.name);
         final createResponse =
-            await categoryRepository.createCategory(event.category);
+        await categoryRepository.createCategory(event.category);
 
         if (createResponse is Success) {
           state.categories.add(createResponse.value);
@@ -83,7 +83,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         emit(state.copyWith(isLoading: true));
 
         final updateResponse =
-            await categoryRepository.updateCategory(event.category);
+        await categoryRepository.updateCategory(event.category);
 
         if (updateResponse is Success) {
           emit(state.copyWith(categories: updateResponse.value));
@@ -106,7 +106,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         emit(state.copyWith(isLoading: true));
 
         final deleteResponse =
-            await categoryRepository.deleteCategory(event.category);
+        await categoryRepository.deleteCategory(event.category);
 
         if (deleteResponse is Success) {
           state.categories.remove(event.category);

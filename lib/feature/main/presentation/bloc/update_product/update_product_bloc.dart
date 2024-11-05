@@ -6,6 +6,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/model/local_model/type_entity.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/model/raw_material.dart';
@@ -28,11 +29,12 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
   final TypeRepository typeRepository;
   final InternetConnectionChecker networkChecker = InternetConnectionChecker();
   final List<int> costDeleteIds = [];
+  int counter = 0;
 
   UpdateProductBloc(
       this.productRepository, this.rawMaterialRepository, this.typeRepository)
       : super(UpdateProductState(
-            categories: [], rawMaterials: {}, uiMaterials: [])) {
+      categories: [], rawMaterials: {}, uiMaterials: [])) {
     on<GetProductMaterials>((event, emit) async {
       final costRes = await productRepository.getCostListById(event.productId);
       costDeleteIds.clear();
@@ -40,12 +42,12 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
       for (var cost in costRes) {
         costDeleteIds.add(cost.id);
         final materialRes =
-            await rawMaterialRepository.getMaterialById(cost.xomashyoId);
+        await rawMaterialRepository.getMaterialById(cost.xomashyoId);
         if (materialRes is Success) {
           final RawMaterialEntity rawMaterialEntity = materialRes.value;
           AppRes.logger.w("${rawMaterialEntity.typeId}");
           final TypeEntity? typeEntity =
-              await typeRepository.getTypeByIdLocal(rawMaterialEntity.typeId);
+          await typeRepository.getTypeByIdLocal(rawMaterialEntity.typeId);
           AppRes.logger.w("$rawMaterialEntity $typeEntity");
           materialUiList.add(RawMaterialUpdate(
               rawMaterial: rawMaterialEntity.toModel(DateTime(2024, 8, 19)),
@@ -94,31 +96,40 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
 
         if (event.isImageChanged) {
           final response =
-              await productRepository.uploadImage(imageName, image);
+          await productRepository.uploadImage(imageName, image);
           if (response is Success) {
             image = response.value;
+          }
+        } else {
+          final response = await productRepository
+              .getProductByIdRemote(event.productModel.id ?? 0);
+          if (response is Success) {
+            final ProductNetwork value = response.value;
+            image = value.pathOfPicture ?? Constants.noImage;
           }
         }
         final res = await productRepository
             .updateProduct(event.productModel.copyWith(pathOfPicture: image));
         if (res is Success) {
-          AppRes.logger.t("updateProduct Success");
           final deleteCostsRes =
-              await productRepository.deleteCosts(costDeleteIds);
+          await productRepository.deleteCosts(event.productModel.id!);
           if (deleteCostsRes is Success) {
             AppRes.logger.t("deleteCostsRes Success");
-            final insertCostRes = await productRepository.addProductCost(event
-                .costModels
-                .map((e) => e.copyWit(
-                    productId: event.productModel.id,
-                    id: DateTime.now().millisecondsSinceEpoch))
-                .toList());
+            final insertCostRes = await productRepository.addProductCost(
+              event.costModels.map((e) {
+                counter++;
+                return e.copyWit(
+                  productId: event.productModel.id,
+                  id: DateTime.now().millisecondsSinceEpoch + counter, // Ensures uniqueness
+                );
+              }).toList(),
+            );
             if (insertCostRes is Success) {
               AppRes.logger.t("insertCostRes Success");
               String? localImagePath = event.productModel.pathOfPicture;
               if (event.isImageChanged) {
                 final Directory appDir =
-                    await getApplicationDocumentsDirectory();
+                await getApplicationDocumentsDirectory();
                 localImagePath = '${appDir.path}/$imageName';
 
                 await Dio().download(image, localImagePath);

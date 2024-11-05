@@ -24,18 +24,14 @@ class TypeRepositoryImpl implements TypeRepository {
 
     if (hasNetwork) {
       var id = DateTime.now().millisecondsSinceEpoch;
-      await isarHelper.addType(type.copyWith(id: id).toEntity());
-
-      AppRes.logger.t(id);
       now = DateTime.now();
       final networkRes = await typeRemoteDataSource
           .createType(type.copyWith(id: id, updatedAt: now).toNetwork());
 
       if (networkRes is Success) {
-        await setUpdateTime();
-        return Success((networkRes.value as RawMaterialTypeNetwork).toModel());
+        await isarHelper.addType(type.copyWith(id: id).toEntity());
+        return Success("Success");
       } else {
-        await isarHelper.deleteType(id);
         return networkRes;
       }
     } else {
@@ -49,7 +45,7 @@ class TypeRepositoryImpl implements TypeRepository {
 
     if (hasNetwork) {
       final networkRes =
-          await typeRemoteDataSource.deleteType(type.toNetwork());
+      await typeRemoteDataSource.deleteType(type.toNetwork());
 
       if (networkRes is Success) {
         now = DateTime.now();
@@ -81,9 +77,9 @@ class TypeRepositoryImpl implements TypeRepository {
         await setUpdateTime();
 
         final List<TypeEntity> typeEntityList =
-            (res.value as List<RawMaterialTypeNetwork>)
-                .map((e) => e.toEntity())
-                .toList();
+        (res.value as List<RawMaterialTypeNetwork>)
+            .map((e) => e.toEntity())
+            .toList();
 
         await isarHelper.clearTypes();
         await isarHelper.insertAllTypes(typeEntityList);

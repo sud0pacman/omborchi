@@ -193,6 +193,12 @@ class IsarHelper {
       await isar.productEntitys.deleteAll(ids);
     });
   }
+  Future<void> deleteAllCostsById(int productId) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys.filter().productIdEqualTo(productId).deleteAll();
+    });
+  }
 
   Future<void> clearProducts() async {
     final isar = await db;
@@ -245,10 +251,10 @@ class IsarHelper {
     final isar = await db;
     final res = categoryId != 0
         ? await isar.productEntitys
-            .where()
-            .filter()
-            .categoryIdEqualTo(categoryId)
-            .findAll()
+        .where()
+        .filter()
+        .categoryIdEqualTo(categoryId)
+        .findAll()
         : await isar.productEntitys.where().findAll();
     final nomerString = nomer.toString();
     final filteredRes = res.where((product) {

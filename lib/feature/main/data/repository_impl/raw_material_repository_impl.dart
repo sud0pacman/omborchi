@@ -108,7 +108,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
       // Calculate the total raw materials to track progress
       for (var type in typeList) {
         final networkRes =
-            await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
+        await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
 
         if (networkRes is Success) {
           totalRawMaterials +=
@@ -119,16 +119,16 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
       // Fetch raw materials and insert them with progress updates
       for (var type in typeList) {
         final networkRes =
-            await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
+        await rawMaterialRemoteDataSource.getRawMaterials(type.id!);
 
         if (networkRes is Success) {
           final List<RawMaterialNetwork> networkRawMaterialList =
               networkRes.value;
 
           final List<RawMaterialEntity> rawMaterialEntity =
-              networkRawMaterialList
-                  .map((element) => element.toEntity())
-                  .toList();
+          networkRawMaterialList
+              .map((element) => element.toEntity())
+              .toList();
 
           await isarHelper.insertAllRawMaterials(rawMaterialEntity);
 
@@ -146,7 +146,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
 
       for (var rawMaterialType in typeList) {
         rawMaterials[rawMaterialType] =
-            await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
+        await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
       }
 
       return Success(rawMaterials);
@@ -168,7 +168,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
 
     for (var rawMaterialType in types) {
       rawMaterials[rawMaterialType] =
-          await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
+      await _getRawMaterialsFromLocalByTypeId(rawMaterialType.id!);
     }
 
     return Success(rawMaterials);
@@ -180,7 +180,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
             DateTime.now().toLocal().toIso8601String());
 
     final List<RawMaterial> rawMaterials =
-        await isarHelper.getRawMaterialsByTypeId(id).then((onValue) {
+    await isarHelper.getRawMaterialsByTypeId(id).then((onValue) {
       return onValue.map((e) => e.toModel(lastUpdate)).toList();
     });
 

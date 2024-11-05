@@ -21,6 +21,7 @@ part 'add_product_state.dart';
 class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
   final ProductRepository productRepository;
   final InternetConnectionChecker networkChecker = InternetConnectionChecker();
+  int counter = 0;
 
   AddProductBloc(this.productRepository)
       : super(AddProductState(categories: [], rawMaterials: {})) {
@@ -60,10 +61,9 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
         emit(state.copyWith(isLoading: true));
         final imageName = "${DateTime.now()}.jpg";
         var image = event.productModel.pathOfPicture ?? "";
-        AppRes.logger.w(event.costModels.first.toString());
         if (image.isFilePath()) {
           final response =
-              await productRepository.uploadImage(imageName, image);
+          await productRepository.uploadImage(imageName, image);
           if (response is Success) {
             final id = DateTime.now().millisecondsSinceEpoch;
             image = response.value;
@@ -71,14 +71,19 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
             final res = await productRepository.createProduct(
                 event.productModel.copyWith(id: id, pathOfPicture: image));
             if (res is Success) {
-              final secondRes = await productRepository.addProductCost(event
-                  .costModels
-                  .map((e) => e.copyWit(
-                      productId: id, id: DateTime.now().millisecondsSinceEpoch))
-                  .toList());
-              if (secondRes is Success) {
+              final insertCostRes = await productRepository.addProductCost(
+                event.costModels.map((e) {
+                  counter++;
+                  return e.copyWit(
+                    productId: event.productModel.id,
+                    id: DateTime.now().millisecondsSinceEpoch +
+                        counter, // Ensures uniqueness
+                  );
+                }).toList(),
+              );
+              if (insertCostRes is Success) {
                 final Directory appDir =
-                    await getApplicationDocumentsDirectory();
+                await getApplicationDocumentsDirectory();
                 final String localImagePath = '${appDir.path}/$imageName';
 
                 await Dio().download(image, localImagePath);
