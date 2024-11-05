@@ -130,8 +130,9 @@ class ProductRepositoryImpl implements ProductRepository {
         await isarHelper.clearProducts();
 
         for (int i = 0; i < products.length; i++) {
-          if (products[i].pathOfPicture != null &&
+          if (products[i].pathOfPicture != null && !(products[i].pathOfPicture!.startsWith("/data")) &&
               products[i].pathOfPicture!.isNotEmpty) {
+            // AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
             try {
               final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
               final String localImagePath = '${appDir.path}/$imageName';
@@ -142,17 +143,24 @@ class ProductRepositoryImpl implements ProductRepository {
               double progress = (i + 1) / products.length * 100;
               onProgress(progress); // Update progress
             } catch (e) {
+              AppRes.logger.e(e);
               return GenericError("Qandaydir xatolik");
             }
           } else {
-            final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-            final String localImagePath = '${appDir.path}/$imageName';
-            await Dio().download(Constants.noImage, localImagePath);
-            final data = products[i]
-                .copyWith(pathOfPicture: localImagePath, id: products[i].id);
-            await isarHelper.addProduct(data.toEntity());
-            double progress = (i + 1) / products.length * 100;
-            onProgress(progress); // Update progress
+            // AppRes.logger.f("$i. Shart Noto'gri: ${products[i].toString()}");
+            try {
+              final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+              final String localImagePath = '${appDir.path}/$imageName';
+              await Dio().download(Constants.noImage, localImagePath);
+              final data = products[i]
+                  .copyWith(pathOfPicture: localImagePath, id: products[i].id);
+              await isarHelper.addProduct(data.toEntity());
+              double progress = (i + 1) / products.length * 100;
+              onProgress(progress); // Update progress
+            } catch (e) {
+              AppRes.logger.e(e);
+              return GenericError("Qandaydir xatolik");
+            }
           }
         }
         return Success(await isarHelper.getAllProducts());
@@ -177,7 +185,7 @@ class ProductRepositoryImpl implements ProductRepository {
         for (int i = 0; i < costEntities.length; i++) {
           await isarHelper.addCost(costEntities[i]);
           double progress = (i + 1) / costEntities.length * 100;
-          onProgress(progress); // Update progress
+          onProgress(progress);
         }
         return Success(await isarHelper.getAllCosts());
       } else {
@@ -341,6 +349,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<void> removeProductFromLocal(int id) async {
     await isarHelper.deleteProduct(id); // Delete product by its ID in Isar
   }
+
   @override
   Future<ProductModel?> getProductById(int id) async {
     var res = await isarHelper.getProductById(id);

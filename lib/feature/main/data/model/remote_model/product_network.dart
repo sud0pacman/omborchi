@@ -99,12 +99,8 @@ class ProductNetwork {
       description:
           map['description'] != null ? map['description'] as String : null,
       categoryId: map['category_id'] != null ? map['category_id'] as int : null,
-      createdAt:
-          map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
       isVerified:
           map['is_verified'] != null ? map['is_verified'] as bool : false,
-      updatedAt:
-          map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
     );
   }
 

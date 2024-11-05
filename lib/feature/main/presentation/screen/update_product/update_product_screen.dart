@@ -224,11 +224,11 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                               children: [
                                 addRawMaterialItem(
                                   textController:
-                                      rawMaterialItems[i].controller,
+                                  rawMaterialItems[i].controller,
                                   selectedRawMaterialType: rawMaterialItems[i]
                                       .selectedRawMaterialType,
                                   selectedRawMaterial:
-                                      rawMaterialItems[i].selectedRawMaterial,
+                                  rawMaterialItems[i].selectedRawMaterial,
                                   changedCost: (cost) {
                                     _calculateTotalCost();
                                   },
@@ -389,7 +389,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                 buttonTextStyle: medium.copyWith(fontSize: 16),
                 itemTextStyle: medium.copyWith(fontSize: 16),
                 dropdownItems:
-                    rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
+                rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
                 onChanged: onRawMaterialChanged,
               ),
             ],
@@ -431,17 +431,17 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   void _validateInputs() {
     setState(() {
       categoryErrorText =
-          selectedCategory == null ? "Kategoriya tanlanmagan" : null;
+      selectedCategory == null ? "Kategoriya tanlanmagan" : null;
       numberErrorText =
-          numberController.text.isEmpty ? "Nomer to'ldirilmagan" : null;
+      numberController.text.isEmpty ? "Nomer to'ldirilmagan" : null;
       serviceErrorText =
-          serviceController.text.isEmpty ? "Xizmat to'ldirilmagan" : null;
+      serviceController.text.isEmpty ? "Xizmat to'ldirilmagan" : null;
       benefitErrorText =
-          benefitController.text.isEmpty ? "Foyda to'ldirilmagan" : null;
+      benefitController.text.isEmpty ? "Foyda to'ldirilmagan" : null;
       heightErrorText =
-          heightController.text.isEmpty ? "Bo'yi to'ldirilmagan" : null;
+      heightController.text.isEmpty ? "Bo'yi to'ldirilmagan" : null;
       widthErrorText =
-          widthController.text.isEmpty ? "Eni to'ldirilmagan" : null;
+      widthController.text.isEmpty ? "Eni to'ldirilmagan" : null;
       imageErrorText = image == null ? "Iltimos, rasm tanlang" : null;
     });
 
@@ -510,7 +510,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                 setState(() {
                   selectedCategory = value;
                   categoryErrorText =
-                      null; // Tanlanganida error text olib tashlanadi
+                  null; // Tanlanganida error text olib tashlanadi
                 });
               },
             ),
@@ -630,7 +630,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       productModel: widget.product.copyWith(
         nomer: (numberController.text.toIntOrZero()),
         pathOfPicture:
-            isImageChanged ? image?.path : widget.product.pathOfPicture,
+        isImageChanged ? image?.path : widget.product.pathOfPicture,
         categoryId: selectedCategory?.id,
         xizmat: serviceController.text.toIntOrZero(),
         foyda: benefitController.text.toIntOrZero(),

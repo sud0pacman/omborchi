@@ -599,7 +599,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
-
   Widget productCostWidget(String title, String cost) {
     MoneyFormatter fmf = MoneyFormatter(amount: double.parse(cost));
     return Container(
