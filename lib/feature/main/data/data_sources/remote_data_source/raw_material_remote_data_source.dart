@@ -27,8 +27,7 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
     try {
      var res =  await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
-          .insert(rawMaterial.toJson())
-          .single();
+          .insert(rawMaterial.toJson());
 
       return Success(res);
     } on SocketException catch (e) {

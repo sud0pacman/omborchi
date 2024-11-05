@@ -17,7 +17,7 @@ abstract interface class ProductRepository {
   Future<State> updateProduct(ProductModel product);
 
   Future<State> deleteProduct(ProductModel product);
-  Future<State> deleteCosts(List<int> deleteCostsIds);
+  Future<State> deleteCosts(int id);
 
   Future<State> uploadImage(String imageName, String image);
 
@@ -44,6 +44,7 @@ abstract interface class ProductRepository {
 
   Future<List<ProductModel?>> fetchProductFromLocalByCategoryId(int id);
   Future<ProductModel?> getProductById(int id);
+  Future<State> getProductByIdRemote(int id);
 
   Future<List<ProductModel>> fetchAllProductsFromLocal();
   Future<List<CostModel>> fetchAllCostsFromLocal();

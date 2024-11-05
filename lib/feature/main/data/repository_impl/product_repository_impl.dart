@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -49,6 +51,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
         for (var cost in list) {
+          AppRes.logger.t(cost.toString());
           final result =
               await productRemoteDataSource.addProductCost(cost.toNetwork());
 
@@ -85,14 +88,12 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<State> deleteCosts(List<int> deleteCostsIds) async {
+  Future<State> deleteCosts(int id) async {
     try {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
-        for (int costId in deleteCostsIds) {
-          await productRemoteDataSource.deleteCost(costId);
-        }
-        await isarHelper.deleteAllCosts(deleteCostsIds);
+        await productRemoteDataSource.deleteCost(id);
+        await isarHelper.deleteAllCostsById(id);
         return Success("O'chirish muvaffaqiyatli");
       } else {
         return NoInternet("Internetga ulanmagansiz!");
@@ -130,7 +131,8 @@ class ProductRepositoryImpl implements ProductRepository {
         await isarHelper.clearProducts();
 
         for (int i = 0; i < products.length; i++) {
-          if (products[i].pathOfPicture != null && !(products[i].pathOfPicture!.startsWith("/data")) &&
+          if (products[i].pathOfPicture != null &&
+              !(products[i].pathOfPicture!.startsWith("/data")) &&
               products[i].pathOfPicture!.isNotEmpty) {
             // AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
             try {
@@ -439,5 +441,11 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<CostEntity>> getCostListById(int productId) async {
     return await isarHelper.getCost(productId); // Get cost by ID from Isar
+  }
+
+  @override
+  Future<State> getProductByIdRemote(int id) async {
+    var res = await productRemoteDataSource.getProductById(id);
+    return res;
   }
 }

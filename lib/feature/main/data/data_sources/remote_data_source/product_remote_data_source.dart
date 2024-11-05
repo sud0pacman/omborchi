@@ -14,6 +14,8 @@ abstract interface class ProductRemoteDataSource {
 
   Future<State> getProducts();
 
+  Future<State> getProductById(int id);
+
   Future<State> getCosts();
 
   Future<State> createProduct(ProductNetwork product);
@@ -111,12 +113,36 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<State> deleteCost(int costId) async {
+  Future<State> getProductById(int id) async {
+    try {
+      final response = await supabaseClient
+          .from(ExpenseFields.productTable)
+          .select()
+          .eq('id', id);
+
+      final List<ProductNetwork> result =
+      response.map((e) => ProductNetwork.fromJson(e)).toList();
+
+      return Success(result.isNotEmpty ? result[0] : null);
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } catch (e) {
+      AppRes.logger.e(e);
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> deleteCost(int id) async {
     try {
       await supabaseClient
           .from(ExpenseFields.productPriceTable)
           .delete()
-          .eq('id', costId);
+          .eq('product_id', id);
 
       return Success("");
     } on SocketException catch (e) {

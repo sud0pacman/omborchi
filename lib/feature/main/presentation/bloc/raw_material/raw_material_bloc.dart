@@ -50,11 +50,7 @@ class RawMaterialBloc extends Bloc<RawMaterialEvent, RawMaterialState> {
         AppRes.logger.i(createRes.toString());
 
         if (createRes is Success) {
-          state.rawMaterials[event.type]!.add(createRes.value);
-          emit(state.copyWith(
-              isLoading: false,
-              isCRUD: true,
-              rawMaterials: state.rawMaterials));
+          add(GetRawMaterialsWithTypes());
         } else if (createRes is NoInternet) {
           emit(state.copyWith(errorMsg: 'Internetingiz yaroqsiz'));
         } else if (createRes is GenericError) {

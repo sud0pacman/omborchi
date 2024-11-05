@@ -281,11 +281,11 @@ class _MainScreenState extends State<MainScreen> {
                             onTap: () {
                               setState(() {
                                 selectedCategory = category;
-                                selectedIndex = index;
+                                selectedIndex = category.id!;
                                 _bloc.add(GetProductsByCategory(category.id!));
                               });
                             },
-                            isActive: selectedIndex == index,
+                            isActive: selectedIndex ==  category.id!,
                             name: category.name,
                             count: 900, // Replace with actual count
                           );

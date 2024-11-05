@@ -41,9 +41,9 @@ class ExpenseFields {
 
 class AppSecrets {
   static const String supabaseAnonKey =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzemVudnFsbWV2a2FtZnB6Z2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAxODk1MDUsImV4cCI6MjA0NTc2NTUwNX0.G-MSkckFK-CPsx2OC8YNZvHOnaGcwT0TSfPw9HdyKF8";
+     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o";
 
-  static const String supabaseUrl = "https://tszenvqlmevkamfpzgir.supabase.co";
+  static const String supabaseUrl = "https://ilxxvdkgdvcouathvmng.supabase.co";
 }
 
 class AssetRes {

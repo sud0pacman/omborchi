@@ -153,7 +153,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       ));
     });
     on<GetLocalDataEvent>((event, emit) async {
-      emit(state.copyWith(isOpenDialog: true));
       final res = event.categoryId == 0
           ? await productRepository.fetchAllProductsFromLocal()
           : await productRepository

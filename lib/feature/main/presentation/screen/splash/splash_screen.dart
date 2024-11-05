@@ -26,8 +26,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _updateProductImagePaths();
-    // _navigateAfterDelay();
+    // _updateProductImagePaths();
+    _navigateAfterDelay();
   }
 
   Future<void> _updateProductImagePaths() async {

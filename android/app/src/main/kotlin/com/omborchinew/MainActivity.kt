@@ -1,4 +1,4 @@
-package com.sudo_pacman.omborchi
+package com.omborchinew
 
 import io.flutter.embedding.android.FlutterActivity
 
