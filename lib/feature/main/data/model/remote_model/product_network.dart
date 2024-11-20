@@ -77,7 +77,7 @@ class ProductNetwork {
       'foyda': foyda,
       'sotuv': sotuv,
       'description': description,
-      'updated_at': updatedAt?.toIso8601String(),
+      'last_modified': updatedAt?.toIso8601String(),
       'category_id': categoryId,
       'is_verified': isVerified,
     };
@@ -101,6 +101,9 @@ class ProductNetwork {
       categoryId: map['category_id'] != null ? map['category_id'] as int : null,
       isVerified:
           map['is_verified'] != null ? map['is_verified'] as bool : false,
+      updatedAt: map['last_modified'] != null
+          ? DateTime.tryParse(map['last_modified'] as String)
+          : null, // updatedAt field
     );
   }
 
@@ -111,7 +114,6 @@ class ProductNetwork {
       pathOfPicture: pathOfPicture,
       boyi: boyi,
       eni: eni,
-      // Modelga ham qo'shildi
       xizmat: xizmat,
       foyda: foyda,
       sotuv: sotuv,

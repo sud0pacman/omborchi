@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       Text(
                         "${state.currentRepository ?? ''} sinxronlanmoqda... "
-                        "(${state.currentRepositoryIndex ?? 0}/$syncedNumber)",
+                            "(${state.currentRepositoryIndex ?? 0}/$syncedNumber)",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
@@ -112,8 +112,8 @@ class _MainScreenState extends State<MainScreen> {
           return SyncWarningDialog(
             title: "E'tibor bering!".tr,
             message:
-                "Internetning holati yaxshi ekanligini tekshiring. Sinxronlash tugallanmaguncha bu oynani yopmang"
-                    .tr,
+            "Internetning holati yaxshi ekanligini tekshiring. Sinxronlash tugallanmaguncha bu oynani yopmang"
+                .tr,
             tables: const [
               "Kategoriya",
               "Xomashyo turi",
@@ -281,11 +281,11 @@ class _MainScreenState extends State<MainScreen> {
                             onTap: () {
                               setState(() {
                                 selectedCategory = category;
-                                selectedIndex = index;
+                                selectedIndex = category.id!;
                                 _bloc.add(GetProductsByCategory(category.id!));
                               });
                             },
-                            isActive: selectedIndex == index,
+                            isActive: selectedIndex ==  category.id!,
                             name: category.name,
                             count: 900, // Replace with actual count
                           );
@@ -302,8 +302,8 @@ class _MainScreenState extends State<MainScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: state.isEmpty
                           ? Center(
-                              child: Lottie.asset('assets/lottie/empty.json'),
-                            )
+                        child: Lottie.asset('assets/lottie/empty.json'),
+                      )
                           : _buildProductGrid(state.products),
                     ),
                   ),
@@ -338,7 +338,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void showCustomPopover(BuildContext context, Widget child) {
     final overlay =
-        Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+    Overlay.of(context)?.context.findRenderObject() as RenderBox?;
     if (overlay != null) {
       final overlayEntry = OverlayEntry(
         builder: (_) => Positioned(

@@ -51,7 +51,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
       // Convert ProductNetwork to ProductModel here
       final productModel =
-      ProductModel.fromNetwork(ProductNetwork.fromJson(newProduct));
+          ProductModel.fromNetwork(ProductNetwork.fromJson(newProduct));
 
       return Success(productModel);
     } on SocketException catch (e) {
@@ -71,13 +71,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     AppRes.logger.t(product.toString());
 
     try {
-      final newProduct = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.productPriceTable)
-          .insert(product.toJson())
-          .select()
-          .single();
+          .insert(product.toJson());
 
-      return Success(ProductNetwork.fromJson(newProduct));
+      return Success("");
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -121,7 +119,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           .eq('id', id);
 
       final List<ProductNetwork> result =
-      response.map((e) => ProductNetwork.fromJson(e)).toList();
+          response.map((e) => ProductNetwork.fromJson(e)).toList();
 
       return Success(result.isNotEmpty ? result[0] : null);
     } on SocketException catch (e) {
@@ -164,10 +162,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       final response = await supabaseClient
           .from(ExpenseFields.productTable)
           .select()
-          .eq('category_id', categoryId);
+          .eq('category_id', categoryId)
+          .order('nomer', ascending: true); // Ascending: ko'tarilgan tartibda
 
       final List<ProductNetwork> result =
-      response.map((e) => ProductNetwork.fromJson(e)).toList();
+          response.map((e) => ProductNetwork.fromJson(e)).toList();
 
       AppRes.logger.t(result.length);
 
@@ -188,10 +187,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<State> getProducts() async {
     try {
       final response =
-      await supabaseClient.from(ExpenseFields.productTable).select('*');
+          await supabaseClient.from(ExpenseFields.productTable).select('*');
 
       final List<ProductNetwork> result =
-      response.map((e) => ProductNetwork.fromJson(e)).toList();
+          response.map((e) => ProductNetwork.fromJson(e)).toList();
 
       AppRes.logger.t(result.length);
 
@@ -216,7 +215,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           .select('*');
 
       final List<CostNetwork> result =
-      response.map((e) => CostNetwork.fromJson(e)).toList();
+          response.map((e) => CostNetwork.fromJson(e)).toList();
 
       AppRes.logger.t(result.length);
 
@@ -263,10 +262,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       await Supabase.instance.client.storage
           .from(ExpenseFields.productImageBucket)
           .uploadBinary(
-        path,
-        bytes,
-        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
-      );
+            path,
+            bytes,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
 
       final String downloadUrl = Supabase.instance.client.storage
           .from(ExpenseFields.productImageBucket)

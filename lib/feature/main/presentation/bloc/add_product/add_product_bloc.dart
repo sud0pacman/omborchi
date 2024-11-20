@@ -63,13 +63,15 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
         var image = event.productModel.pathOfPicture ?? "";
         if (image.isFilePath()) {
           final response =
-          await productRepository.uploadImage(imageName, image);
+              await productRepository.uploadImage(imageName, image);
           if (response is Success) {
             final id = DateTime.now().millisecondsSinceEpoch;
+            final updatedTime = DateTime.now();
             image = response.value;
             AppRes.logger.w(image);
-            final res = await productRepository.createProduct(
-                event.productModel.copyWith(id: id, pathOfPicture: image));
+            final res = await productRepository.createProduct(event.productModel
+                .copyWith(
+                    id: id, pathOfPicture: image, updatedAt: updatedTime));
             if (res is Success) {
               final insertCostRes = await productRepository.addProductCost(
                 event.costModels.map((e) {
@@ -83,14 +85,17 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
               );
               if (insertCostRes is Success) {
                 final Directory appDir =
-                await getApplicationDocumentsDirectory();
+                    await getApplicationDocumentsDirectory();
                 final String localImagePath = '${appDir.path}/$imageName';
 
                 await Dio().download(image, localImagePath);
 
                 AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
                 productRepository.saveProductToLocal(event.productModel
-                    .copyWith(pathOfPicture: localImagePath, id: id)
+                    .copyWith(
+                        pathOfPicture: localImagePath,
+                        id: id,
+                        updatedAt: updatedTime)
                     .toEntity());
                 emit(state.copyWith(
                     isLoading: false, isSuccess: true, isBack: true));

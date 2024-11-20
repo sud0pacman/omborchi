@@ -53,6 +53,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   RawMaterialType? selectedRawMaterialType;
   RawMaterial? selectedRawMaterial;
   CategoryModel? selectedCategory;
+  List<CategoryModel> categoriesList = [];
   double productCost = 0.0;
   double productMarketCost = 0.0;
   String? categoryErrorText;
@@ -125,6 +126,9 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               AppRes.showSnackBar(context, state.error!);
             }
             if (state.categories.isNotEmpty) {
+              AppRes.logger.t(state.categories.length);
+              categoriesList = state.categories;
+              setState(() {});
               for (var category in state.categories) {
                 if (category.id == widget.product.categoryId) {
                   setState(() {
@@ -499,7 +503,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               value: selectedCategory,
               buttonWidth: double.infinity,
               dropdownWidth: 200,
-              dropdownItems: state.categories.toList(),
+              dropdownItems: categoriesList,
               itemColor: AppColors.background,
               buttonColor: AppColors.white,
               buttonTextStyle: medium.copyWith(fontSize: 16),

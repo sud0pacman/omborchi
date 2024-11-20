@@ -34,7 +34,7 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
   UpdateProductBloc(
       this.productRepository, this.rawMaterialRepository, this.typeRepository)
       : super(UpdateProductState(
-      categories: [], rawMaterials: {}, uiMaterials: [])) {
+            categories: [], rawMaterials: {}, uiMaterials: [])) {
     on<GetProductMaterials>((event, emit) async {
       final costRes = await productRepository.getCostListById(event.productId);
       costDeleteIds.clear();
@@ -42,12 +42,12 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
       for (var cost in costRes) {
         costDeleteIds.add(cost.id);
         final materialRes =
-        await rawMaterialRepository.getMaterialById(cost.xomashyoId);
+            await rawMaterialRepository.getMaterialById(cost.xomashyoId);
         if (materialRes is Success) {
           final RawMaterialEntity rawMaterialEntity = materialRes.value;
           AppRes.logger.w("${rawMaterialEntity.typeId}");
           final TypeEntity? typeEntity =
-          await typeRepository.getTypeByIdLocal(rawMaterialEntity.typeId);
+              await typeRepository.getTypeByIdLocal(rawMaterialEntity.typeId);
           AppRes.logger.w("$rawMaterialEntity $typeEntity");
           materialUiList.add(RawMaterialUpdate(
               rawMaterial: rawMaterialEntity.toModel(DateTime(2024, 8, 19)),
@@ -96,7 +96,7 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
 
         if (event.isImageChanged) {
           final response =
-          await productRepository.uploadImage(imageName, image);
+              await productRepository.uploadImage(imageName, image);
           if (response is Success) {
             image = response.value;
           }
@@ -108,11 +108,12 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
             image = value.pathOfPicture ?? Constants.noImage;
           }
         }
-        final res = await productRepository
-            .updateProduct(event.productModel.copyWith(pathOfPicture: image));
+        final updatedTime = DateTime.now();
+        final res = await productRepository.updateProduct(event.productModel
+            .copyWith(pathOfPicture: image, updatedAt: updatedTime));
         if (res is Success) {
           final deleteCostsRes =
-          await productRepository.deleteCosts(event.productModel.id!);
+              await productRepository.deleteCosts(event.productModel.id!);
           if (deleteCostsRes is Success) {
             AppRes.logger.t("deleteCostsRes Success");
             final insertCostRes = await productRepository.addProductCost(
@@ -120,7 +121,8 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
                 counter++;
                 return e.copyWit(
                   productId: event.productModel.id,
-                  id: DateTime.now().millisecondsSinceEpoch + counter, // Ensures uniqueness
+                  id: DateTime.now().millisecondsSinceEpoch +
+                      counter, // Ensures uniqueness
                 );
               }).toList(),
             );
@@ -129,14 +131,15 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
               String? localImagePath = event.productModel.pathOfPicture;
               if (event.isImageChanged) {
                 final Directory appDir =
-                await getApplicationDocumentsDirectory();
+                    await getApplicationDocumentsDirectory();
                 localImagePath = '${appDir.path}/$imageName';
 
                 await Dio().download(image, localImagePath);
                 AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
               }
               productRepository.updateLocalProduct(event.productModel
-                  .copyWith(pathOfPicture: localImagePath)
+                  .copyWith(
+                      pathOfPicture: localImagePath, updatedAt: updatedTime)
                   .toEntity());
               emit(state.copyWith(
                   isLoading: false, isSuccess: true, isBack: true));
