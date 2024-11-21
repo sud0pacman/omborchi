@@ -30,6 +30,7 @@ class ExpenseFields {
   static const String employeeTable = 'employee';
   static const String categoryTable = 'category';
   static const String productTable = 'product';
+  static const String deletedProductTable = 'deleted_products';
   static const String productPriceTable = 'tannarx';
   static const String rawMaterialTypeTable = 'types';
   static const String rawMaterialTable = 'xomashyo';

@@ -17,6 +17,7 @@ abstract interface class ProductRepository {
   Future<State> updateProduct(ProductModel product);
 
   Future<State> deleteProduct(ProductModel product);
+  Future<State> addDeletedProduct(int productId);
   Future<State> deleteCosts(int id);
 
   Future<State> uploadImage(String imageName, String image);

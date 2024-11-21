@@ -36,6 +36,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0.0,
+      scrolledUnderElevation: 0,
       backgroundColor: AppColors.primary,
       leading: IconButton(
         onPressed: widget.onTapLeading,

@@ -259,8 +259,9 @@ class IsarHelper {
             .where()
             .filter()
             .categoryIdEqualTo(categoryId)
+            .sortByNomer()
             .findAll()
-        : await isar.productEntitys.where().findAll();
+        : await isar.productEntitys.where().sortByNomer().findAll();
     final nomerString = nomer.toString();
     final filteredRes = res.where((product) {
       return product.nomer.toString().startsWith(nomerString);
@@ -280,6 +281,7 @@ class IsarHelper {
     return await isar.productEntitys
         .filter()
         .categoryIdEqualTo(categoryId)
+        .sortByNomer()
         .findAll();
   }
 

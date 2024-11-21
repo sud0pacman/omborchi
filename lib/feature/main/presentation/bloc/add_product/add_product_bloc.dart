@@ -77,7 +77,7 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
                 event.costModels.map((e) {
                   counter++;
                   return e.copyWit(
-                    productId: event.productModel.id,
+                    productId: id,
                     id: DateTime.now().millisecondsSinceEpoch +
                         counter, // Ensures uniqueness
                   );

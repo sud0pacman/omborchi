@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       Text(
                         "${state.currentRepository ?? ''} sinxronlanmoqda... "
-                            "(${state.currentRepositoryIndex ?? 0}/$syncedNumber)",
+                        "(${state.currentRepositoryIndex ?? 0}/$syncedNumber)",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
@@ -112,20 +112,20 @@ class _MainScreenState extends State<MainScreen> {
           return SyncWarningDialog(
             title: "E'tibor bering!".tr,
             message:
-            "Internetning holati yaxshi ekanligini tekshiring. Sinxronlash tugallanmaguncha bu oynani yopmang"
-                .tr,
-            tables: const [
-              "Kategoriya",
-              "Xomashyo turi",
-              "Xomashyo",
-              "Tannarx",
-              "Mahsulot",
-            ],
+                "Internetning holati yaxshi ekanligini tekshiring. Sinxronlash tugallanmaguncha bu oynani yopmang"
+                    .tr,
+            tables: [],
             positiveText: "Boshlash".tr,
             negativeText: "Bekor qilish",
             onPositiveTap: (values) {
-              syncedNumber = values.length;
-              _bloc.add(SyncAppEvent(values: values));
+              syncedNumber = 5;
+              _bloc.add(SyncAppEvent(values: [
+                "Kategoriya",
+                "Xomashyo turi",
+                "Xomashyo",
+                "Tannarx",
+                "Mahsulot",
+              ]));
               closeDialog(context);
             },
             onNegativeTap: () {
@@ -247,20 +247,20 @@ class _MainScreenState extends State<MainScreen> {
             if (state.isCloseDialog && Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
-            if(state.products.isNotEmpty) {
+            if (state.products.isNotEmpty) {
               currentNomer = 0;
               currentNomerIndex = 0;
             }
           },
           builder: (context, state) {
             return Padding(
-              padding: const EdgeInsets.only(
-                  left: 16.0, bottom: 16, top: 16, right: 8),
+              padding: const EdgeInsets.only(left: 16.0, right: 8),
               child: Row(
                 children: [
                   SizedBox(
                     width: 88,
                     child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       itemBuilder: (context, index) {
                         if (index == 0) {
                           return CategoryWidget(
@@ -285,7 +285,7 @@ class _MainScreenState extends State<MainScreen> {
                                 _bloc.add(GetProductsByCategory(category.id!));
                               });
                             },
-                            isActive: selectedIndex ==  category.id!,
+                            isActive: selectedIndex == category.id!,
                             name: category.name,
                             count: 900, // Replace with actual count
                           );
@@ -294,16 +294,16 @@ class _MainScreenState extends State<MainScreen> {
                       itemCount: state.categories.length + 1,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   const VerticalDivider(
                       color: Colors.grey, thickness: 1, width: 1),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(right: 8.0, left: 6),
                       child: state.isEmpty
                           ? Center(
-                        child: Lottie.asset('assets/lottie/empty.json'),
-                      )
+                              child: Lottie.asset('assets/lottie/empty.json'),
+                            )
                           : _buildProductGrid(state.products),
                     ),
                   ),
@@ -338,7 +338,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void showCustomPopover(BuildContext context, Widget child) {
     final overlay =
-    Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+        Overlay.of(context)?.context.findRenderObject() as RenderBox?;
     if (overlay != null) {
       final overlayEntry = OverlayEntry(
         builder: (_) => Positioned(
@@ -350,8 +350,34 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       );
-      Overlay.of(context)?.insert(overlayEntry);
+      Overlay.of(context).insert(overlayEntry);
     }
+  }
+
+  List<ProductModel> generateProductNumbers(List<ProductModel?> products) {
+    final Map<String, int> nomerCounts = {};
+    final List<ProductModel> updatedProducts = [];
+
+    for (final product in products) {
+      if (product == null) continue;
+
+      final nomer = product.nomer.toString();
+      if (nomerCounts.containsKey(nomer)) {
+        nomerCounts[nomer] = nomerCounts[nomer]! + 1;
+      } else {
+        nomerCounts[nomer] = 0;
+      }
+
+      final index = nomerCounts[nomer]!;
+      var productNomer = "$nomer-$index";
+      if (productNomer.endsWith("-0")) {
+        productNomer = productNomer.substring(0, productNomer.length - 2);
+      }
+
+      updatedProducts.add(product.copyWith(description: productNomer));
+    }
+
+    return updatedProducts;
   }
 
   Widget _buildProductGrid(List<ProductModel?> products) {
@@ -361,34 +387,30 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
+    final updatedProducts = generateProductNumbers(products);
+
     return GridView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 2 / 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: products.length,
+      itemCount: updatedProducts.length,
       itemBuilder: (context, index) {
-        final product = products[index];
-        if (product == null) {
-          return const SizedBox();
-        }
-        if (currentNomer == product.nomer) {
-          currentNomerIndex++;
-        } else {
-          currentNomer = product.nomer;
-          currentNomerIndex = 0;
-        }
-
-        var productNomer = "$currentNomer-$currentNomerIndex";
-        if (productNomer.endsWith("-0")) {
-          productNomer = productNomer.substring(0, productNomer.length - 2);
-        }
+        final product = updatedProducts[index];
         return InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, RouteManager.productViewScreen,
-                arguments: product.copyWith(description: productNomer));
+          onTap: () async {
+            final result = await Navigator.pushNamed(
+              context,
+              RouteManager.productViewScreen,
+              arguments: product,
+            );
+
+            if (result == true) {
+              // _bloc.add(Get(nomer, eni, boyi, narxi, marja, categoryId));
+            }
           },
           child: Container(
             height: 72,
@@ -417,7 +439,7 @@ class _MainScreenState extends State<MainScreen> {
                       color: AppColors.steelGrey,
                     ),
                     child: Text(
-                      '#$productNomer',
+                      '#${product.description}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

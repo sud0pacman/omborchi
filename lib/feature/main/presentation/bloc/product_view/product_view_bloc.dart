@@ -45,6 +45,7 @@ class ProductViewBloc extends Bloc<ProductViewEvent, ProductViewState> {
         emit(state.copyWith(isLoading: true));
         final costRes = await productRepository.deleteProduct(event.product);
         if (costRes is Success) {
+          AppRes.logger.f("productRepository.deleteProduct -> Muvaffaqiyatli ekanmish");
           emit(state.copyWith(isLoading: false, isBack: true));
         }
       } else {
