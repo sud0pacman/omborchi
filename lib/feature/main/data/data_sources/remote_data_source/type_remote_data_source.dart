@@ -73,7 +73,7 @@ class TypeRemoteDataSourceImpl implements TypeRemoteDataSource {
           .select('*');
       AppRes.logger.t(response.length);
       final res =
-          response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
+      response.map((e) => RawMaterialTypeNetwork.fromJson(e)).toList();
 
       return Success(res);
     } on SocketException catch (e) {

@@ -17,8 +17,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
   late DateTime now;
 
   CategoryRepositoryImpl(
-    this.categoryRemoteDataSource,
-  );
+      this.categoryRemoteDataSource,
+      );
 
   @override
   Future<State> createCategory(CategoryModel category) async {
@@ -52,7 +52,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
     if (hasNetwork) {
       final res =
-          await categoryRemoteDataSource.deleteCategory(category.toNetwork());
+      await categoryRemoteDataSource.deleteCategory(category.toNetwork());
 
       if (res is Success) {
         now = DateTime.now();
@@ -76,7 +76,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
       now = DateTime.now();
 
       final res =
-          await categoryRemoteDataSource.updateCategory(category.toNetwork());
+      await categoryRemoteDataSource.updateCategory(category.toNetwork());
 
       if (res is Success) {
         await setUpdateTime(now);
@@ -107,7 +107,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
         final List<CategoryNetwork> categories = networkRes.value;
         final List<CategoryEntity> categoriesEntity =
-            categories.map((e) => e.toLocal()).toList();
+        categories.map((e) => e.toLocal()).toList();
 
         await isarHelper.clearCategories();
         for (int i = 0; i < categoriesEntity.length; i++) {

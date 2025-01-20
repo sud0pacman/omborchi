@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -47,23 +45,25 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<State> addProductCost(List<CostModel> list) async {
+    // Ro'yxatni string qilib chiqarish
+    AppRes.logger.i(list.map((e) => e.toString()).join(', \n'));
+
     try {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
         for (var cost in list) {
           AppRes.logger.t(cost.toString());
           final result =
-              await productRemoteDataSource.addProductCost(cost.toNetwork());
+          await productRemoteDataSource.addProductCost(cost.toNetwork());
 
-          if (result is Error) {
+          if (result is GenericError) {
+            AppRes.logger.e(result.value);
             return result; // Stop and return if there's an error
           }
         }
-        await isarHelper.insertAllCosts(list
-            .map((e) => e.toEntity())
-            .toList()); // Save cost using IsarHelper
-        return Success(
-            "Success added!"); // Return success if all inserts were successful
+        await isarHelper.insertAllCosts(
+            list.map((e) => e.toEntity()).toList()); // Save cost using IsarHelper
+        return Success("Success added!"); // Return success if all inserts were successful
       } else {
         return NoInternet("No Internet");
       }
@@ -77,8 +77,30 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final hasConnection = await networkChecker.hasConnection;
       if (hasConnection) {
-        await isarHelper.deleteProduct(product.id ?? 0);
-        return productRemoteDataSource.deleteProduct(product.toNetwork());
+        final res =
+            await productRemoteDataSource.addDeletedProduct(product.id!);
+        AppRes.logger.i(res.runtimeType.toString());
+        if (res is Success) {
+          AppRes.logger.w("Muvaffaqiyatli o'chirilgani qo'shilibdi");
+          await isarHelper.deleteProduct(product.id ?? 0);
+          return productRemoteDataSource.deleteProduct(product.toNetwork());
+        } else {
+          return res;
+        }
+      } else {
+        return NoInternet("Internetga ulanmagansiz!");
+      }
+    } catch (e) {
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> addDeletedProduct(int productId) async {
+    try {
+      final hasConnection = await networkChecker.hasConnection;
+      if (hasConnection) {
+        return productRemoteDataSource.addDeletedProduct(productId);
       } else {
         return NoInternet("Internetga ulanmagansiz!");
       }
@@ -111,14 +133,75 @@ class ProductRepositoryImpl implements ProductRepository {
         return productRemoteDataSource.getProductsByCategoryId(categoryId);
       } else {
         final localProducts = await fetchAllProductsFromLocal();
-        return Success(localProducts
-            .map((p) => p.toModel())
-            .toList()); // Convert local entities back to ProductModel
+        return Success(localProducts.map((p) => p.toModel()).toList());
       }
     } catch (e) {
       return GenericError(e);
     }
   }
+
+  // @override
+  // Future<State> syncProducts(Function(double) onProgress) async {
+  //   final bool hasNetwork = await networkChecker.hasConnection;
+  //   if (!hasNetwork) {
+  //     return NoInternet(Constants.noNetwork);
+  //   }
+  //
+  //   final networkRes = await productRemoteDataSource.getProducts();
+  //   if (networkRes is! Success) {
+  //     return networkRes;
+  //   }
+  //
+  //   final List<ProductNetwork> products = networkRes.value;
+  //   final appDir = await getApplicationDocumentsDirectory();
+  //
+  //   Future<String> downloadImage(
+  //       String? imagePath, String fallbackImage) async {
+  //     final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+  //     final localImagePath = '${appDir.path}/$imageName';
+  //     await Dio().download(imagePath ?? fallbackImage, localImagePath);
+  //     return localImagePath;
+  //   }
+  //
+  //   for (int i = 0; i < products.length; i++) {
+  //     try {
+  //       final remoteProduct = products[i];
+  //       final localProduct =
+  //           await isarHelper.getProductById(remoteProduct.id ?? 0);
+  //       AppRes.logger.d(remoteProduct.updatedAt?.toIso8601String());
+  //       AppRes.logger.f(localProduct?.updatedAt?.toIso8601String());
+  //       await Future.delayed(const Duration(milliseconds: 500));
+  //       // if (localProduct != null && remoteProduct.updatedAt?.toIso8601String() == localProduct.updatedAt?.toIso8601String()) {
+  //       //   // Mahalliy ma'lumotlar yangilangan, davom etamiz
+  //       //   AppRes.logger.f("Ma'lumot o'zgarmagan");
+  //       //   double progress = (i + 1) / products.length * 100;
+  //       //   onProgress(progress);
+  //       //   await Future.delayed(const Duration(milliseconds: 500));
+  //       //   continue;
+  //       // }
+  //       //
+  //       // final localImagePath = await downloadImage(
+  //       //   remoteProduct.pathOfPicture,
+  //       //   Constants.noImage,
+  //       // );
+  //       //
+  //       // final data = remoteProduct.copyWith(
+  //       //   pathOfPicture: localImagePath,
+  //       //   id: remoteProduct.id,
+  //       // );
+  //       //
+  //       // await isarHelper.addProduct(data.toEntity());
+  //
+  //       double progress = (i + 1) / products.length * 100;
+  //       onProgress(progress);
+  //     } catch (e) {
+  //       AppRes.logger.e(e);
+  //       return GenericError("Qandaydir xatolik");
+  //     }
+  //   }
+  //
+  //   return Success(await isarHelper.getAllProducts());
+  // }
 
   @override
   Future<State> syncProducts(Function(double) onProgress) async {
@@ -128,44 +211,116 @@ class ProductRepositoryImpl implements ProductRepository {
       if (networkRes is Success) {
         final List<ProductNetwork> products = networkRes.value;
         final appDir = await getApplicationDocumentsDirectory();
-        await isarHelper.clearProducts();
 
-        for (int i = 0; i < products.length; i++) {
-          if (products[i].pathOfPicture != null &&
-              !(products[i].pathOfPicture!.startsWith("/data")) &&
-              products[i].pathOfPicture!.isNotEmpty) {
-            // AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
-            try {
-              final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-              final String localImagePath = '${appDir.path}/$imageName';
-              await Dio().download(products[i].pathOfPicture!, localImagePath);
-              final data = products[i]
-                  .copyWith(pathOfPicture: localImagePath, id: products[i].id);
-              await isarHelper.addProduct(data.toEntity());
-              double progress = (i + 1) / products.length * 100;
-              onProgress(progress); // Update progress
-            } catch (e) {
-              AppRes.logger.e(e);
-              return GenericError("Qandaydir xatolik");
-            }
-          } else {
-            // AppRes.logger.f("$i. Shart Noto'gri: ${products[i].toString()}");
-            try {
-              final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-              final String localImagePath = '${appDir.path}/$imageName';
-              await Dio().download(Constants.noImage, localImagePath);
-              final data = products[i]
-                  .copyWith(pathOfPicture: localImagePath, id: products[i].id);
-              await isarHelper.addProduct(data.toEntity());
-              double progress = (i + 1) / products.length * 100;
-              onProgress(progress); // Update progress
-            } catch (e) {
-              AppRes.logger.e(e);
-              return GenericError("Qandaydir xatolik");
+        var boshlayver = true;
+        final fetchDeletedRes =
+            await productRemoteDataSource.getAllDeletedProductIds();
+        if (fetchDeletedRes is Success) {
+          final deletedList = fetchDeletedRes.value as List<int>;
+          AppRes.logger.t("Delete Products Length ${deletedList.length}");
+          deletedList.isNotEmpty
+              ? await isarHelper.deleteAllProducts(deletedList)
+              : null;
+          for (int i = 0; i < products.length; i++) {
+            final remoteProduct = products[i];
+            final localProduct =
+                await isarHelper.getProductById(remoteProduct.id ?? 0);
+            // if(remoteProduct.id == 972) {
+            //   boshlayver = true;
+            // }
+            if (boshlayver) {
+              if (localProduct != null) {
+                if (remoteProduct.updatedAt?.toLocal().toIso8601String() ==
+                    localProduct.updatedAt?.toLocal().toIso8601String()) {
+                  AppRes.logger.w("${remoteProduct.id} o'zgarmagan ma'lumot");
+                  double progress = (i + 1) / products.length * 100;
+                  onProgress(progress); // Update progress
+
+                  continue;
+                } else {
+                  AppRes.logger.i("${remoteProduct.id} changed data/ma'lumot");
+                  if (remoteProduct.pathOfPicture != null &&
+                      !(remoteProduct.pathOfPicture!.startsWith("/data")) &&
+                      remoteProduct.pathOfPicture!.isNotEmpty) {
+                    // AppRes.logger.i("$i. Shart To'gri: ${remoteProduct.toString()}");
+                    try {
+                      final imageName =
+                          "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                      final String localImagePath = '${appDir.path}/$imageName';
+                      await Dio().download(
+                          remoteProduct.pathOfPicture!, localImagePath);
+                      final data = remoteProduct.copyWith(
+                          pathOfPicture: localImagePath, id: remoteProduct.id);
+                      await isarHelper.addProduct(data.toEntity());
+                      double progress = (i + 1) / products.length * 100;
+                      onProgress(progress); // Update progress
+                    } catch (e) {
+                      AppRes.logger.e(e);
+                      return GenericError("Qandaydir xatolik");
+                    }
+                  } else {
+                    // AppRes.logger.f("$i. Shart Noto'gri: ${remoteProduct.toString()}");
+                    try {
+                      final imageName =
+                          "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                      final String localImagePath = '${appDir.path}/$imageName';
+                      await Dio().download(Constants.noImage, localImagePath);
+                      final data = remoteProduct.copyWith(
+                          pathOfPicture: localImagePath, id: remoteProduct.id);
+                      await isarHelper.addProduct(data.toEntity());
+                      double progress = (i + 1) / products.length * 100;
+                      onProgress(progress); // Update progress
+                    } catch (e) {
+                      AppRes.logger.e(e);
+                      return GenericError("Qandaydir xatolik");
+                    }
+                  }
+                }
+              } else {
+                AppRes.logger.t("${remoteProduct.id} topilmagan ma'lumot");
+                if (remoteProduct.pathOfPicture != null &&
+                    !(remoteProduct.pathOfPicture!.startsWith("/data")) &&
+                    remoteProduct.pathOfPicture!.isNotEmpty) {
+                  // AppRes.logger.i("$i. Shart To'gri: ${remoteProduct.toString()}");
+                  try {
+                    final imageName =
+                        "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                    final String localImagePath = '${appDir.path}/$imageName';
+                    await Dio()
+                        .download(remoteProduct.pathOfPicture!, localImagePath);
+                    final data = remoteProduct.copyWith(
+                        pathOfPicture: localImagePath, id: remoteProduct.id);
+                    await isarHelper.addProduct(data.toEntity());
+                    double progress = (i + 1) / products.length * 100;
+                    onProgress(progress); // Update progress
+                  } catch (e) {
+                    AppRes.logger.e(e);
+                    return GenericError("Qandaydir xatolik");
+                  }
+                } else {
+                  // AppRes.logger.f("$i. Shart Noto'gri: ${remoteProduct.toString()}");
+                  try {
+                    final imageName =
+                        "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                    final String localImagePath = '${appDir.path}/$imageName';
+                    await Dio().download(Constants.noImage, localImagePath);
+                    final data = remoteProduct.copyWith(
+                        pathOfPicture: localImagePath, id: remoteProduct.id);
+                    await isarHelper.addProduct(data.toEntity());
+                    double progress = (i + 1) / products.length * 100;
+                    onProgress(progress); // Update progress
+                  } catch (e) {
+                    AppRes.logger.e(e);
+                    return GenericError("Qandaydir xatolik");
+                  }
+                }
+              }
             }
           }
+          return Success(await isarHelper.getAllProducts());
+        } else {
+          return GenericError("Qandaydir xatolik");
         }
-        return Success(await isarHelper.getAllProducts());
       } else {
         return networkRes;
       }
@@ -173,6 +328,60 @@ class ProductRepositoryImpl implements ProductRepository {
       return NoInternet(Constants.noNetwork);
     }
   }
+
+  // @override
+  // Future<State> syncProducts(Function(double) onProgress) async {
+  //   final bool hasNetwork = await networkChecker.hasConnection;
+  //   if (hasNetwork) {
+  //     final networkRes = await productRemoteDataSource.getProducts();
+  //     if (networkRes is Success) {
+  //       final List<ProductNetwork> products = networkRes.value;
+  //       final appDir = await getApplicationDocumentsDirectory();
+  //       await isarHelper.clearProducts();
+  //
+  //       for (int i = 0; i < products.length; i++) {
+  //         if (products[i].pathOfPicture != null &&
+  //             !(products[i].pathOfPicture!.startsWith("/data")) &&
+  //             products[i].pathOfPicture!.isNotEmpty) {
+  //           // AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
+  //           try {
+  //             final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+  //             final String localImagePath = '${appDir.path}/$imageName';
+  //             await Dio().download(products[i].pathOfPicture!, localImagePath);
+  //             final data = products[i]
+  //                 .copyWith(pathOfPicture: localImagePath, id: products[i].id);
+  //             await isarHelper.addProduct(data.toEntity());
+  //             double progress = (i + 1) / products.length * 100;
+  //             onProgress(progress); // Update progress
+  //           } catch (e) {
+  //             AppRes.logger.e(e);
+  //             return GenericError("Qandaydir xatolik");
+  //           }
+  //         } else {
+  //           // AppRes.logger.f("$i. Shart Noto'gri: ${products[i].toString()}");
+  //           try {
+  //             final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+  //             final String localImagePath = '${appDir.path}/$imageName';
+  //             await Dio().download(Constants.noImage, localImagePath);
+  //             final data = products[i]
+  //                 .copyWith(pathOfPicture: localImagePath, id: products[i].id);
+  //             await isarHelper.addProduct(data.toEntity());
+  //             double progress = (i + 1) / products.length * 100;
+  //             onProgress(progress); // Update progress
+  //           } catch (e) {
+  //             AppRes.logger.e(e);
+  //             return GenericError("Qandaydir xatolik");
+  //           }
+  //         }
+  //       }
+  //       return Success(await isarHelper.getAllProducts());
+  //     } else {
+  //       return networkRes;
+  //     }
+  //   } else {
+  //     return NoInternet(Constants.noNetwork);
+  //   }
+  // }
 
   @override
   Future<State> syncCosts(Function(double) onProgress) async {

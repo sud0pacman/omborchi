@@ -153,6 +153,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       ));
     });
     on<GetLocalDataEvent>((event, emit) async {
+      emit(state.copyWith(isOpenDialog: true));
       final res = event.categoryId == 0
           ? await productRepository.fetchAllProductsFromLocal()
           : await productRepository
@@ -170,7 +171,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           isEmpty: products.isEmpty,
         ));
 
-        // Trigger the category-based product fetch after syncing
         add(GetProductsByCategory(event.categoryId));
       } else {
         emit(state.copyWith(

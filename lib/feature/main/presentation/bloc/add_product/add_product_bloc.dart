@@ -66,16 +66,18 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
               await productRepository.uploadImage(imageName, image);
           if (response is Success) {
             final id = DateTime.now().millisecondsSinceEpoch;
+            final updatedTime = DateTime.now();
             image = response.value;
             AppRes.logger.w(image);
-            final res = await productRepository.createProduct(
-                event.productModel.copyWith(id: id, pathOfPicture: image));
+            final res = await productRepository.createProduct(event.productModel
+                .copyWith(
+                    id: id, pathOfPicture: image, updatedAt: updatedTime));
             if (res is Success) {
               final insertCostRes = await productRepository.addProductCost(
                 event.costModels.map((e) {
                   counter++;
                   return e.copyWit(
-                    productId: event.productModel.id,
+                    productId: id,
                     id: DateTime.now().millisecondsSinceEpoch +
                         counter, // Ensures uniqueness
                   );
@@ -90,7 +92,10 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
 
                 AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
                 productRepository.saveProductToLocal(event.productModel
-                    .copyWith(pathOfPicture: localImagePath, id: id)
+                    .copyWith(
+                        pathOfPicture: localImagePath,
+                        id: id,
+                        updatedAt: updatedTime)
                     .toEntity());
                 emit(state.copyWith(
                     isLoading: false, isSuccess: true, isBack: true));

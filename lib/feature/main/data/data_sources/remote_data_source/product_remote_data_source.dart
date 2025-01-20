@@ -7,12 +7,12 @@ import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart'
 import 'package:omborchi/feature/main/data/model/remote_model/product_network.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../domain/model/product_model.dart';
-
 abstract interface class ProductRemoteDataSource {
   Future<State> getProductsByCategoryId(int categoryId);
 
   Future<State> getProducts();
+
+  Future<State> getAllDeletedProductIds();
 
   Future<State> getProductById(int id);
 
@@ -25,6 +25,8 @@ abstract interface class ProductRemoteDataSource {
   Future<State> updateProduct(ProductNetwork product);
 
   Future<State> deleteProduct(ProductNetwork product);
+
+  Future<State> addDeletedProduct(int productId);
 
   Future<State> deleteCost(int costId);
 
@@ -45,15 +47,54 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       final newProduct = await supabaseClient
           .from(ExpenseFields.productTable)
-          .insert(product.toJson())
-          .select()
-          .single();
+          .insert(product.toJson());
 
-      // Convert ProductNetwork to ProductModel here
-      final productModel =
-          ProductModel.fromNetwork(ProductNetwork.fromJson(newProduct));
+      return Success(newProduct);
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } catch (e) {
+      AppRes.logger.e(e);
+      return GenericError(e);
+    }
+  }
 
-      return Success(productModel);
+  @override
+  Future<State> addDeletedProduct(int productId) async {
+    try {
+      await supabaseClient
+          .from(ExpenseFields.deletedProductTable)
+          .insert({'product_id': productId});
+
+      return Success("Muvaffaqiyatli");
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } catch (e) {
+      AppRes.logger.e(e);
+      return GenericError(e);
+    }
+  }
+
+  @override
+  Future<State> getAllDeletedProductIds() async {
+    try {
+      // Supabasedan barcha product_id larni olish
+      final response = await supabaseClient
+          .from(ExpenseFields.deletedProductTable)
+          .select('product_id');
+
+      // Mapdan List<int>ga aylantirish
+      final List<int> productIds =
+          (response as List).map((item) => item['product_id'] as int).toList();
+
+      return Success(productIds);
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -71,13 +112,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     AppRes.logger.t(product.toString());
 
     try {
-      final newProduct = await supabaseClient
+      await supabaseClient
           .from(ExpenseFields.productPriceTable)
-          .insert(product.toJson())
-          .select()
-          .single();
+          .insert(product.toJson());
 
-      return Success(ProductNetwork.fromJson(newProduct));
+      return Success("");
     } on SocketException catch (e) {
       AppRes.logger.e(e);
       return NoInternet(Exception("No Internet"));
@@ -121,7 +160,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           .eq('id', id);
 
       final List<ProductNetwork> result =
-      response.map((e) => ProductNetwork.fromJson(e)).toList();
+          response.map((e) => ProductNetwork.fromJson(e)).toList();
 
       return Success(result.isNotEmpty ? result[0] : null);
     } on SocketException catch (e) {
@@ -164,7 +203,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       final response = await supabaseClient
           .from(ExpenseFields.productTable)
           .select()
-          .eq('category_id', categoryId);
+          .eq('category_id', categoryId)
+          .order('nomer', ascending: true); // Ascending: ko'tarilgan tartibda
 
       final List<ProductNetwork> result =
           response.map((e) => ProductNetwork.fromJson(e)).toList();

@@ -44,7 +44,9 @@ class _SplashScreenState extends State<SplashScreen> {
             AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
             try {
               final imageName =
-                  "${products[i].id ?? DateTime.now().millisecondsSinceEpoch}.jpg";
+                  "${products[i].id ?? DateTime
+                  .now()
+                  .millisecondsSinceEpoch}.jpg";
               final String localImagePath = '${appDir.path}/$imageName';
               await Dio().download(products[i].pathOfPicture!, localImagePath);
               final response = await productRemoteDataSource.uploadImage(
@@ -62,7 +64,9 @@ class _SplashScreenState extends State<SplashScreen> {
             AppRes.logger.f("$i. Shart Noto'gri: ${products[i].toString()}");
             try {
               final imageName =
-                  "${products[i].id ?? DateTime.now().millisecondsSinceEpoch}.jpg";
+                  "${products[i].id ?? DateTime
+                  .now()
+                  .millisecondsSinceEpoch}.jpg";
               final String localImagePath = '${appDir.path}/$imageName';
               await Dio().download(Constants.noImage, localImagePath);
               final response = await productRemoteDataSource.uploadImage(
@@ -91,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isSynced = prefs.getBool('isSynced') ?? false; // default: false
     await Future.delayed(const Duration(milliseconds: 500));
-
+    // Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
     if (isSynced) {
       Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
     } else {
@@ -105,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // Transparent background
       statusBarIconBrightness:
-          Brightness.dark, // Dark icons for light background
+      Brightness.dark, // Dark icons for light background
     ));
 
     return Scaffold(

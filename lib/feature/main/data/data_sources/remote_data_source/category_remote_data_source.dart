@@ -22,7 +22,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
   Future<State> getCategories() async {
     try {
       final response =
-          await supabaseClient.from(ExpenseFields.categoryTable).select();
+      await supabaseClient.from(ExpenseFields.categoryTable).select();
 
       final result = response.map((e) => CategoryNetwork.fromJson(e)).toList();
 

@@ -8,7 +8,8 @@ class SyncWarningDialog extends StatefulWidget {
   final String positiveText;
   final String negativeText;
   final VoidCallback onNegativeTap;
-  final Function(List<String>) onPositiveTap; // Modified to pass selected tables
+  final Function(List<String>)
+      onPositiveTap; // Modified to pass selected tables
   final List<String> tables; // List of dynamic tables
 
   const SyncWarningDialog({
@@ -50,50 +51,9 @@ class _SyncWarningDialogState extends State<SyncWarningDialog> {
               style: medium.copyWith(fontSize: 15),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            Text(
-              "Sinxronlanadigan jadvallarni tanlang:",
-              style: medium.copyWith(fontSize: 16),
-              textAlign: TextAlign.start,
-            ),
+
             const SizedBox(height: 16),
             // Dynamic List of Tables with Checkboxes
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: widget.tables.length,
-              itemBuilder: (context, index) {
-                final table = widget.tables[index];
-                return ListTile(
-                  title: Text(
-                    table,
-                    style: regular.copyWith(fontSize: 15),
-                  ),
-                  leading: Checkbox(
-                    checkColor: AppColors.white,
-                    activeColor: AppColors.midnightBlue,
-                    fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                      // Change the fill color based on the state
-                      if (states.contains(MaterialState.selected)) {
-                        return AppColors.primary; // Fill color when selected
-                      }
-                      return Colors.transparent; // Default fill color
-                    }),
-                    value: _selectedTables.contains(table),
-                    onChanged: (bool? isChecked) {
-                      setState(() {
-                        if (isChecked == true) {
-                          _selectedTables.add(table);
-                        } else {
-                          _selectedTables.remove(table);
-                        }
-                      });
-                    },
-                  ),
-                );
-
-              },
-            ),
-            const SizedBox(height: 24),
             Row(
               children: [
                 const Spacer(),
@@ -108,7 +68,8 @@ class _SyncWarningDialogState extends State<SyncWarningDialog> {
                 const SizedBox(width: 8),
                 TextButton(
                   onPressed: () {
-                    widget.onPositiveTap(_selectedTables); // Pass selected tables
+                    widget
+                        .onPositiveTap(_selectedTables); // Pass selected tables
                   },
                   style: actionTextButtonStyle,
                   child: Text(

@@ -25,7 +25,7 @@ class RawMaterialRemoteDataSourceImpl implements RawMaterialRemoteDataSource {
   Future<State> createRawMaterial(RawMaterialNetwork rawMaterial) async {
     AppRes.logger.t(rawMaterial.toString());
     try {
-     var res =  await supabaseClient
+      var res =  await supabaseClient
           .from(ExpenseFields.rawMaterialTable)
           .insert(rawMaterial.toJson());
 

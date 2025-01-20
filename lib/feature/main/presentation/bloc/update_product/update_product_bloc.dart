@@ -108,8 +108,9 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
             image = value.pathOfPicture ?? Constants.noImage;
           }
         }
-        final res = await productRepository
-            .updateProduct(event.productModel.copyWith(pathOfPicture: image));
+        final updatedTime = DateTime.now();
+        final res = await productRepository.updateProduct(event.productModel
+            .copyWith(pathOfPicture: image, updatedAt: updatedTime));
         if (res is Success) {
           final deleteCostsRes =
               await productRepository.deleteCosts(event.productModel.id!);
@@ -120,7 +121,8 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
                 counter++;
                 return e.copyWit(
                   productId: event.productModel.id,
-                  id: DateTime.now().millisecondsSinceEpoch + counter, // Ensures uniqueness
+                  id: DateTime.now().millisecondsSinceEpoch +
+                      counter, // Ensures uniqueness
                 );
               }).toList(),
             );
@@ -136,7 +138,8 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
                 AppRes.logger.t("Rasm lokalga yuklandi: $localImagePath");
               }
               productRepository.updateLocalProduct(event.productModel
-                  .copyWith(pathOfPicture: localImagePath)
+                  .copyWith(
+                      pathOfPicture: localImagePath, updatedAt: updatedTime)
                   .toEntity());
               emit(state.copyWith(
                   isLoading: false, isSuccess: true, isBack: true));
