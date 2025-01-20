@@ -42,11 +42,11 @@ class ExpenseFields {
 
 class AppSecrets {
   static const String supabaseAnonKey =
-     // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o";
-     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpaWxjcG9zY2hiZXBuZ3VxbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjcxNjAsImV4cCI6MjA0ODIwMzE2MH0.b8MpECYgoQLEhIQMAa-7wnLIAbyIiUeyLLOvDCUCAH0";
+     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o";
+     // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpaWxjcG9zY2hiZXBuZ3VxbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjcxNjAsImV4cCI6MjA0ODIwMzE2MH0.b8MpECYgoQLEhIQMAa-7wnLIAbyIiUeyLLOvDCUCAH0";
 
-  // static const String supabaseUrl = "https://ilxxvdkgdvcouathvmng.supabase.co";
-  static const String supabaseUrl = "https://eiilcposchbepnguqnum.supabase.co";
+  static const String supabaseUrl = "https://ilxxvdkgdvcouathvmng.supabase.co";
+  // static const String supabaseUrl = "https://eiilcposchbepnguqnum.supabase.co";
 }
 
 class AssetRes {
