@@ -200,30 +200,41 @@ class IsarHelper {
     });
   }
 
+  Future<void> deleteAllCostsById(int productId) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.costEntitys.filter().productIdEqualTo(productId).deleteAll();
+    });
+  }
+
   Future<void> clearProducts() async {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.productEntitys.clear();
     });
   }
+
   Future<void> clearCosts() async {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.costEntitys.clear();
     });
   }
+
   Future<void> clearCategories() async {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.categoryEntitys.clear();
     });
   }
+
   Future<void> clearMaterials() async {
     final isar = await db;
     await isar.writeTxn(() async {
       await isar.rawMaterialEntitys.clear();
     });
   }
+
   Future<void> clearTypes() async {
     final isar = await db;
     await isar.writeTxn(() async {
@@ -254,8 +265,9 @@ class IsarHelper {
             .where()
             .filter()
             .categoryIdEqualTo(categoryId)
+            .sortByNomer()
             .findAll()
-        : await isar.productEntitys.where().findAll();
+        : await isar.productEntitys.where().sortByNomer().findAll();
     final nomerString = nomer.toString();
     final filteredRes = res.where((product) {
       return product.nomer.toString().startsWith(nomerString);
@@ -264,10 +276,9 @@ class IsarHelper {
     return filteredRes;
   }
 
-  // Get all products
   Future<List<ProductEntity>> getAllProducts() async {
     final isar = await db;
-    return await isar.productEntitys.where().findAll();
+    return await isar.productEntitys.where().sortByNomer().findAll();
   }
 
   // Get all products
@@ -276,6 +287,7 @@ class IsarHelper {
     return await isar.productEntitys
         .filter()
         .categoryIdEqualTo(categoryId)
+        .sortByNomer()
         .findAll();
   }
 
