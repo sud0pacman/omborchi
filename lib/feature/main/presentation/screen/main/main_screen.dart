@@ -164,7 +164,8 @@ class _MainScreenState extends State<MainScreen> {
               bool? result = await Navigator.pushNamed(
                   context, RouteManager.addProductScreen);
               if (result == true) {
-                _bloc.add(GetProductsByCategory(selectedIndex));
+                AppRes.logger.t("message success added a product (category -)> $selectedIndex");
+                _bloc.add(GetLocalDataEvent(selectedIndex));
               }
             } else if (index == 1) {
               bool? result = await Navigator.pushNamed(

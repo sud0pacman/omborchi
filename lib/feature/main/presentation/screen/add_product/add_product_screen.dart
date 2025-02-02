@@ -88,8 +88,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         numberErrorText = null;
       }
       if (serviceController.text.isEmpty) {
-        serviceErrorText =
-            "Xizmat to'ldirilmagan akjsdgaaaaaaaaasf ahyufufufufufufufufufufufufufuf";
+        serviceErrorText = "Xizmat to'ldirilmagan";
       } else {
         serviceErrorText = null;
       }
@@ -182,8 +181,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
         child: BlocConsumer<AddProductBloc, AddProductState>(
           listener: (context, state) {
             if (state.isSuccess == true) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text("Successfully added!"),
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                  "Muvaffaqiyatli qo'shildi",
+                  style: medium.copyWith(color: Colors.white),
+                ),
                 behavior: SnackBarBehavior.floating,
               ));
               closeDialog(context);

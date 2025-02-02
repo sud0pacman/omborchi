@@ -171,7 +171,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           isEmpty: products.isEmpty,
         ));
 
-        // Trigger the category-based product fetch after syncing
         add(GetProductsByCategory(event.categoryId));
       } else {
         emit(state.copyWith(
