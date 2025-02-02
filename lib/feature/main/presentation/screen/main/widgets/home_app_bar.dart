@@ -81,7 +81,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
       actions: [
         IconButton(
           icon: _isSearching
-              ? const Icon(Icons.close, color: AppColors.white)
+              ?  Icon(Icons.close, color: context.textColor())
               : SvgPicture.asset(
                   AssetRes.icSearch,
                   width: 24,

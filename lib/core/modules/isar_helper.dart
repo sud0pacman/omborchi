@@ -200,13 +200,6 @@ class IsarHelper {
     });
   }
 
-  Future<void> deleteAllCostsById(int productId) async {
-    final isar = await db;
-    await isar.writeTxn(() async {
-      await isar.costEntitys.filter().productIdEqualTo(productId).deleteAll();
-    });
-  }
-
   Future<void> clearProducts() async {
     final isar = await db;
     await isar.writeTxn(() async {
