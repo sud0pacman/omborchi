@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart'; // For Lottie animation
 import 'package:omborchi/config/router/app_routes.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/loading_dialog.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar.dart';
 import 'package:omborchi/core/theme/colors.dart';
+import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/presentation/bloc/main/main_bloc.dart';
@@ -36,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   int selectedIndex = 0;
   CategoryModel? selectedCategory;
   List<CategoryModel>? categoryList;
-  bool isSyncDialogOpen = false; // Keep track of dialog state
+  bool isSyncDialogOpen = false;
   int currentNomer = 0;
   int currentNomerIndex = 1;
 
@@ -72,8 +74,9 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       Text(
                         "${state.currentRepository ?? ''} sinxronlanmoqda... "
-                        "(${state.currentRepositoryIndex ?? 0}/$syncedNumber)",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        "(${state.currentRepositoryIndex ?? 0}/5)",
+                        style: pmedium.copyWith(
+                            fontSize: 16, color: context.textColor()),
                       ),
                       const SizedBox(height: 16),
                       LinearProgressIndicator(
@@ -85,7 +88,8 @@ class _MainScreenState extends State<MainScreen> {
                       const SizedBox(height: 8),
                       Text(
                         "${state.syncProgress?.toInt() ?? 0}%",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: medium.copyWith(
+                            fontSize: 16, color: context.textColor()),
                       ),
                     ],
                   ),
@@ -150,7 +154,6 @@ class _MainScreenState extends State<MainScreen> {
       value: _bloc,
       child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: AppColors.background,
         drawer: PrimaryNavbar(
           selectedIndex: 0,
           onItemTapped: (index) async {
@@ -435,8 +438,12 @@ class _MainScreenState extends State<MainScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: AppColors.steelGrey,
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          topRight: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
+                          bottomRight: Radius.circular(4)),
+                      color: AppColors.appBarDark.withAlpha(70),
                     ),
                     child: Text(
                       '#${product.description}',

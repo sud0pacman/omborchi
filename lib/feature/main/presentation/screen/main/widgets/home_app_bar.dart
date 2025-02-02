@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/utils/consants.dart';
 
@@ -37,12 +38,11 @@ class _SearchAppBarState extends State<SearchAppBar> {
     return AppBar(
       elevation: 0.0,
       scrolledUnderElevation: 0,
-      backgroundColor: AppColors.primary,
       leading: IconButton(
         onPressed: widget.onTapLeading,
-        icon: const Icon(
+        icon: Icon(
           Icons.menu,
-          color: AppColors.white,
+          color: context.textColor(),
         ),
       ),
       titleSpacing: 0,
@@ -54,8 +54,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
                       AssetRes.icSearch,
                       width: 24,
                       height: 24,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.white,
+                      colorFilter: ColorFilter.mode(
+                        context.textColor(),
                         BlendMode.srcIn,
                       ),
                     ),
@@ -63,7 +63,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
                 Expanded(
                   child: TextField(
                     controller: _searchController,
-                    style: mediumWhite.copyWith(fontSize: 17),
+                    style: mediumWhite.copyWith(
+                        fontSize: 17, color: context.textColor()),
                     // Custom text style
                     keyboardType: TextInputType.number,
                     onChanged: widget.onChanged,
@@ -85,8 +86,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
                   AssetRes.icSearch,
                   width: 24,
                   height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.white,
+                  colorFilter: ColorFilter.mode(
+                    context.textColor(),
                     BlendMode.srcIn,
                   ),
                 ),
@@ -105,8 +106,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
             AssetRes.icSynchronization,
             width: 24,
             height: 24,
-            colorFilter: const ColorFilter.mode(
-              AppColors.white,
+            colorFilter: ColorFilter.mode(
+              context.textColor(),
               BlendMode.srcIn,
             ),
           ),

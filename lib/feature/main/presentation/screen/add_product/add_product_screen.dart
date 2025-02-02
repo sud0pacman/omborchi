@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:money_formatter/money_formatter.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/formatters/thousand_formatter.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
@@ -168,8 +169,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: simpleAppBar(
+        context: context,
         leadingIcon: AssetRes.icBack,
         onTapLeading: () {
           Navigator.pop(context, true);
@@ -318,7 +319,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(),
+          borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           Row(
@@ -372,7 +374,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(),
+          borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           dropDownWithTitle(
@@ -383,10 +386,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
               buttonWidth: double.infinity,
               dropdownWidth: 200,
               dropdownItems: state.categories.toList(),
-              itemColor: AppColors.background,
-              buttonColor: AppColors.white,
-              buttonTextStyle: medium.copyWith(fontSize: 16),
-              itemTextStyle: medium.copyWith(fontSize: 16),
+              itemColor: context.backgroundColor(),
+              buttonColor: context.backgroundColor(),
+              buttonTextStyle:
+                  medium.copyWith(fontSize: 16, color: context.textColor()),
+              itemTextStyle:
+                  medium.copyWith(fontSize: 16, color: context.textColor()),
               onChanged: (value) {
                 setState(() {
                   selectedCategory = value;
@@ -421,7 +426,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             },
             title: "Nomer",
             constraints: const BoxConstraints(maxHeight: 48),
-            hint: "".tr,
+            hint: "0".tr,
             errorText: numberErrorText, // Error text maydoni
           ),
           const SizedBox(height: 16),
@@ -437,6 +442,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       heightErrorText = null; // Clear error if there is input
                     });
                   },
+                  hint: "0 sm",
                   title: "Bo'yi",
                   constraints: const BoxConstraints(maxHeight: 48),
                   errorText: heightErrorText, // Remove individual error text
@@ -452,6 +458,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       widthErrorText = null; // Clear error if there is input
                     });
                   },
+                  hint: "0 sm",
                   constraints: const BoxConstraints(maxHeight: 48),
                   title: "Eni".tr,
                   errorText: widthErrorText, // Remove individual error text
@@ -470,7 +477,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       children: [
         Text(
           title,
-          style: medium.copyWith(fontSize: 16),
+          style: medium.copyWith(fontSize: 16, color: context.textColor()),
         ),
         const SizedBox(height: 8),
         dropdown
@@ -534,8 +541,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(32),
+        color: context.containerColor(),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         children: [
@@ -545,8 +552,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               RawMaterialTypeDropdown(
                 hint: "Turini tanlang",
                 value: selectedRawMaterialType,
-                itemColor: AppColors.background,
-                buttonColor: AppColors.white,
+                itemColor: context.backgroundColor(),
+                buttonColor: context.backgroundColor(),
                 buttonTextStyle: medium.copyWith(fontSize: 16),
                 itemTextStyle: medium.copyWith(fontSize: 16),
                 dropdownItems: rawMaterials?.keys.toList() ?? [],
@@ -555,8 +562,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               RawMaterialDropdown(
                 hint: "Xomashyo tanlang",
                 value: selectedRawMaterial,
-                itemColor: AppColors.background,
-                buttonColor: AppColors.white,
+                itemColor: context.backgroundColor(),
+                buttonColor: context.backgroundColor(),
                 buttonTextStyle: medium.copyWith(fontSize: 16),
                 itemTextStyle: medium.copyWith(fontSize: 16),
                 dropdownItems:
@@ -599,6 +606,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
+
   Widget productCostWidget(String title, String cost) {
     MoneyFormatter fmf = MoneyFormatter(amount: double.parse(cost));
     return Container(
@@ -606,7 +614,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(),
+          borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

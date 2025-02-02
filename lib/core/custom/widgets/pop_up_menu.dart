@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
+import 'package:path/path.dart';
 import 'package:popover/popover.dart';
 
 class PopUpMenu extends StatelessWidget {
@@ -21,12 +23,13 @@ class PopUpMenu extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (int i = 0; i < actions.length; i++)
-          item(() => onPressed(i), iconPaths[i], actions[i])
+          item(() => onPressed(i), iconPaths[i], actions[i], context)
       ],
     );
   }
 
-  Widget item(VoidCallback onPressed, String path, String title) {
+  Widget item(
+      VoidCallback onPressed, String path, String title, BuildContext context) {
     return TextButton(
         onPressed: onPressed,
         style: kButtonTransparentStyle.copyWith(
@@ -42,22 +45,21 @@ class PopUpMenu extends StatelessWidget {
               path,
               width: 22,
               height: 22,
-              colorFilter: const ColorFilter.mode(
-                  AppColors.midnightBlue, BlendMode.srcIn),
+              colorFilter:
+                  ColorFilter.mode(context.textColor(), BlendMode.srcIn),
             ),
-          
-            const SizedBox(width: 15,),
-          
+            const SizedBox(
+              width: 15,
+            ),
             Text(
               title,
-              style: semiBold.copyWith(fontSize: 16),
+              style: semiBold.copyWith(fontSize: 16, color: context.textColor()),
               overflow: TextOverflow.ellipsis,
             )
           ]),
         ));
   }
 }
-
 
 class Button extends StatelessWidget {
   const Button({super.key});

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 
 import '../../theme/style_res.dart';
@@ -20,7 +21,7 @@ class NavBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
       height: 48,
       child: TextButton(
         onPressed: onTap,
@@ -33,7 +34,7 @@ class NavBarItem extends StatelessWidget {
               width: 26,
               height: 26,
               colorFilter:
-                  const ColorFilter.mode(AppColors.steelGrey, BlendMode.srcIn),
+                  ColorFilter.mode(context.textColor(), BlendMode.srcIn),
             ),
             const SizedBox(
               width: 19,
@@ -43,6 +44,7 @@ class NavBarItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: semiBold.copyWith(
                     fontSize: 16,
+                    color: context.textColor(),
                     overflow: TextOverflow.ellipsis,
                   )),
             ),

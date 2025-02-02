@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
@@ -8,7 +9,6 @@ class CategoryWidget extends StatelessWidget {
   final String name;
   final int count;
   final VoidCallback onTap;
-
 
   const CategoryWidget(
       {super.key,
@@ -27,8 +27,9 @@ class CategoryWidget extends StatelessWidget {
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(
               vertical: 8,
             )),
-            backgroundColor: WidgetStatePropertyAll(
-                isActive ? AppColors.primary.withOpacity(.8) : AppColors.white)),
+            backgroundColor: WidgetStatePropertyAll(isActive
+                ? AppColors.primary.withOpacity(.8)
+                : context.containerColor())),
         icon: Container(
           width: 86,
           alignment: Alignment.center,
@@ -44,7 +45,7 @@ class CategoryWidget extends StatelessWidget {
               ),
               Text(
                 name,
-                style: psemibold.copyWith(fontSize: 12),
+                style: psemibold.copyWith(fontSize: 12, color: context.textColor()),
                 overflow: TextOverflow.ellipsis,
               )
             ],

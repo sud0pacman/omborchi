@@ -24,7 +24,6 @@ class RawMaterailPage extends StatelessWidget {
     return Scaffold(
       floatingActionButton:
           primaryFloatingActionButton(onTap: onTapFloatingAction),
-      backgroundColor: AppColors.background,
       body: listRawMaterials.isNotEmpty
           ? ListView.separated(
               shrinkWrap: true,

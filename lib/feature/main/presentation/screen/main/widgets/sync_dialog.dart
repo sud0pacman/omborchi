@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 
@@ -33,7 +35,7 @@ class _SyncWarningDialogState extends State<SyncWarningDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.white,
+      
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -42,13 +44,13 @@ class _SyncWarningDialogState extends State<SyncWarningDialog> {
           children: [
             Text(
               widget.title,
-              style: bold,
+              style: bold.copyWith(fontSize: 18, color: context.textColor()),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
               widget.message,
-              style: medium.copyWith(fontSize: 15),
+              style: medium.copyWith(fontSize: 15, color: context.textColor()),
               textAlign: TextAlign.center,
             ),
 
@@ -62,10 +64,10 @@ class _SyncWarningDialogState extends State<SyncWarningDialog> {
                   style: actionTextButtonStyle,
                   child: Text(
                     widget.negativeText,
-                    style: mediumTheme.copyWith(fontSize: 14),
+                    style: mediumTheme.copyWith(fontSize: 14, color: context.textColor(),)
                   ),
                 ),
-                const SizedBox(width: 8),
+                8.horizontalSpace,
                 TextButton(
                   onPressed: () {
                     widget
@@ -74,7 +76,7 @@ class _SyncWarningDialogState extends State<SyncWarningDialog> {
                   style: actionTextButtonStyle,
                   child: Text(
                     widget.positiveText,
-                    style: mediumTheme.copyWith(fontSize: 14),
+                    style: mediumTheme.copyWith(fontSize: 14, color: context.textColor(),)
                   ),
                 ),
               ],

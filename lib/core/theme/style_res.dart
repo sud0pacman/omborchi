@@ -3,98 +3,81 @@ import 'package:omborchi/core/theme/colors.dart';
 
 // Text Styles
 const TextStyle pregular = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitoregular",
 );
 
 const TextStyle pmedium = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitomedium",
 );
 
 const TextStyle psemibold = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitosemibold",
 );
 
 const TextStyle pbold = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitobold",
 );
 
 const TextStyle plight = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitolight",
 );
 
 const TextStyle semiBoldWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitosemibold",
   fontSize: 23,
 );
 
 const TextStyle semiBold = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitomedium",
   fontSize: 20,
 );
 
 const TextStyle semiBoldTheme = TextStyle(
-  color: AppColors.primary,
   fontFamily: "nunitosemibold",
   fontSize: 18,
 );
 
 const TextStyle mediumWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitomedium",
   fontSize: 20,
 );
 
 const TextStyle medium = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitomedium",
   fontSize: 20,
 );
 
 const TextStyle mediumTheme = TextStyle(
-  color: AppColors.primary,
   fontFamily: "nunitomedium",
   fontSize: 20,
 );
 
 const TextStyle boldWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitobold",
   fontSize: 16,
 );
 
 const TextStyle boldTheme = TextStyle(
-  color: AppColors.primary,
   fontFamily: "nunitobold",
   fontSize: 23,
 );
 
 const TextStyle blackWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitobold", // Assuming no specific black weight in Nunito
   fontSize: 22,
 );
 
 const TextStyle regularWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitoregular",
   fontSize: 16,
 );
 
 const TextStyle bold = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitobold",
   fontSize: 16,
 );
 
 const TextStyle regular = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitoregular",
   fontSize: 16,
 );
@@ -106,37 +89,31 @@ const TextStyle regularEmpress = TextStyle(
 );
 
 const TextStyle regularTheme = TextStyle(
-  color: AppColors.primary,
   fontFamily: "nunitoregular",
   fontSize: 16,
 );
 
 const TextStyle lightWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitolight",
   fontSize: 14,
 );
 
 const TextStyle light = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: "nunitolight",
   fontSize: 16,
 );
 
 const TextStyle thinWhite = TextStyle(
-  color: AppColors.white,
   fontFamily: "nunitolight", // Assuming thin weight is not separately defined
   fontSize: 14,
 );
 
 const TextStyle kBlackButtonTextStyle = TextStyle(
-  color: AppColors.midnightBlue,
   fontFamily: 'nunitoregular',
   fontSize: 14,
 );
 
 const TextStyle kThemeButtonTextStyle = TextStyle(
-  color: AppColors.white,
   fontFamily: 'nunitoregular',
   fontSize: 18,
 );

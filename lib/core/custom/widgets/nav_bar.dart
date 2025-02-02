@@ -1,5 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
+import 'package:omborchi/core/custom/extensions/my_extensions.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar_item.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -18,38 +22,35 @@ class PrimaryNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.backgroundColor(),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         children: [
           Container(
+            height: 200.h,
             padding: const EdgeInsets.symmetric(horizontal: 18),
             alignment: Alignment.topLeft,
             color: AppColors.primary,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const SizedBox(height: 42),
                 Image.asset(
                   AssetRes.icAppLogo,
-                  width: 65,
-                  height: 65,
+                  width: 76.w,
+                  height: 76.h,
                   fit: BoxFit.cover,
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
+                16.verticalSpace,
                 Text(
                   'Omborchi',
-                  style: boldWhite.copyWith(fontSize: 14),
+                  style: bold.copyWith(fontSize: 18, color: AppColors.white),
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
+                16.verticalSpace
               ],
             ),
           ),
-          const SizedBox(height: 47),
+          24.verticalSpace,
+        
           NavBarItem(
               title: "Maxsulot qo'shish".tr,
               iconPath: AssetRes.icProduct,
@@ -58,24 +59,21 @@ class PrimaryNavbar extends StatelessWidget {
               title: "Kategoriya qo'shish".tr,
               iconPath: AssetRes.icInactive,
               onTap: () => onItemTapped(1)),
-
           NavBarItem(
               title: "Xomashyo".tr,
               iconPath: AssetRes.icMaterialRaw,
               onTap: () => onItemTapped(2)),
-
           NavBarItem(
               title: "Xomashyo turi".tr,
               iconPath: AssetRes.icMaterialRawType,
               onTap: () => onItemTapped(3)),
-
           const Spacer(),
           NavBarItem(
             title: "Ba'zani yangilash".tr,
             iconPath: AssetRes.icSynchronization,
             onTap: () => onItemTapped(-1),
           ),
-          const SizedBox(height: 36),
+          24.verticalSpace
         ],
       ),
     );

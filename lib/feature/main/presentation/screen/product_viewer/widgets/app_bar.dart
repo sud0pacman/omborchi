@@ -16,8 +16,8 @@ AppBar productViewAppBar({
   Function(int)? onTapAction,
 }) {
   return AppBar(
-    backgroundColor: AppColors.primary,
     elevation: 0.0,
+    scrolledUnderElevation: 0,
     leading: IconButton(
         onPressed: onTapLeading,
         icon: SvgPicture.asset(

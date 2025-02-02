@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/pop_up_menu.dart';
 import 'package:omborchi/core/theme/colors.dart';
@@ -22,7 +23,7 @@ class RawMaterialTypeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: kButtonWhiteStyle.copyWith(
-        backgroundColor: WidgetStateProperty.all(AppColors.background),
+        backgroundColor: WidgetStateProperty.all(context.backgroundColor()),
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
         shape: const WidgetStatePropertyAll(RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(0)),
@@ -49,11 +50,10 @@ class RawMaterialTypeItem extends StatelessWidget {
               } else if (ind == 1) {
                 onTapDelete();
               }
-
             },
           ),
           direction: PopoverDirection.bottom,
-          backgroundColor: Colors.white,
+          backgroundColor: context.containerColor(),
           width: MediaQuery.of(context).size.width / 2,
           arrowHeight: 0,
           arrowWidth: 0,
@@ -65,7 +65,9 @@ class RawMaterialTypeItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         child: Text(
           name,
-          style: bold, // Assuming you have a 'bold' text style defined
+          style: bold.copyWith(
+              color: context
+                  .textColor()), // Assuming you have a 'bold' text style defined
         ),
       ),
     );

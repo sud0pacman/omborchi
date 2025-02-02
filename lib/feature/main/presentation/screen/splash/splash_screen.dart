@@ -91,22 +91,29 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isSynced = prefs.getBool('isSynced') ?? false; // default: false
     await Future.delayed(const Duration(milliseconds: 500));
-    // Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    if (isSynced) {
-      Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    } else {
-      Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
-    }
+    Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+    // if (isSynced) {
+    //   Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+    // } else {
+    //   Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Set status bar text and icon color to dark (for light backgrounds)
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // Transparent background
-      statusBarIconBrightness:
-          Brightness.dark, // Dark icons for light background
-    ));
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isLightTheme
+            ? Brightness.dark
+            : Brightness.light, // Icon brightness
+        statusBarBrightness: isLightTheme
+            ? Brightness.light
+            : Brightness.dark, // Status bar brightness (iOS)
+      ),
+    );
 
     return Scaffold(
       body: Center(

@@ -66,8 +66,9 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
           }
         },
         builder: (context, state) => Scaffold(
-          backgroundColor: AppColors.background,
+        
           appBar: simpleAppBar(
+            context: context,
             leadingIcon: AssetRes.icBack,
             onTapLeading: () {
               Navigator.pop(context);

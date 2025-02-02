@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:omborchi/config/router/app_routes.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/core/theme/colors.dart';
@@ -50,7 +53,8 @@ class _SyncScreenState extends State<SyncScreen> {
                       Text(
                         "${state.currentRepository ?? ''} sinxronlanmoqda... "
                         "(${state.currentRepositoryIndex ?? 0}/5)",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: pmedium.copyWith(
+                            fontSize: 16, color: context.textColor()),
                       ),
                       const SizedBox(height: 16),
                       LinearProgressIndicator(
@@ -62,7 +66,8 @@ class _SyncScreenState extends State<SyncScreen> {
                       const SizedBox(height: 8),
                       Text(
                         "${state.syncProgress?.toInt() ?? 0}%",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: pmedium.copyWith(
+                            fontSize: 16, color: context.textColor()),
                       ),
                     ],
                   ),
@@ -98,13 +103,17 @@ class _SyncScreenState extends State<SyncScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Ma'lumotlarni Sinxronlash",
-          style: boldWhite.copyWith(fontSize: 18),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1), // Divider balandligi
+          child: Container(
+            color: AppColors.paleBlue, // Divider rangi
+            height: 1, // Divider qalinligi
+          ),
         ),
       ),
       body: BlocProvider.value(
@@ -117,6 +126,7 @@ class _SyncScreenState extends State<SyncScreen> {
               setState(() {
                 currentRepository = state.currentRepository;
                 syncProgress = state.syncProgress;
+
                 currentRepositoryIndex = state.currentRepositoryIndex;
               }); // Trigger UI rebuild if loading state changes
             }
@@ -147,36 +157,31 @@ class _SyncScreenState extends State<SyncScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Center(
-                          child: Container(
-                            color: AppColors.background,
-                            // Lottie background color
-                            child: Lottie.asset(
-                              height: 172,
-                              'assets/lottie/cloud.json',
-                            ),
+                        const Center(
+                          child: Icon(
+                            CupertinoIcons.cloud_download_fill,
+                            size: 142,
+                            color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        24.verticalSpace,
                         Text(
                           "Ma'lumotlar yangilanishi uchun internet yaxshi ishlayotganini tekshiring. Ko'chirib olish tugaguncha bu oynani yopmang.",
-                          style: medium.copyWith(fontSize: 16),
+                          style: medium.copyWith(
+                              fontSize: 16, color: context.textColor()),
                           textAlign: TextAlign.center,
                         ),
                       ],
                     ),
                   ),
                   PrimaryButton(
-                    height: 48,
                     width: double.infinity,
                     title: "Ko'chirishni boshlash",
                     onPressed: () {
                       _bloc.add(SyncGetDataEvent());
                     },
                   ),
-                  const SizedBox(
-                    height: 56,
-                  )
+                  8.verticalSpace
                 ],
               ),
             );

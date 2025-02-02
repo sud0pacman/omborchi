@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/formatters/thousand_formatter.dart';
 import 'package:omborchi/core/custom/widgets/custom_text_field.dart';
 import 'package:omborchi/core/theme/colors.dart';
@@ -42,11 +43,9 @@ class TextFieldDialog extends StatefulWidget {
 }
 
 class _TextFieldDialogState extends State<TextFieldDialog> {
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.white,
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -55,7 +54,7 @@ class _TextFieldDialogState extends State<TextFieldDialog> {
           children: [
             Text(
               widget.title,
-              style: bold,
+              style: bold.copyWith(fontSize: 18, color: context.textColor()),
               textAlign: TextAlign.center,
             ),
             const SizedBox(
@@ -90,30 +89,24 @@ class _TextFieldDialogState extends State<TextFieldDialog> {
               children: [
                 const Spacer(),
                 TextButton(
-                  onPressed: widget.onNegativeTap,
-                  style: actionTextButtonStyle,
-                  child: Text(
-                    widget.negativeTitle,
-                    style: mediumTheme.copyWith(
-                      fontSize: 14
-                    ),
-                  )
-                ),
-
+                    onPressed: widget.onNegativeTap,
+                    style: actionTextButtonStyle,
+                    child: Text(
+                      widget.negativeTitle,
+                      style: mediumTheme.copyWith(
+                          fontSize: 14, color: context.textColor()),
+                    )),
                 const SizedBox(
                   width: 8,
                 ),
-
                 TextButton(
-                  onPressed: widget.onTapPositive,
-                  style: actionTextButtonStyle,
-                  child: Text(
-                    widget.positiveTitle,
-                    style: mediumTheme.copyWith(
-                      fontSize: 14
-                    ),
-                  )
-                ),
+                    onPressed: widget.onTapPositive,
+                    style: actionTextButtonStyle,
+                    child: Text(
+                      widget.positiveTitle,
+                      style: mediumTheme.copyWith(
+                          fontSize: 14, color: context.textColor()),
+                    )),
               ],
             )
           ],

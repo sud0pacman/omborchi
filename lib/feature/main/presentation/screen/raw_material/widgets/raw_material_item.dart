@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/pop_up_menu.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -37,7 +38,7 @@ class RawMaterialItem extends StatelessWidget {
             ],
             onPressed: (ind) {
               closeDialog(context);
-    
+
               if (ind == 0) {
                 onTapEdit();
               } else if (ind == 1) {
@@ -59,7 +60,8 @@ class RawMaterialItem extends StatelessWidget {
               flex: 1,
               child: Text(
                 name,
-                style: regular,
+                style:
+                    regular.copyWith(fontSize: 16, color: context.textColor()),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               )),
@@ -70,7 +72,8 @@ class RawMaterialItem extends StatelessWidget {
               flex: 1,
               child: Text(
                 price.toString(),
-                style: regular,
+                style:
+                    regular.copyWith(fontSize: 16, color: context.textColor()),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               )),

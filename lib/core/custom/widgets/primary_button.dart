@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 
 import '../../theme/style_res.dart';
 
@@ -9,7 +11,7 @@ class PrimaryButton extends StatelessWidget {
     this.backgroundColor,
     this.onPressed,
     this.width,
-    this.height = 48,
+    this.height = 56,
     this.textStyle,
   });
 
@@ -17,13 +19,13 @@ class PrimaryButton extends StatelessWidget {
   final Color? backgroundColor;
   final VoidCallback? onPressed;
   final double? width;
-  final double? height;
+  final double height;
   final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: height,
+      height: height.h,
       width: width,
       child: TextButton(
           onPressed: onPressed,
@@ -36,7 +38,9 @@ class PrimaryButton extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: textStyle ?? boldWhite.copyWith(fontSize: 16),
+                style: textStyle ??
+                    boldWhite.copyWith(
+                        fontSize: 16, color: context.textColor()),
               ),
             ],
           )),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
@@ -74,7 +75,7 @@ class _TextWithTextFieldSmokeWhiteWidgetState
             ),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: context.backgroundColor(),
               borderRadius: const BorderRadius.all(Radius.circular(14)),
               border: Border.all(
                 color: AppColors.paleBlue,
@@ -117,6 +118,7 @@ class _TextWithTextFieldSmokeWhiteWidgetState
                 cursorColor: AppColors.primary,
                 style: medium.copyWith(
                   fontSize: 15,
+                  color: context.textColor(), 
                 ),
                 keyboardType: widget.textInputType,
                 textCapitalization: TextCapitalization.sentences,
@@ -129,8 +131,11 @@ class _TextWithTextFieldSmokeWhiteWidgetState
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 widget.errorText!,
-                style: mediumTheme.copyWith(overflow: TextOverflow.ellipsis,
-                    fontSize: 14, color: AppColors.red, height: 1),
+                style: mediumTheme.copyWith(
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: 14,
+                    color: AppColors.red,
+                    height: 1),
               ),
             ),
         ],

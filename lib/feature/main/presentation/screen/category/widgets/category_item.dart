@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/pop_up_menu.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -40,7 +41,7 @@ class CategoryItem extends StatelessWidget {
             },
           ),
           direction: PopoverDirection.bottom,
-          backgroundColor: Colors.white,
+          backgroundColor: context.containerColor(),
           width: MediaQuery.of(context).size.width / 2,
           arrowHeight: 0,
           arrowWidth: 0,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/dialog/info_dialog.dart';
 import 'package:omborchi/core/custom/widgets/dialog/text_field_dialog.dart';
@@ -51,7 +52,6 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
               length: state.rawMaterials.length,
               child: Scaffold(
                 resizeToAvoidBottomInset: true,
-                backgroundColor: AppColors.background,
                 appBar: rawMaterialAppBar(
                     title: "Xomashyolar".tr,
                     onTapLeading: () {
@@ -82,11 +82,13 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
                         children: [
                           Text(
                             "Xomashyo".tr,
-                            style: medium.copyWith(fontSize: 16),
+                            style: medium.copyWith(
+                                fontSize: 16, color: context.textColor()),
                           ),
                           Text(
                             "Narx".tr,
-                            style: medium.copyWith(fontSize: 16),
+                            style: medium.copyWith(
+                                fontSize: 16, color: context.textColor()),
                           ),
                         ],
                       ),

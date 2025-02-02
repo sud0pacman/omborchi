@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:omborchi/core/modules/storage_module.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/category_remote_data_source.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
@@ -28,7 +29,8 @@ Future<void> initDependencies() async {
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
   );
-
+  serviceLocator
+      .registerLazySingleton(() => StorageModule.providePreferencesStorage());
   final supabase = Supabase.instance.client;
 
   serviceLocator.registerLazySingleton(() => supabase);
@@ -50,7 +52,8 @@ void _initProduct() {
       ),
     )
     ..registerFactory(() => AddProductBloc(serviceLocator()))
-    ..registerFactory(() => UpdateProductBloc(serviceLocator(), serviceLocator(), serviceLocator()));
+    ..registerFactory(() => UpdateProductBloc(
+        serviceLocator(), serviceLocator(), serviceLocator()));
 }
 
 void _initRawMaterials() {

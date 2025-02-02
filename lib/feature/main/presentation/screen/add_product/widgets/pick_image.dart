@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
@@ -19,6 +20,8 @@ class PickedImage extends StatelessWidget {
     return IconButton(
       onPressed: onTap,
       style: kButtonWhiteStyle.copyWith(
+          backgroundColor: WidgetStatePropertyAll(
+              context.containerColor()), // Ensure background color is white
           shape: const WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(24)),
@@ -30,17 +33,19 @@ class PickedImage extends StatelessWidget {
           ),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero)),
       icon: SizedBox(
-        width: width / 2, // This sets the overall size for both states
+        width: width / 2,
         height: width / 2,
         child: image == null
             ? Container(
-                alignment: Alignment
-                    .center, // Centers the icon within the container
+                alignment:
+                    Alignment.center, // Centers the icon within the container
                 child: SizedBox(
                   width: 56,
                   height: 56,
                   child: SvgPicture.asset(
                     AssetRes.icGallery,
+                    colorFilter: ColorFilter.mode(
+                        context.textColor(), BlendMode.srcIn),
                   ),
                 ),
               )

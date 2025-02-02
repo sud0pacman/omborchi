@@ -9,6 +9,7 @@ import 'package:omborchi/core/custom/widgets/dialog/text_field_dialog.dart';
 import 'package:omborchi/core/custom/widgets/floating_action_button.dart';
 import 'package:omborchi/core/custom/widgets/shimmer_loading.dart';
 import 'package:omborchi/core/modules/app_module.dart';
+import 'package:omborchi/core/theme/color_scheme.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
@@ -57,6 +58,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           if (state.isLoading == true) {
             return Scaffold(
               appBar: simpleAppBar(
+                context: context,
                 leadingIcon: AssetRes.icBack,
                 onTapLeading: () {
                   Navigator.pop(context, true);
@@ -68,8 +70,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
           }
 
           return Scaffold(
-            backgroundColor: AppColors.background,
+            
             appBar: simpleAppBar(
+              context: context,
               leadingIcon: AssetRes.icBack,
               onTapLeading: () {
                 Navigator.pop(context);
@@ -121,8 +124,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
+            baseColor: Theme.of(context).colorScheme.shimmerBaseColor,
+            highlightColor: Theme.of(context).colorScheme.shimmerHighColor,
             child: ListTile(
               title: Container(
                 width: double.infinity,
@@ -139,6 +142,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   void showDeleteDialog(BuildContext context, CategoryModel category) {
     showDialog(
         context: context,
+        
         builder: (BuildContext context) {
           return InfoDialog(
             title: "O'chirish".tr,
@@ -204,6 +208,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           builder: (context, setState) {
             return TextFieldDialog(
               title: title,
+            
               controller1: _nameController,
               errorText1: dialogErrorText,
               positiveTitle: positiveTitle,

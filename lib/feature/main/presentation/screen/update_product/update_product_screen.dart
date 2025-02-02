@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:money_formatter/money_formatter.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/formatters/thousand_formatter.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
@@ -99,8 +100,9 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+     
       appBar: simpleAppBar(
+        context: context,
         leadingIcon: AssetRes.icBack,
         onTapLeading: () {
           Navigator.pop(context, true);
@@ -228,11 +230,11 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                               children: [
                                 addRawMaterialItem(
                                   textController:
-                                  rawMaterialItems[i].controller,
+                                      rawMaterialItems[i].controller,
                                   selectedRawMaterialType: rawMaterialItems[i]
                                       .selectedRawMaterialType,
                                   selectedRawMaterial:
-                                  rawMaterialItems[i].selectedRawMaterial,
+                                      rawMaterialItems[i].selectedRawMaterial,
                                   changedCost: (cost) {
                                     _calculateTotalCost();
                                   },
@@ -305,7 +307,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(), borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           Row(
@@ -367,7 +369,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.containerColor(),
         borderRadius: BorderRadius.circular(32),
       ),
       child: Column(
@@ -378,22 +380,22 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               RawMaterialTypeDropdown(
                 hint: "Turini tanlang",
                 value: selectedRawMaterialType,
-                itemColor: AppColors.background,
-                buttonColor: AppColors.white,
-                buttonTextStyle: medium.copyWith(fontSize: 16),
-                itemTextStyle: medium.copyWith(fontSize: 16),
+                itemColor: context.backgroundColor(),
+                buttonColor: context.backgroundColor(),
+                buttonTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
+                itemTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
                 dropdownItems: rawMaterials?.keys.toList() ?? [],
                 onChanged: onRawMaterialTypeChanged,
               ),
               RawMaterialDropdown(
                 hint: "Xomashyo tanlang",
                 value: selectedRawMaterial,
-                itemColor: AppColors.background,
-                buttonColor: AppColors.white,
-                buttonTextStyle: medium.copyWith(fontSize: 16),
-                itemTextStyle: medium.copyWith(fontSize: 16),
+                itemColor: context.backgroundColor(),
+                buttonColor: context.backgroundColor(),
+                buttonTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
+                itemTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
                 dropdownItems:
-                rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
+                    rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
                 onChanged: onRawMaterialChanged,
               ),
             ],
@@ -435,17 +437,17 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   void _validateInputs() {
     setState(() {
       categoryErrorText =
-      selectedCategory == null ? "Kategoriya tanlanmagan" : null;
+          selectedCategory == null ? "Kategoriya tanlanmagan" : null;
       numberErrorText =
-      numberController.text.isEmpty ? "Nomer to'ldirilmagan" : null;
+          numberController.text.isEmpty ? "Nomer to'ldirilmagan" : null;
       serviceErrorText =
-      serviceController.text.isEmpty ? "Xizmat to'ldirilmagan" : null;
+          serviceController.text.isEmpty ? "Xizmat to'ldirilmagan" : null;
       benefitErrorText =
-      benefitController.text.isEmpty ? "Foyda to'ldirilmagan" : null;
+          benefitController.text.isEmpty ? "Foyda to'ldirilmagan" : null;
       heightErrorText =
-      heightController.text.isEmpty ? "Bo'yi to'ldirilmagan" : null;
+          heightController.text.isEmpty ? "Bo'yi to'ldirilmagan" : null;
       widthErrorText =
-      widthController.text.isEmpty ? "Eni to'ldirilmagan" : null;
+          widthController.text.isEmpty ? "Eni to'ldirilmagan" : null;
       imageErrorText = image == null ? "Iltimos, rasm tanlang" : null;
     });
 
@@ -493,7 +495,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(), borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           dropDownWithTitle(
@@ -504,15 +506,15 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               buttonWidth: double.infinity,
               dropdownWidth: 200,
               dropdownItems: categoriesList,
-              itemColor: AppColors.background,
-              buttonColor: AppColors.white,
-              buttonTextStyle: medium.copyWith(fontSize: 16),
-              itemTextStyle: medium.copyWith(fontSize: 16),
+              itemColor: context.backgroundColor(),
+              buttonColor: context.backgroundColor(),
+              buttonTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
+              itemTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
               onChanged: (value) {
                 setState(() {
                   selectedCategory = value;
                   categoryErrorText =
-                  null; // Tanlanganida error text olib tashlanadi
+                      null; // Tanlanganida error text olib tashlanadi
                 });
               },
             ),
@@ -593,7 +595,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       children: [
         Text(
           title,
-          style: medium.copyWith(fontSize: 16),
+          style: medium.copyWith(fontSize: 16, color: context.textColor()),
         ),
         const SizedBox(height: 8),
         dropdown
@@ -632,7 +634,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       productModel: widget.product.copyWith(
         nomer: (numberController.text.toIntOrZero()),
         pathOfPicture:
-        isImageChanged ? image?.path : widget.product.pathOfPicture,
+            isImageChanged ? image?.path : widget.product.pathOfPicture,
         categoryId: selectedCategory?.id,
         xizmat: serviceController.text.toIntOrZero(),
         foyda: benefitController.text.toIntOrZero(),
@@ -652,7 +654,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: AppColors.white, borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(), borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
