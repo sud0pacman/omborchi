@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
@@ -12,6 +11,7 @@ import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/feature/main/presentation/bloc/sync/sync_bloc.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../../../../core/custom/widgets/app_bar.dart';
 import '../../../../../core/utils/consants.dart';
 
 class SyncScreen extends StatefulWidget {
@@ -103,18 +103,9 @@ class _SyncScreenState extends State<SyncScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          "Ma'lumotlarni Sinxronlash",
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1), // Divider balandligi
-          child: Container(
-            color: AppColors.paleBlue, // Divider rangi
-            height: 1, // Divider qalinligi
-          ),
-        ),
+      appBar: customAppBar(
+        context,
+        title: "Ma'lumotlarni Sinxronlash",
       ),
       body: BlocProvider.value(
         value: _bloc,
@@ -176,7 +167,7 @@ class _SyncScreenState extends State<SyncScreen> {
                   ),
                   PrimaryButton(
                     width: double.infinity,
-                    title: "Ko'chirishni boshlash",
+                    text: "Ko'chirishni boshlash",
                     onPressed: () {
                       _bloc.add(SyncGetDataEvent());
                     },

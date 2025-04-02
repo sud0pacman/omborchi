@@ -66,7 +66,7 @@ class UpdateProductBloc extends Bloc<UpdateProductEvent, UpdateProductState> {
         emit(state.copyWith(
             categories: categoryRes.value as List<CategoryModel>));
       } else {
-        AppRes.logger.e(categoryRes.exception);
+        AppRes.logger.e(categoryRes.message);
       }
     });
 

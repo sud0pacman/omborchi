@@ -22,6 +22,10 @@ extension CustomColorScheme on ColorScheme {
       ? AppColors.appBarLight
       : AppColors.appBarDark;
 
+  Color get appBarDivColor => brightness == Brightness.light
+      ? AppColors.black
+      : AppColors.paleBlue;
+
   Color get shimmerBaseColor => brightness == Brightness.light
       ? AppColors.shimmerColor
       : AppColors.backgroundDark;

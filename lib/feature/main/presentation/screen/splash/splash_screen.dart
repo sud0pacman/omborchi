@@ -83,20 +83,20 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateAfterDelay() async {
-    await Future.delayed(const Duration(seconds: 2)); // Adjust delay as needed
+    await Future.delayed(const Duration(seconds: 2));
     _checkSyncStatus();
   }
 
   Future<void> _checkSyncStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isSynced = prefs.getBool('isSynced') ?? false; // default: false
+    bool isSynced = prefs.getBool('isSynced') ?? false;
     await Future.delayed(const Duration(milliseconds: 500));
-    Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    // if (isSynced) {
-    //   Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    // } else {
-    //   Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
-    // }
+    // Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+    if (isSynced) {
+      Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+    } else {
+      Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
+    }
   }
 
   @override

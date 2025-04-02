@@ -79,13 +79,13 @@ class AppTheme {
           cursorColor: AppColors.primary,
           selectionHandleColor: AppColors.primary),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.primary, // Blur uchun biroz shaffof rang
+        backgroundColor: AppColors.primary,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         iconTheme: const IconThemeData(color: AppColors.black),
         centerTitle: true,
         elevation: 0, // Asosiy soyani yo'q qilish
         titleTextStyle: pmedium.copyWith(
-          color: AppColors.black,
+          color: AppColors.white,
           fontSize: 18,
         ),
         toolbarHeight: 56,

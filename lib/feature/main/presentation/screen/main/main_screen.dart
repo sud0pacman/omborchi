@@ -1,13 +1,17 @@
 import 'dart:io';
 
+import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart'; // For Lottie animation
 import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
+import 'package:omborchi/core/custom/widgets/custom_button.dart';
 import 'package:omborchi/core/custom/widgets/loading_dialog.dart';
+import 'package:omborchi/core/custom/widgets/loading_widget.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -147,6 +151,7 @@ class _MainScreenState extends State<MainScreen> {
   int? currentRepositoryIndex;
 
   String? tempError;
+  bool isGridView = true;
 
   @override
   Widget build(BuildContext context) {
@@ -161,25 +166,30 @@ class _MainScreenState extends State<MainScreen> {
             if (index == -1) {
               showSyncDialog(context);
             } else if (index == 0) {
-              bool? result = await Navigator.pushNamed(
+              Object? result = await Navigator.pushNamed(
                   context, RouteManager.addProductScreen);
               if (result == true) {
-                AppRes.logger.t("message success added a product (category -)> $selectedIndex");
+                AppRes.logger.t(
+                    "message success added a product (category -)> $selectedIndex");
                 _bloc.add(GetLocalDataEvent(selectedIndex));
               }
             } else if (index == 1) {
-              bool? result = await Navigator.pushNamed(
+              Object? result = await Navigator.pushNamed(
                   context, RouteManager.categoryScreen);
               if (result == true) {
                 _bloc.add(GetCategories());
               }
             } else if (index == 2) {
-              bool? result = await Navigator.pushNamed(
+              Object? result = await Navigator.pushNamed(
                   context, RouteManager.rawMaterialScreen);
               if (result == true) {}
             } else if (index == 3) {
-              bool? result = await Navigator.pushNamed(
+              Object? result = await Navigator.pushNamed(
                   context, RouteManager.rawMaterialTypeScreen);
+              if (result == true) {}
+            } else if (index == 4) {
+              Object? result = await Navigator.pushNamed(
+                  context, RouteManager.settingsScreen);
               if (result == true) {}
             }
           },
@@ -214,6 +224,9 @@ class _MainScreenState extends State<MainScreen> {
                 );
               },
             );
+          },
+          onViewToggle: (isGrid) {
+            setState(() => isGridView = isGrid);
           },
         ),
         body: BlocConsumer<MainBloc, MainState>(
@@ -308,7 +321,9 @@ class _MainScreenState extends State<MainScreen> {
                           ? Center(
                               child: Lottie.asset('assets/lottie/empty.json'),
                             )
-                          : _buildProductGrid(state.products),
+                          : isGridView
+                              ? _buildProductGrid(state.products)
+                              : _buildProductList(state.products),
                     ),
                   ),
                 ],
@@ -316,9 +331,44 @@ class _MainScreenState extends State<MainScreen> {
             );
           },
         ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: AppColors.primary,
+          shape: const CircleBorder(),
+          onPressed: _scrollToBottom,
+          child: Icon(
+            isBottom ? Icons.move_up_rounded : Icons.move_down_rounded,
+            color: AppColors.white,
+          ),
+        ),
+        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       ),
     );
   }
+
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollToBottom() {
+    if (_scrollController.offset ==
+        _scrollController.position.maxScrollExtent) {
+      isBottom = false;
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+
+      );
+    } else {
+      isBottom = true;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+    setState(() {});
+  }
+
+  bool isBottom = false;
 
   void showDeleteDialog(BuildContext context, ProductModel product) {
     showDialog(
@@ -384,6 +434,48 @@ class _MainScreenState extends State<MainScreen> {
     return updatedProducts;
   }
 
+  Widget _buildProductList(List<ProductModel?> products) {
+    final updatedProducts = generateProductNumbers(products);
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      controller: _scrollController,
+      itemCount: updatedProducts.length,
+      itemBuilder: (context, index) {
+        final product = updatedProducts[index];
+        return CustomButton(
+          child: ListTile(
+            trailing: Text(
+              '#${product.nomer}',
+              style:
+                  pregular.copyWith(color: context.textColor(), fontSize: 16),
+            ),
+            title: Text(
+              'Marja: ${product.foyda}',
+              style: pmedium.copyWith(color: context.textColor(), fontSize: 16),
+            ),
+            subtitle: Text(
+              'Sotuv: ${product.sotuv} so\'m',
+              style: pmedium.copyWith(color: context.textColor(), fontSize: 16),
+            ),
+            onTap: () async {
+              final result = await Navigator.pushNamed(
+                context,
+                RouteManager.productViewScreen,
+                arguments: product,
+              );
+              if (result == true) {
+                // Yangilash logikasi
+              }
+            },
+          ),
+        );
+      },
+      separatorBuilder: (__, _) {
+        return 8.verticalSpace;
+      },
+    );
+  }
+
   Widget _buildProductGrid(List<ProductModel?> products) {
     if (products.isEmpty) {
       return Center(
@@ -394,6 +486,7 @@ class _MainScreenState extends State<MainScreen> {
     final updatedProducts = generateProductNumbers(products);
 
     return GridView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.symmetric(vertical: 16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -427,9 +520,17 @@ class _MainScreenState extends State<MainScreen> {
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(product.pathOfPicture ?? ''),
+                    child: CachedMemoryImage(
                       fit: BoxFit.cover,
+                      bytes:
+                          File(product.pathOfPicture ?? '').readAsBytesSync(),
+                      uniqueKey: "${product.id}",
+                      placeholder: const LoadingWidget(),
+                      errorWidget: Text(
+                        "Rasmni yuklashda xatolik",
+                        style: pmedium.copyWith(
+                            color: context.textColor(), fontSize: 16),
+                      ),
                     ),
                   ),
                 ),

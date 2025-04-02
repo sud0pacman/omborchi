@@ -37,8 +37,8 @@ class UnderSaveButton extends StatelessWidget {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: context
-                .containerColor(), // Ensure background color is white or as needed
+            color: context.containerColor(),
+            // Ensure background color is white or as needed
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1), // Light shadow
@@ -50,7 +50,7 @@ class UnderSaveButton extends StatelessWidget {
             ],
           ),
           child: PrimaryButton(
-            title: title,
+            text: title,
             height: 48,
             width: double.infinity,
             onPressed: onPressed,

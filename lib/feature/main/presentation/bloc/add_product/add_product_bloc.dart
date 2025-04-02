@@ -34,7 +34,7 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
         emit(state.copyWith(
             categories: categoryRes.value as List<CategoryModel>));
       } else {
-        AppRes.logger.e(categoryRes.exception);
+        AppRes.logger.e(categoryRes.message);
       }
     });
 
@@ -50,9 +50,9 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
       } else if (res is NoInternet) {
         emit(state.copyWith(error: 'Internetingiz yaroqsiz'));
       } else if (res is GenericError) {
-        emit(state.copyWith(error: 'Qandaydir xatolik'));
+        emit(state.copyWith(error: res.message));
       } else {
-        emit(state.copyWith(error: 'Qandaydir xatolik'));
+        emit(state.copyWith(error: res.message));
       }
     });
     on<AddProduct>((event, emit) async {

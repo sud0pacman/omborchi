@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
+import 'package:omborchi/core/custom/widgets/loading_widget.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 
@@ -17,13 +18,11 @@ void showLoadingDialog(BuildContext context) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              const LoadingWidget(),
               const SizedBox(height: 20),
               Text(
                 'Bu biroz vaqt olishi mumkin. Iltimos ekranni o\'chirmang!',
-                style: medium.copyWith(color: context.textColor()),
+                style: medium.copyWith(color: context.textColor(), fontSize: 18),
                 textAlign: TextAlign.center,
               ),
             ],

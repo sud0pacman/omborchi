@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
@@ -57,9 +58,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
         builder: (context, state) {
           if (state.isLoading == true) {
             return Scaffold(
-              appBar: simpleAppBar(
-                context: context,
-                leadingIcon: AssetRes.icBack,
+              appBar: customAppBar(
+                context,
                 onTapLeading: () {
                   Navigator.pop(context, true);
                 },
@@ -70,15 +70,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
           }
 
           return Scaffold(
-            
-            appBar: simpleAppBar(
-              context: context,
-              leadingIcon: AssetRes.icBack,
+            appBar: customAppBar(
+              context,
               onTapLeading: () {
                 Navigator.pop(context);
               },
               title: 'Kategoriyalar'.tr,
-              actions: [AssetRes.icSynchronization],
+              actions: [CupertinoIcons.refresh],
               onTapAction: (p0) {
                 if (p0 == 0) {
                   _bloc.add(RefreshCategories());
@@ -142,7 +140,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
   void showDeleteDialog(BuildContext context, CategoryModel category) {
     showDialog(
         context: context,
-        
         builder: (BuildContext context) {
           return InfoDialog(
             title: "O'chirish".tr,
@@ -208,7 +205,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
           builder: (context, setState) {
             return TextFieldDialog(
               title: title,
-            
               controller1: _nameController,
               errorText1: dialogErrorText,
               positiveTitle: positiveTitle,

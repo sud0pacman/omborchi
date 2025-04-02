@@ -1,26 +1,23 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
-import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/widgets/tab_item.dart';
 
 AppBar rawMaterialAppBar(
-    {required VoidCallback onTapLeading, required String title, required List<String> tabs, List<Widget>? actions}) {
+    {required VoidCallback onTapLeading,
+    required String title,
+    required List<String> tabs,
+    List<Widget>? actions}) {
   return AppBar(
-    backgroundColor: AppColors.primary,
     title: Text(
       title,
       style: bold.copyWith(fontSize: 18, color: AppColors.white),
     ),
     leading: IconButton(
-        onPressed: onTapLeading,
-        icon: SvgPicture.asset(
-          AssetRes.icBack,
-          colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
-          width: 24,
-          height: 24,
-        )),
+      onPressed: onTapLeading,
+      icon: const Icon(CupertinoIcons.back),
+    ),
     actions: actions,
     bottom: TabBar(
         isScrollable: true,

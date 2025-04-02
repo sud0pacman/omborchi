@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 
 import '../theme/style_res.dart';
 
@@ -8,9 +9,11 @@ class AppRes {
 
   static void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: context.containerColor(),
+      elevation: 4,
       content: Text(
         message,
-        style: regularWhite.copyWith(fontSize: 14),
+        style: regularWhite.copyWith(fontSize: 14, color: context.textColor()),
       ),
       behavior: SnackBarBehavior.floating,
     ));
@@ -24,7 +27,23 @@ class Constants {
       "https://st4.depositphotos.com/14953852/24787/v/450/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg";
 
   static const String successUpdated = "Muvaffaqiyatli yangilandi!";
+  static const String appName = "Omborchi";
+  static const String appNamespace = "";
+  static String supportPhone = "+998 77 737 97 30";
+  static String supportEmail = "abdulbasitmakhsudov@gmail.com";
 }
+
+BoxDecoration containerBoxDecoration = BoxDecoration(
+  borderRadius: BorderRadius.circular(16),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.1), // Subtle shadow
+      blurRadius: 10,
+      offset: const Offset(0, 4),
+      spreadRadius: 2,
+    ),
+  ],
+);
 
 class ExpenseFields {
   static const String employeeTable = 'employee';
@@ -35,18 +54,22 @@ class ExpenseFields {
   static const String rawMaterialTypeTable = 'types';
   static const String rawMaterialTable = 'xomashyo';
   static const String adminKeyTable = 'admin';
-  static const String productImageBucket = 'product_images';
+  static const String productImageBucket = 'product.images';
 
   static const String myBox = 'myBox';
 }
 
 class AppSecrets {
   static const String supabaseAnonKey =
-     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o";
-     // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpaWxjcG9zY2hiZXBuZ3VxbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjcxNjAsImV4cCI6MjA0ODIwMzE2MH0.b8MpECYgoQLEhIQMAa-7wnLIAbyIiUeyLLOvDCUCAH0";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYm1uZGp0dWhvd2FlZWV4eGtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1OTMyNjAsImV4cCI6MjA1OTE2OTI2MH0.moxrOErdz5X0LsaUQKZvCMcONYubDivX-vUobSTXUs4"; // xushbek akam
+  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o"; // afzalbek
 
-  static const String supabaseUrl = "https://ilxxvdkgdvcouathvmng.supabase.co";
-  // static const String supabaseUrl = "https://eiilcposchbepnguqnum.supabase.co";
+  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpaWxjcG9zY2hiZXBuZ3VxbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjcxNjAsImV4cCI6MjA0ODIwMzE2MH0.b8MpECYgoQLEhIQMAa-7wnLIAbyIiUeyLLOvDCUCAH0"; // xushbek akam eskisi
+
+  // static const String supabaseUrl = "https://ilxxvdkgdvcouathvmng.supabase.co"; // afzalbek akamlarki
+// static const String supabaseUrl = "https://eiilcposchbepnguqnum.supabase.co"; // xushbek akamlarki eskisi
+  static const String supabaseUrl =
+      "https://zhbmndjtuhowaeeexxkg.supabase.co"; // xushbek akamlarki
 }
 
 class AssetRes {

@@ -37,7 +37,7 @@ class RawMaterialRepositoryImpl implements RawMaterialRepository {
             .addRawMaterial(rawMaterial.copyWith(id: id).toEntity());
         return Success(rawMaterial.copyWith(id: id));
       } else if (networkRes is GenericError) {
-        AppRes.logger.wtf("Generic error encountered: ${networkRes.exception}");
+        AppRes.logger.wtf("Generic error encountered: ${networkRes.message}");
         return networkRes;
       } else {
         AppRes.logger.wtf("Unhandled error: $networkRes");

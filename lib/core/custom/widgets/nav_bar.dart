@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
-import 'package:omborchi/core/custom/extensions/my_extensions.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar_item.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -50,7 +49,6 @@ class PrimaryNavbar extends StatelessWidget {
             ),
           ),
           24.verticalSpace,
-        
           NavBarItem(
               title: "Maxsulot qo'shish".tr,
               iconPath: AssetRes.icProduct,
@@ -67,6 +65,10 @@ class PrimaryNavbar extends StatelessWidget {
               title: "Xomashyo turi".tr,
               iconPath: AssetRes.icMaterialRawType,
               onTap: () => onItemTapped(3)),
+          NavBarItem(
+              title: "Sozlamalar".tr,
+              iconData: CupertinoIcons.gear,
+              onTap: () => onItemTapped(4)),
           const Spacer(),
           NavBarItem(
             title: "Ba'zani yangilash".tr,

@@ -23,8 +23,8 @@ class CategoryItem extends StatelessWidget {
           transition: PopoverTransition.other,
           bodyBuilder: (childContext) => PopUpMenu(
             actions: [
-              'Edit'.tr,
-              'Delete'.tr,
+              'Tahrirlash'.tr,
+              "O'chirish".tr,
             ],
             iconPaths: const [
               AssetRes.icEdit,

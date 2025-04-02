@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
+import 'package:omborchi/core/theme/color_scheme.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 
-AppBar productViewAppBar({
+AppBar productViewAppBar(
+  BuildContext context, {
   required String leadingIcon,
   required VoidCallback onTapLeading,
   required VoidCallback onTapEdit,
@@ -19,15 +23,19 @@ AppBar productViewAppBar({
     elevation: 0.0,
     scrolledUnderElevation: 0,
     leading: IconButton(
-        onPressed: onTapLeading,
-        icon: SvgPicture.asset(
-          leadingIcon,
-          colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
-          width: 24,
-          height: 24,
-          // colorFilter:
-          //     const ColorFilter.mode(AppColors.midnightBlue, BlendMode.srcIn),
-        )),
+      onPressed: onTapLeading,
+      icon: const Icon(
+        CupertinoIcons.back,
+        color: AppColors.white,
+      ),
+    ),
+    bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(1),
+      child: Container(
+        color: context.colorScheme().appBarDivColor,
+        height: 1,
+      ),
+    ),
     actions: [
       if (actionTitle != null)
         Padding(

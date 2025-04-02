@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
@@ -67,14 +68,13 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
         },
         builder: (context, state) => Scaffold(
         
-          appBar: simpleAppBar(
-            context: context,
-            leadingIcon: AssetRes.icBack,
+          appBar: customAppBar(
+            context,
             onTapLeading: () {
               Navigator.pop(context);
             },
             title: 'Xomashyo turi',
-            actions: [AssetRes.icSynchronization],
+            actions: [CupertinoIcons.refresh],
             onTapAction: (p0) {
               if (p0 == 0) {
                 _bloc.add(RefreshTypes());

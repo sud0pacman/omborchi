@@ -54,7 +54,6 @@ class ProductNetwork {
       pathOfPicture: pathOfPicture ?? this.pathOfPicture,
       boyi: boyi ?? this.boyi,
       eni: eni ?? this.eni,
-      // Yangi fieldda ham nusxa olinadi
       xizmat: xizmat ?? this.xizmat,
       foyda: foyda ?? this.foyda,
       sotuv: sotuv ?? this.sotuv,
@@ -72,7 +71,7 @@ class ProductNetwork {
       'nomer': nomer,
       'path_of_picture': pathOfPicture,
       'boyi': boyi,
-      'eni': eni, // toJson ga qo'shildi
+      'eni': eni,
       'xizmat': xizmat,
       'foyda': foyda,
       'sotuv': sotuv,

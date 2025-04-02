@@ -168,9 +168,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: simpleAppBar(
-        context: context,
-        leadingIcon: AssetRes.icBack,
+      appBar: customAppBar(
+        context,
         onTapLeading: () {
           Navigator.pop(context, true);
         },

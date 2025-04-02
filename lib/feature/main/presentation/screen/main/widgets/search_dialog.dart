@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omborchi/core/custom/extensions/color_to_hsl.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 
@@ -10,7 +11,8 @@ class SearchDialog extends StatefulWidget {
       String marja, CategoryModel? category) onSearchTap;
   final List<CategoryModel> categoryList;
 
-  const SearchDialog({super.key, required this.onSearchTap, required this.categoryList});
+  const SearchDialog(
+      {super.key, required this.onSearchTap, required this.categoryList});
 
   @override
   State<SearchDialog> createState() => _SearchDialogState();
@@ -89,7 +91,7 @@ class _SearchDialogState extends State<SearchDialog> {
               children: [
                 Expanded(
                   child: PrimaryButton(
-                    title: 'Qidirish',
+                    text: 'Qidirish',
                     onPressed: () {
                       _validateInputs();
                       if (_nomerError == null &&
@@ -117,9 +119,8 @@ class _SearchDialogState extends State<SearchDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: PrimaryButton(
-                    title: 'Bekor qilish',
-                    textStyle: bold.copyWith(fontSize: 16),
-                    backgroundColor: AppColors.paleBlue,
+                    text: 'Bekor qilish',
+                    hslColor: AppColors.paleBlue.toHSL(),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },

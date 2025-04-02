@@ -33,9 +33,11 @@ void showProductDetailsBottomSheet(
           .output
           .withoutFractionDigits;
       return SingleChildScrollView(
-
         child: Container(
-          color: context.containerColor(),
+          decoration: BoxDecoration(
+              color: context.containerColor(),
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16))),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -43,21 +45,33 @@ void showProductDetailsBottomSheet(
               mainAxisSize: MainAxisSize.min,
               children: [
                 16.verticalSpace,
-                 Text(
+                Text(
                   "Xomashyolar",
                   style: bold.copyWith(color: context.textColor()),
                 ),
                 8.verticalSpace,
                 for (var item in list)
                   _buildInfoRow(
-                      title: item.name ?? "",
-                      value: "${item.quantity.toString()} ta", context: context,),
+                    title: item.name ?? "",
+                    value: "${item.quantity.toString()} ta",
+                    context: context,
+                  ),
                 16.verticalSpace,
                 _buildInfoRow(
-                    title: "Nomer:", value: product.description.toString(), context: context,),
+                  title: "Nomer:",
+                  value: product.description.toString(),
+                  context: context,
+                ),
                 _buildInfoRow(
-                    title: "Razmer:", value: "${product.boyi} X ${product.eni}", context: context,),
-                _buildInfoRow(title: "Tannarx:", value: "$tannarx so'm", context: context,),
+                  title: "Razmer:",
+                  value: "${product.boyi} X ${product.eni}",
+                  context: context,
+                ),
+                _buildInfoRow(
+                  title: "Tannarx:",
+                  value: "$tannarx so'm",
+                  context: context,
+                ),
                 _buildInfoRow(
                     context: context,
                     title: "Xizmat narxi:",
@@ -70,11 +84,15 @@ void showProductDetailsBottomSheet(
                     value:
                         "${MoneyFormatter(amount: product.foyda?.toDouble() ?? 0).output.withoutFractionDigits} so'm" ??
                             "N/A"),
-                _buildInfoRow(title: "Sotuv:", value: "$sotuv so'm" ?? "N/A", context: context,),
+                _buildInfoRow(
+                  title: "Sotuv:",
+                  value: "$sotuv so'm" ?? "N/A",
+                  context: context,
+                ),
                 const SizedBox(height: 16),
                 Center(
                   child: PrimaryButton(
-                    title: "Yopish",
+                    text: "Yopish",
                     width: double.infinity,
                     onPressed: () {
                       Navigator.pop(context); // Close BottomSheet

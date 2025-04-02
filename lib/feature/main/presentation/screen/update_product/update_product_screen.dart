@@ -100,10 +100,8 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
-      appBar: simpleAppBar(
-        context: context,
-        leadingIcon: AssetRes.icBack,
+      appBar: customAppBar(
+        context,
         onTapLeading: () {
           Navigator.pop(context, true);
         },
@@ -307,7 +305,8 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: context.containerColor(), borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(),
+          borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           Row(
@@ -382,8 +381,10 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                 value: selectedRawMaterialType,
                 itemColor: context.backgroundColor(),
                 buttonColor: context.backgroundColor(),
-                buttonTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
-                itemTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
+                buttonTextStyle:
+                    medium.copyWith(fontSize: 16, color: context.textColor()),
+                itemTextStyle:
+                    medium.copyWith(fontSize: 16, color: context.textColor()),
                 dropdownItems: rawMaterials?.keys.toList() ?? [],
                 onChanged: onRawMaterialTypeChanged,
               ),
@@ -392,8 +393,10 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
                 value: selectedRawMaterial,
                 itemColor: context.backgroundColor(),
                 buttonColor: context.backgroundColor(),
-                buttonTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
-                itemTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
+                buttonTextStyle:
+                    medium.copyWith(fontSize: 16, color: context.textColor()),
+                itemTextStyle:
+                    medium.copyWith(fontSize: 16, color: context.textColor()),
                 dropdownItems:
                     rawMaterials?[selectedRawMaterialType]?.toList() ?? [],
                 onChanged: onRawMaterialChanged,
@@ -495,7 +498,8 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: context.containerColor(), borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(),
+          borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           dropDownWithTitle(
@@ -508,8 +512,10 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               dropdownItems: categoriesList,
               itemColor: context.backgroundColor(),
               buttonColor: context.backgroundColor(),
-              buttonTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
-              itemTextStyle: medium.copyWith(fontSize: 16, color: context.textColor()),
+              buttonTextStyle:
+                  medium.copyWith(fontSize: 16, color: context.textColor()),
+              itemTextStyle:
+                  medium.copyWith(fontSize: 16, color: context.textColor()),
               onChanged: (value) {
                 setState(() {
                   selectedCategory = value;
@@ -654,7 +660,8 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: context.containerColor(), borderRadius: BorderRadius.circular(16)),
+          color: context.containerColor(),
+          borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

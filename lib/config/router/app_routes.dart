@@ -5,10 +5,11 @@ import 'package:omborchi/feature/main/presentation/screen/main/main_screen.dart'
 import 'package:omborchi/feature/main/presentation/screen/product_viewer/product_view_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material/raw_material_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/raw_material_type/raw_material_type_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/select_theme/select_theme_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/settings/settings_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/splash/splash_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/sync/sync_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/update_product/update_product_screen.dart';
-
 import '../../feature/main/domain/model/product_model.dart';
 
 class RouteManager {
@@ -21,59 +22,111 @@ class RouteManager {
   static const String rawMaterialTypeScreen = '/rawMaterialTypeScreen';
   static const String productViewScreen = '/productViewScreen';
   static const String syncScreen = '/syncScreen';
+  static const String settingsScreen = '/settingsScreen';
+  static const String selectThemeScreen = '/selectThemeScreen';
 
-  static Route<bool?>? generateRoute(RouteSettings settings) {
-    var args = settings.arguments;
+  static Route<dynamic>? generateRoute(RouteSettings settings) {
+    final args = settings.arguments;
 
     switch (settings.name) {
       case splashScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const SplashScreen(),
-        );
+        return customRoute(const SplashScreen());
 
       case mainScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const MainScreen(),
-        );
+        return customRoute(const MainScreen(), );
 
       case addProductScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const AddProductScreen(),
-        );
+        return customRoute(const AddProductScreen());
 
       case categoryScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const CategoryScreen(),
-        );
+        return customRoute(const CategoryScreen());
 
       case rawMaterialScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const RawMaterialScreen(),
-        );
+        return customRoute(const RawMaterialScreen());
 
       case rawMaterialTypeScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const RawMaterialTypeScreen(),
-        );
+        return customRoute(const RawMaterialTypeScreen());
 
       case syncScreen:
-        return MaterialPageRoute<bool?>(
-          builder: (_) => const SyncScreen(),
-        );
+        return customRoute(const SyncScreen());
+
+      case settingsScreen:
+        return customRoute(const SettingsScreen());
+
+      case selectThemeScreen:
+        return customRoute(const SelectThemeScreen());
 
       case productViewScreen:
-        final product = settings.arguments as ProductModel;
-        return MaterialPageRoute<bool?>(
-          builder: (_) => ProductViewScreen(product: product),
-        );
+        final product = args as ProductModel;
+        return customRoute(ProductViewScreen(product: product));
+
       case updateProductScreen:
-        final product = settings.arguments as ProductModel;
-        return MaterialPageRoute<bool?>(
-          builder: (_) => UpdateProductScreen(product: product),
-        );
+        final product = args as ProductModel;
+        return customRoute(UpdateProductScreen(product: product));
 
       default:
         return null;
     }
   }
+
+  static PageRouteBuilder customRoute(
+      Widget screen, {
+        SlideDirection direction = SlideDirection.rightToLeft,
+      }) {
+    return PageRouteBuilder(
+      transitionDuration: const Duration(milliseconds: 500),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        Offset beginEnter;
+        Offset beginExit;
+        switch (direction) {
+          case SlideDirection.rightToLeft:
+            beginEnter = const Offset(1, 0);
+            beginExit = const Offset(-1, 0);
+            break;
+          case SlideDirection.leftToRight:
+            beginEnter = const Offset(-1, 0);
+            beginExit = const Offset(1, 0);
+            break;
+          case SlideDirection.bottomToTop:
+            beginEnter = const Offset(0, 1);
+            beginExit = const Offset(0, -1);
+            break;
+          case SlideDirection.topToBottom:
+            beginEnter = const Offset(0, -1);
+            beginExit = const Offset(0, 1);
+            break;
+          case SlideDirection.rightToLeftStatic:
+            beginEnter = const Offset(1, 0);
+            beginExit = const Offset(0, 0);
+            break;
+        }
+
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var enterTween =
+        Tween(begin: beginEnter, end: end).chain(CurveTween(curve: curve));
+        var exitTween =
+        Tween(begin: end, end: beginExit).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(enterTween),
+          child: SlideTransition(
+            position: secondaryAnimation.drive(exitTween),
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return screen;
+      },
+    );
+  }
+}
+enum SlideDirection {
+  rightToLeft,
+  leftToRight,
+  bottomToTop,
+  topToBottom,
+  rightToLeftStatic,
 }

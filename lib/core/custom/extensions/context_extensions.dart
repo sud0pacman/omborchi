@@ -5,6 +5,9 @@ extension ContextExtensions on BuildContext {
   Color textColor() {
     return Theme.of(this).colorScheme.textColor;
   }
+  ColorScheme colorScheme() {
+    return Theme.of(this).colorScheme;
+  }
 
   Color containerColor() {
     return Theme.of(this).colorScheme.appBarColor;

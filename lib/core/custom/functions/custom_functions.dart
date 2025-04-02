@@ -18,6 +18,7 @@ Future<void> setUpdateTime(DateTime now) async {
     now.toUtc().toIso8601String(),
   );
 }
+
 String roundMoney(int amount) {
   int roundedAmount = (amount + 50) ~/ 100 * 100;
   return roundedAmount.toString();
@@ -55,7 +56,7 @@ int convertToInt(String number) {
   if (number.isEmpty) {
     return 0;
   }
-  // Remove commas from the string
+
   String cleanedNumber = number.replaceAll(',', '');
 
   // Convert the cleaned string to an integer

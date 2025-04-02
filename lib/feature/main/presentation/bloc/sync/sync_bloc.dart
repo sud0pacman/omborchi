@@ -108,6 +108,8 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
           emit(state.copyWith(syncProgress: 100));
         } else if (productSyncRes is NoInternet) {
           emit(state.copyWith(error: productSyncRes.value));
+        } else if (productSyncRes is GenericError) {
+          emit(state.copyWith(error: productSyncRes.message));
         }
         await setSyncStatus(true);
         // End Sync

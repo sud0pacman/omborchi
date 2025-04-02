@@ -7,14 +7,16 @@ import '../../theme/style_res.dart';
 
 class NavBarItem extends StatelessWidget {
   final String title;
-  final String iconPath;
+  final String? iconPath;
+  final IconData? iconData;
   final String? badge;
   final VoidCallback onTap;
 
   const NavBarItem(
       {super.key,
       required this.title,
-      required this.iconPath,
+      this.iconPath,
+      this.iconData,
       this.badge,
       required this.onTap});
 
@@ -29,13 +31,19 @@ class NavBarItem extends StatelessWidget {
             backgroundColor: const WidgetStatePropertyAll(Colors.transparent)),
         child: Row(
           children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 26,
-              height: 26,
-              colorFilter:
-                  ColorFilter.mode(context.textColor(), BlendMode.srcIn),
-            ),
+            iconPath != null
+                ? SvgPicture.asset(
+                    iconPath!,
+                    width: 26,
+                    height: 26,
+                    colorFilter:
+                        ColorFilter.mode(context.textColor(), BlendMode.srcIn),
+                  )
+                : Icon(
+                    iconData,
+                    color: context.textColor(),
+                    size: 26,
+                  ),
             const SizedBox(
               width: 19,
             ),

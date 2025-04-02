@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:money_formatter/money_formatter.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
+import 'package:omborchi/core/custom/widgets/loading_widget.dart';
 import 'package:omborchi/core/modules/app_module.dart';
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_ui.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
@@ -16,6 +19,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../../config/router/app_routes.dart';
 import '../../../../../core/custom/widgets/dialog/info_dialog.dart';
 import '../../../../../core/custom/widgets/under_save_button.dart';
+import '../../../../../core/theme/style_res.dart';
 import '../../../../../core/utils/consants.dart';
 
 class ProductViewScreen extends StatefulWidget {
@@ -68,8 +72,10 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
     final marketSum = MoneyFormatter(amount: sotuv.toDouble());
     return Scaffold(
       appBar: productViewAppBar(
+        context,
         onTapDelete: () {
           showDeleteDialog(context);
+
         },
         onTapEdit: () async {
           Navigator.pushReplacementNamed(
@@ -135,10 +141,17 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                             child: InteractiveViewer(
                               minScale: 0.5,
                               maxScale: 4.0, // Maximum zoom level
-                              child: Image.file(
-                                File(widget.product.pathOfPicture ?? ""),
-                                fit: BoxFit
-                                    .contain, // Adjust fit to allow for zooming
+                              child: CachedMemoryImage(
+                                fit: BoxFit.cover,
+                                bytes:
+                                File(widget.product.pathOfPicture ?? '').readAsBytesSync(),
+                                uniqueKey: "${widget.product.id}",
+                                placeholder: const LoadingWidget(),
+                                errorWidget: Text(
+                                  "Rasmni yuklashda xatolik",
+                                  style: pmedium.copyWith(
+                                      color: context.textColor(), fontSize: 16),
+                                ),
                               ),
                             ),
                           ),

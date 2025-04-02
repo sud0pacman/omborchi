@@ -1,12 +1,12 @@
 class State<T> {
   final T? value;
-  final Exception? exception;
+  final String? message;
 
-  State({this.value, this.exception});
+  State({this.value, this.message});
 
   @override
   String toString() {
-    return 'State{value: $value, exception: $exception}';
+    return 'State{value: $value, message: $message}';
   }
 }
 
@@ -15,11 +15,11 @@ class Success<T> extends State<T> {
 }
 
 class GenericError<T> extends State<T> {
-  GenericError(exception) : super(exception: exception);
+  GenericError(message) : super(message: message);
 }
 
 class NoInternet<T> extends State<T> {
-  NoInternet(exception) : super(exception: exception);
+  NoInternet(message) : super(message: message);
 }
 
 
