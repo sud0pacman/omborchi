@@ -73,7 +73,6 @@ class CustomAppWidget extends StatelessWidget {
                 },
                 onGenerateRoute: (settings) =>
                     RouteManager.generateRoute(settings),
-                home: const ImageStorageScreen(),
               );
             },
           );

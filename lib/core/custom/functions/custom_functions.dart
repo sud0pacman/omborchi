@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 void closeDialog(BuildContext context, {dynamic arg}) {
   Navigator.of(context, rootNavigator: true).pop(arg);
@@ -17,6 +18,14 @@ Future<void> setUpdateTime(DateTime now) async {
     LastUpdates.type,
     now.toUtc().toIso8601String(),
   );
+}
+
+void enableWakelock() {
+  WakelockPlus.enable();
+}
+
+void disableWakelock() {
+  WakelockPlus.disable();
 }
 
 String roundMoney(int amount) {

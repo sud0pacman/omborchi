@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +13,9 @@ import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/data_sources/remote_data_source/product_remote_data_source.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
+import '../../../../../core/custom/functions/custom_functions.dart';
 
 class ImageStorageScreen extends StatefulWidget {
   const ImageStorageScreen({super.key});
@@ -25,11 +29,14 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
   double _uploadProgress = 0.0;
   bool _isLoading = false;
   bool _permissionGranted = false;
-  final ProductRemoteDataSource _remoteDataSource = ProductRemoteDataSourceImpl(Supabase.instance.client);
+  final ProductRemoteDataSource _remoteDataSource =
+      ProductRemoteDataSourceImpl(Supabase.instance.client);
 
   @override
   void initState() {
     super.initState();
+    WakelockPlus.enable();
+    enableWakelock();
     _requestPermissionAndLoad();
   }
 
@@ -81,7 +88,8 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
       if (await directory.exists()) {
         final files = directory.listSync();
         _imageFiles = files
-            .where((file) => file.path.endsWith('.jpg') || file.path.endsWith('.png'))
+            .where((file) =>
+                file.path.endsWith('.jpg') || file.path.endsWith('.png'))
             .toList();
         setState(() => _uploadProgress = 0.0);
       } else {
@@ -98,39 +106,69 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
     if (_imageFiles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Yuklash uchun rasmlar topilmadi", style: pregular.copyWith(color: AppColors.white)),
+          content: Text(
+            "Yuklash uchun rasmlar topilmadi",
+            style: pregular.copyWith(color: AppColors.white),
+          ),
         ),
       );
       return;
     }
 
     setState(() => _isLoading = true);
-    int uploadedCount = 0;
+    int uploadedCount = 0; // Oldindan yuklangan rasmlar soni
+    const int batchSize = 2; // Har bir guruhda 20 ta rasm
+    const Duration pauseDuration =
+        Duration(seconds: 2); // Har guruhdan keyin 2 soniya pauza
 
-    for (int i = 0; i < _imageFiles.length; i++) {
-      final file = _imageFiles[i] as File;
-      final fileName = file.path.split('/').last;
+    // Guruhlar bo'yicha tsikl
+    for (int i = 0; i < _imageFiles.length; i += batchSize) {
+      final int endIndex = (i + batchSize < _imageFiles.length)
+          ? i + batchSize
+          : _imageFiles.length;
 
-      final result = await _remoteDataSource.uploadImage(fileName, file.path);
-      if (result is NetworkState.Success) {
-        uploadedCount++;
-        final progress = (uploadedCount / _imageFiles.length) * 100;
-        setState(() => _uploadProgress = progress);
-        AppRes.logger.i("$fileName muvaffaqiyatli yuklandi: ${result.value}");
-      } else if (result is NetworkState.NoInternet) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Internet aloqasi yo'q", style: pregular.copyWith(color: AppColors.white)),
-          ),
-        );
-        break;
-      } else {
-        AppRes.logger.e("Yuklashda xatolik: ${result.toString()}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$fileName yuklanmadi", style: pregular.copyWith(color: AppColors.white)),
-          ),
-        );
+      // Har bir guruhdagi rasmlarni yuklash
+      for (int j = i; j < endIndex; j++) {
+        final file = _imageFiles[j] as File;
+        final fileName = file.path.split('/').last;
+
+        AppRes.logger.f("$j. $fileName yuklanmoqchi");
+        final result = await _remoteDataSource.uploadImage(fileName, file.path);
+
+        if (result is NetworkState.Success) {
+          uploadedCount++;
+          final progress = (uploadedCount / _imageFiles.length) * 100;
+          setState(() => _uploadProgress = progress);
+          AppRes.logger
+              .i("$j. $fileName muvaffaqiyatli yuklandi: ${result.value}");
+        } else if (result is NetworkState.NoInternet) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Internet aloqasi yo'q",
+                style: pregular.copyWith(color: AppColors.white),
+              ),
+            ),
+          );
+          setState(() => _isLoading = false);
+          return; // Agar internet uzilsa, butun jarayon to'xtaydi
+        } else {
+          AppRes.logger.e("Yuklashda xatolik: ${result.toString()}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "$fileName yuklanmadi",
+                style: pregular.copyWith(color: AppColors.white),
+              ),
+            ),
+          );
+        }
+      }
+
+      // Har bir guruhdan keyin pauza (oxirgi guruhdan tashqari)
+      if (endIndex < _imageFiles.length) {
+        await Future.delayed(pauseDuration);
+        AppRes.logger.i("Guruh yakunlandi, $pauseDuration pauza...");
       }
     }
 
@@ -138,7 +176,10 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
     if (uploadedCount == _imageFiles.length) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Barcha rasmlar yuklandi", style: pregular.copyWith(color: AppColors.white)),
+          content: Text(
+            "Barcha rasmlar yuklandi",
+            style: pregular.copyWith(color: AppColors.white),
+          ),
         ),
       );
     }
@@ -154,13 +195,21 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Fayl ma'lumotlari", style: pmedium.copyWith(fontSize: 18.sp, color: context.textColor())),
+            Text("Fayl ma'lumotlari",
+                style: pmedium.copyWith(
+                    fontSize: 18.sp, color: context.textColor())),
             SizedBox(height: 16.h),
-            Text("Nomi: ${file.path.split('/').last}", style: pregular.copyWith(fontSize: 16.sp)),
-            Text("Hajmi: ${(fileStat.size / 1024 / 1024).toStringAsFixed(2)} MB", style: pregular.copyWith(fontSize: 16.sp)),
-            Text("Joylashuvi: ${file.path}", style: pregular.copyWith(fontSize: 16.sp)),
-            Text("Yaratilgan: ${fileStat.changed.toString()}", style: pregular.copyWith(fontSize: 16.sp)),
-            Text("Oxirgi o'zgartirilgan: ${fileStat.modified.toString()}", style: pregular.copyWith(fontSize: 16.sp)),
+            Text("Nomi: ${file.path.split('/').last}",
+                style: pregular.copyWith(fontSize: 16.sp)),
+            Text(
+                "Hajmi: ${(fileStat.size / 1024 / 1024).toStringAsFixed(2)} MB",
+                style: pregular.copyWith(fontSize: 16.sp)),
+            Text("Joylashuvi: ${file.path}",
+                style: pregular.copyWith(fontSize: 16.sp)),
+            Text("Yaratilgan: ${fileStat.changed.toString()}",
+                style: pregular.copyWith(fontSize: 16.sp)),
+            Text("Oxirgi o'zgartirilgan: ${fileStat.modified.toString()}",
+                style: pregular.copyWith(fontSize: 16.sp)),
           ],
         ),
       ),
@@ -173,7 +222,8 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
       MaterialPageRoute(
         builder: (_) => Scaffold(
           appBar: AppBar(
-            title: Text("Rasm ko'rish", style: pmedium.copyWith(color: AppColors.white)),
+            title: Text("Rasm ko'rish",
+                style: pmedium.copyWith(color: AppColors.white)),
             backgroundColor: AppColors.primary,
           ),
           body: Center(
@@ -188,7 +238,8 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Rasmlar ombori", style: pmedium.copyWith(color: AppColors.white)),
+        title: Text("Rasmlar ombori",
+            style: pmedium.copyWith(color: AppColors.white)),
         backgroundColor: AppColors.primary,
       ),
       body: Stack(
@@ -203,12 +254,14 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
                       LinearProgressIndicator(
                         value: _uploadProgress / 100,
                         backgroundColor: AppColors.paleBlue,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.primary),
                       ),
                       SizedBox(height: 8.h),
                       Text(
                         "Yuklanmoqda: ${_uploadProgress.toStringAsFixed(1)}%",
-                        style: pregular.copyWith(fontSize: 16.sp, color: context.textColor()),
+                        style: pregular.copyWith(
+                            fontSize: 16.sp, color: context.textColor()),
                       ),
                     ],
                   ),
@@ -216,60 +269,72 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
               Expanded(
                 child: _permissionGranted && _imageFiles.isNotEmpty
                     ? ListView.separated(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                  itemCount: _imageFiles.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 8.h),
-                  itemBuilder: (context, index) {
-                    final file = _imageFiles[index] as File;
-                    final fileStat = file.statSync();
-                    return InkWell(
-                      onTap: () => _showImagePreview(context, file),
-                      child: Container(
-                        decoration: containerBoxDecoration.copyWith(
-                          borderRadius: BorderRadius.circular(14.r),
-                          color: context.containerColor(),
-                        ),
-                        child: ListTile(
-                          leading: SizedBox(
-                            width: 50.w,
-                            height: 50.h,
-                            child: Image.file(file, fit: BoxFit.cover),
-                          ),
-                          title: Text(
-                            file.path.split('/').last,
-                            style: pmedium.copyWith(fontSize: 16.sp, color: context.textColor()),
-                          ),
-                          subtitle: Text(
-                            "${(fileStat.size / 1024 / 1024).toStringAsFixed(2)} MB",
-                            style: pregular.copyWith(fontSize: 14.sp, color: context.textColor().withOpacity(0.7)),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.more_vert, color: AppColors.primary),
-                            onPressed: () => _showImageDetails(context, file),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                )
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.w, vertical: 16.h),
+                        itemCount: _imageFiles.length,
+                        separatorBuilder: (_, __) => SizedBox(height: 8.h),
+                        itemBuilder: (context, index) {
+                          final file = _imageFiles[index] as File;
+                          final fileStat = file.statSync();
+
+                          return InkWell(
+                            onTap: () => _showImagePreview(context, file),
+                            child: Container(
+                              decoration: containerBoxDecoration.copyWith(
+                                borderRadius: BorderRadius.circular(14.r),
+                                color: context.containerColor(),
+                              ),
+                              child: ListTile(
+                                leading: SizedBox(
+                                  width: 50.w,
+                                  height: 50.h,
+                                  child: Image.file(file, fit: BoxFit.cover),
+                                ),
+                                title: Text(
+                                  file.path.split('/').last,
+                                  style: pmedium.copyWith(
+                                      fontSize: 16.sp,
+                                      color: context.textColor()),
+                                ),
+                                subtitle: Text(
+                                  "${(fileStat.size / 1024 / 1024).toStringAsFixed(2)} MB\nIndex: $index",
+                                  style: pregular.copyWith(
+                                      fontSize: 14.sp,
+                                      color:
+                                          context.textColor().withOpacity(0.7)),
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.more_vert,
+                                      color: AppColors.primary),
+                                  onPressed: () =>
+                                      _showImageDetails(context, file),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )
                     : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _permissionGranted ? "Fayl topilmadi" : "Ruxsat berilmagan",
-                        style: pmedium.copyWith(fontSize: 18.sp, color: context.textColor()),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _permissionGranted
+                                  ? "Fayl topilmadi"
+                                  : "Ruxsat berilmagan",
+                              style: pmedium.copyWith(
+                                  fontSize: 18.sp, color: context.textColor()),
+                            ),
+                            SizedBox(height: 16.h),
+                            PrimaryButton(
+                              text: "Qayta tekshirish",
+                              height: 48.h,
+                              width: 200.w,
+                              onPressed: _requestPermissionAndLoad,
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 16.h),
-                      PrimaryButton(
-                        text: "Qayta tekshirish",
-                        height: 48.h,
-                        width: 200.w,
-                        onPressed: _requestPermissionAndLoad,
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),

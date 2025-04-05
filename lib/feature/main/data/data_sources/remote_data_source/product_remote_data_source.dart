@@ -298,14 +298,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<State> uploadImage(String imageName, String image) async {
     try {
-      final bytes = await File(image).readAsBytes();
+      final file =  File(image);
       String path = 'images/$imageName';
       await Supabase.instance.client.storage
           .from(ExpenseFields.productImageBucket)
-          .uploadBinary(
+          .upload(
             path,
-            bytes,
-            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+            file,
           );
 
       final String downloadUrl = Supabase.instance.client.storage

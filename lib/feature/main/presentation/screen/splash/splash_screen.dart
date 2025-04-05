@@ -26,58 +26,32 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // _updateProductImagePaths();
     _navigateAfterDelay();
   }
 
-  Future<void> _updateProductImagePaths() async {
-    final bool hasNetwork = await InternetConnectionChecker().hasConnection;
-    if (hasNetwork) {
-      final networkRes = await productRemoteDataSource.getProducts();
-      if (networkRes is NetworkState.Success) {
-        final List<ProductNetwork> products = networkRes.value;
-        final appDir = await getApplicationDocumentsDirectory();
-        for (int i = 5; i < products.length; i++) {
-          if (products[i].pathOfPicture != null &&
-              !(products[i].pathOfPicture!.startsWith("/data")) &&
-              products[i].pathOfPicture!.isNotEmpty) {
-            AppRes.logger.i("$i. Shart To'gri: ${products[i].toString()}");
-            try {
-              final imageName =
-                  "${products[i].id ?? DateTime.now().millisecondsSinceEpoch}.jpg";
-              final String localImagePath = '${appDir.path}/$imageName';
-              await Dio().download(products[i].pathOfPicture!, localImagePath);
-              final response = await productRemoteDataSource.uploadImage(
-                  imageName, localImagePath);
-              if (response is NetworkState.Success) {
-                productRemoteDataSource.updateProduct(
-                    products[i].copyWith(pathOfPicture: response.value));
-                double progress = (i + 1) / products.length * 100;
-                AppRes.logger.f("Updating Progress: $progress");
-              }
-            } catch (e) {
-              AppRes.logger.e(e);
-            }
-          } else {
-            AppRes.logger.f("$i. Shart Noto'gri: ${products[i].toString()}");
-            try {
-              final imageName =
-                  "${products[i].id ?? DateTime.now().millisecondsSinceEpoch}.jpg";
-              final String localImagePath = '${appDir.path}/$imageName';
-              await Dio().download(Constants.noImage, localImagePath);
-              final response = await productRemoteDataSource.uploadImage(
-                  imageName, localImagePath);
-              if (response is NetworkState.Success) {
-                productRemoteDataSource.updateProduct(
-                    products[i].copyWith(pathOfPicture: response.value));
-                double progress = (i + 1) / products.length * 100;
-                AppRes.logger.f("Updating Progress: $progress");
-              }
-            } catch (e) {
-              AppRes.logger.e(e);
-            }
-          }
-        }
+  // Future<void> _updateProductImagePaths() async {
+    // For SQL Editor
+    // UPDATE product
+    // SET path_of_picture = REPLACE(path_of_picture, 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/', 'https://zhbmndjtuhowaeeexxkg.supabase.co/storage/v1/object/public/product.images/')
+    // WHERE path_of_picture LIKE 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/%';
+  // }
+  Future<void> updateProductImageUrls() async {
+    final response = await Supabase.instance.client.from('product').select();
+    final products = response as List;
+
+    for (var product in products) {
+      final oldUrl = product['path_of_picture'] as String?;
+      if (oldUrl != null &&
+          oldUrl.startsWith(
+              'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/')) {
+        final newUrl = oldUrl.replaceFirst(
+          'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/',
+          'https://zhbmndjtuhowaeeexxkg.supabase.co/storage/v1/object/public/product.images/',
+        );
+
+        await Supabase.instance.client
+            .from('product')
+            .update({'path_of_picture': newUrl}).eq('id', product['id']);
       }
     }
   }
