@@ -116,18 +116,15 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
     }
 
     setState(() => _isLoading = true);
-    int uploadedCount = 0; // Oldindan yuklangan rasmlar soni
-    const int batchSize = 2; // Har bir guruhda 20 ta rasm
-    const Duration pauseDuration =
-        Duration(seconds: 2); // Har guruhdan keyin 2 soniya pauza
+    int uploadedCount = 0;
+    const int batchSize = 2;
+    const Duration pauseDuration = Duration(seconds: 2);
 
-    // Guruhlar bo'yicha tsikl
     for (int i = 0; i < _imageFiles.length; i += batchSize) {
       final int endIndex = (i + batchSize < _imageFiles.length)
           ? i + batchSize
           : _imageFiles.length;
 
-      // Har bir guruhdagi rasmlarni yuklash
       for (int j = i; j < endIndex; j++) {
         final file = _imageFiles[j] as File;
         final fileName = file.path.split('/').last;
@@ -151,7 +148,7 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
             ),
           );
           setState(() => _isLoading = false);
-          return; // Agar internet uzilsa, butun jarayon to'xtaydi
+          return;
         } else {
           AppRes.logger.e("Yuklashda xatolik: ${result.toString()}");
           ScaffoldMessenger.of(context).showSnackBar(
@@ -165,7 +162,6 @@ class _ImageStorageScreenState extends State<ImageStorageScreen> {
         }
       }
 
-      // Har bir guruhdan keyin pauza (oxirgi guruhdan tashqari)
       if (endIndex < _imageFiles.length) {
         await Future.delayed(pauseDuration);
         AppRes.logger.i("Guruh yakunlandi, $pauseDuration pauza...");

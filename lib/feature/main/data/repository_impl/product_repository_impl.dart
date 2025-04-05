@@ -35,7 +35,7 @@ class ProductRepositoryImpl implements ProductRepository {
       if (hasConnection) {
         return productRemoteDataSource.createProduct(product.toNetwork());
       } else {
-        await saveProductToLocal(product.toEntity()); // Save to Hive locally
+        await saveProductToLocal(product.toEntity());
         return NoInternet("Saved locally, will sync when online.");
       }
     } catch (e) {
@@ -45,7 +45,6 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<State> addProductCost(List<CostModel> list) async {
-    // Ro'yxatni string qilib chiqarish
     AppRes.logger.i(list.map((e) => e.toString()).join(', \n'));
 
     try {
@@ -58,14 +57,11 @@ class ProductRepositoryImpl implements ProductRepository {
 
           if (result is GenericError) {
             AppRes.logger.e(result.value);
-            return result; // Stop and return if there's an error
+            return result;
           }
         }
-        await isarHelper.insertAllCosts(list
-            .map((e) => e.toEntity())
-            .toList()); // Save cost using IsarHelper
-        return Success(
-            "Success added!"); // Return success if all inserts were successful
+        await isarHelper.insertAllCosts(list.map((e) => e.toEntity()).toList());
+        return Success("Success added!");
       } else {
         return NoInternet("No Internet");
       }
@@ -144,14 +140,12 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<State> syncProducts(Function(double) onProgress) async {
-    // Internetni tekshirish
     if (!await networkChecker.hasConnection) {
       AppRes.logger.w("Internet aloqasi mavjud emas");
       return NoInternet("Internet aloqasi yo'q");
     }
 
     try {
-      // Mahsulotlar va o'chirilgan ID'larni bir vaqtda olish
       final [networkRes, fetchDeletedRes] = await Future.wait([
         productRemoteDataSource.getProducts(),
         productRemoteDataSource.getAllDeletedProductIds()
@@ -171,7 +165,6 @@ class ProductRepositoryImpl implements ProductRepository {
       AppRes.logger.i(
           "${products.length} ta mahsulot va ${deletedList.length} ta o'chirilgan ID olindi");
 
-      // Mahsulotlarni o'chirish
       if (deletedList.isNotEmpty) {
         await isarHelper.deleteAllProducts(deletedList);
         AppRes.logger.i("${deletedList.length} ta mahsulot o'chirildi");
@@ -180,7 +173,6 @@ class ProductRepositoryImpl implements ProductRepository {
       final appDir = await getApplicationDocumentsDirectory();
       final batchSize = 10;
 
-      // Mahsulotlarni guruhlar bo'yicha qayta ishlash
       for (int i = 0; i < products.length; i += batchSize) {
         if (!await networkChecker.hasConnection) {
           AppRes.logger.w("${i ~/ batchSize}-guruhda internet uzildi");
@@ -192,7 +184,6 @@ class ProductRepositoryImpl implements ProductRepository {
           i + batchSize > products.length ? products.length : i + batchSize,
         );
 
-        // Mahalliy mahsulotlarni olish
         final localProducts = await Future.wait(
           batch.map((p) => isarHelper.getProductById(p.id ?? 0)),
         );
@@ -219,7 +210,6 @@ class ProductRepositoryImpl implements ProductRepository {
           ));
         }
 
-        // Rasmlarni bir vaqtda yuklash
         if (updateFutures.isNotEmpty) {
           final updatedProducts = await Future.wait(updateFutures);
           for (final product in updatedProducts) {
@@ -328,23 +318,18 @@ class ProductRepositoryImpl implements ProductRepository {
     }
   }
 
-  // Method to save a product to Isar local storage
   @override
   Future<void> saveProductToLocal(ProductEntity product) async {
-    await isarHelper.addProduct(product); // Save product using IsarHelper
+    await isarHelper.addProduct(product);
   }
 
-// Method to fetch a single product from Isar by ID
   @override
   Future<List<ProductModel?>> fetchProductFromLocalById(
       int id, int categoryId) async {
     var res = await isarHelper.getProduct(id, categoryId);
-    return res
-        .map((product) => product?.toModel())
-        .toList(); // Get product by its ID using IsarHelper
+    return res.map((product) => product?.toModel()).toList();
   }
 
-// Method to fetch products by productId from Isar
   @override
   Future<List<ProductModel?>> fetchProductFromLocalByCategoryId(
       int categoryId) async {
@@ -353,25 +338,22 @@ class ProductRepositoryImpl implements ProductRepository {
     return products.map((product) => product.toModel()).toList();
   }
 
-// Method to fetch all products from Isar
   @override
   Future<List<ProductModel>> fetchAllProductsFromLocal() async {
-    final products =
-        await isarHelper.getAllProducts(); // This returns List<ProductEntity>
+    final products = await isarHelper.getAllProducts();
     final productModels =
         products.map((productEntity) => productEntity.toModel()).toList();
 
-    return productModels; // Return List<ProductModel>
+    return productModels;
   }
 
   @override
   Future<List<CostModel>> fetchAllCostsFromLocal() async {
-    final products =
-        await isarHelper.getAllCosts(); // This returns List<ProductEntity>
+    final products = await isarHelper.getAllCosts();
     final productModels =
         products.map((productEntity) => productEntity.toModel()).toList();
 
-    return productModels; // Return List<ProductModel>
+    return productModels;
   }
 
   @override
@@ -385,7 +367,6 @@ class ProductRepositoryImpl implements ProductRepository {
   ) async {
     final isar = await isarHelper.db;
 
-    // Parsing the strings into int ranges or setting default bounds if empty
     final List<int> nomerRange = _parseRange(nomer);
     final List<int> eniRange = _parseRange(eni);
     final List<int> boyiRange = _parseRange(boyi);
@@ -419,34 +400,27 @@ class ProductRepositoryImpl implements ProductRepository {
     return products.map((productEntity) => productEntity.toModel()).toList();
   }
 
-// Helper method to parse the range from a string
   List<int> _parseRange(String value) {
     if (value.isEmpty) {
-      // If value is empty, we set a wide default range
       return [0, 999999];
     }
 
-    // Splitting the string by space and parsing the range values
-    int maxInt = (1 << 63) - 1; // For 64-bit platforms
+    int maxInt = (1 << 63) - 1;
 
     final parts = value.split(' ');
     final lower = parts[0].toIntOrZero();
-    final upper = (parts.length > 1)
-        ? parts[1].toIntOrZero()
-        : lower; // If only one number, treat it as both lower and upper bound
+    final upper = (parts.length > 1) ? parts[1].toIntOrZero() : lower;
     return [lower, upper == 0 ? maxInt : upper];
   }
 
-// Method to update a product in Isar
   @override
   Future<void> updateLocalProduct(ProductEntity product) async {
     await isarHelper.updateProduct(product);
   }
 
-// Method to remove a product from Isar by its ID
   @override
   Future<void> removeProductFromLocal(int id) async {
-    await isarHelper.deleteProduct(id); // Delete product by its ID in Isar
+    await isarHelper.deleteProduct(id);
   }
 
   @override
@@ -455,11 +429,9 @@ class ProductRepositoryImpl implements ProductRepository {
     return res?.toModel();
   }
 
-// Method to remove multiple products by their IDs in Isar
   @override
   Future<void> removeProductsFromLocal(List<int> ids) async {
-    await isarHelper
-        .deleteProductsByIds(ids); // Delete products by IDs using IsarHelper
+    await isarHelper.deleteProductsByIds(ids);
   }
 
   @override
@@ -512,32 +484,29 @@ class ProductRepositoryImpl implements ProductRepository {
     }).toList();
   }
 
-  // Local CRUD for costs
   @override
   Future<void> saveCostToLocal(CostEntity cost) async {
-    await isarHelper.addCost(cost); // Save cost using IsarHelper
+    await isarHelper.addCost(cost);
   }
 
-  // Local CRUD for costs
   @override
   Future<void> saveCostListToLocal(List<CostModel> cost) async {
-    await isarHelper.insertAllCosts(
-        cost.map((e) => e.toEntity()).toList()); // Save cost using IsarHelper
+    await isarHelper.insertAllCosts(cost.map((e) => e.toEntity()).toList());
   }
 
   @override
   Future<void> updateLocalCost(CostEntity cost) async {
-    await isarHelper.updateCost(cost); // Update cost in Isar
+    await isarHelper.updateCost(cost);
   }
 
   @override
   Future<void> deleteLocalCost(int costId) async {
-    await isarHelper.deleteCost(costId); // Delete cost from Isar
+    await isarHelper.deleteCost(costId);
   }
 
   @override
   Future<List<CostEntity>> getCostListById(int productId) async {
-    return await isarHelper.getCost(productId); // Get cost by ID from Isar
+    return await isarHelper.getCost(productId);
   }
 
   @override
