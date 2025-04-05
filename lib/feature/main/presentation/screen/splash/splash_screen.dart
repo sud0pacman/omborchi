@@ -35,26 +35,26 @@ class _SplashScreenState extends State<SplashScreen> {
     // SET path_of_picture = REPLACE(path_of_picture, 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/', 'https://zhbmndjtuhowaeeexxkg.supabase.co/storage/v1/object/public/product.images/')
     // WHERE path_of_picture LIKE 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/%';
   // }
-  Future<void> updateProductImageUrls() async {
-    final response = await Supabase.instance.client.from('product').select();
-    final products = response as List;
-
-    for (var product in products) {
-      final oldUrl = product['path_of_picture'] as String?;
-      if (oldUrl != null &&
-          oldUrl.startsWith(
-              'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/')) {
-        final newUrl = oldUrl.replaceFirst(
-          'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/',
-          'https://zhbmndjtuhowaeeexxkg.supabase.co/storage/v1/object/public/product.images/',
-        );
-
-        await Supabase.instance.client
-            .from('product')
-            .update({'path_of_picture': newUrl}).eq('id', product['id']);
-      }
-    }
-  }
+  // Future<void> updateProductImageUrls() async {
+  //   final response = await Supabase.instance.client.from('product').select();
+  //   final products = response as List;
+  //
+  //   for (var product in products) {
+  //     final oldUrl = product['path_of_picture'] as String?;
+  //     if (oldUrl != null &&
+  //         oldUrl.startsWith(
+  //             'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/')) {
+  //       final newUrl = oldUrl.replaceFirst(
+  //         'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/',
+  //         'https://zhbmndjtuhowaeeexxkg.supabase.co/storage/v1/object/public/product.images/',
+  //       );
+  //
+  //       await Supabase.instance.client
+  //           .from('product')
+  //           .update({'path_of_picture': newUrl}).eq('id', product['id']);
+  //     }
+  //   }
+  // }
 
   Future<void> _navigateAfterDelay() async {
     await Future.delayed(const Duration(seconds: 2));
