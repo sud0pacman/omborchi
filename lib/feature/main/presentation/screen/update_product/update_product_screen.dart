@@ -103,7 +103,8 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
       appBar: customAppBar(
         context,
         onTapLeading: () {
-          Navigator.pop(context, true);
+          Navigator.pop(context);
+
         },
         title: "Maxsulotni yangilash".tr,
       ),

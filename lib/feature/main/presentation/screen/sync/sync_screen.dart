@@ -41,39 +41,48 @@ class _SyncScreenState extends State<SyncScreen> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return BlocBuilder<SyncBloc, SyncState>(
-            bloc: _bloc,
-            builder: (context, state) {
-              return Dialog(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "${state.currentRepository ?? ''} sinxronlanmoqda... "
-                        "(${state.currentRepositoryIndex ?? 0}/5)",
-                        style: pmedium.copyWith(
-                            fontSize: 16, color: context.textColor()),
-                      ),
-                      const SizedBox(height: 16),
-                      LinearProgressIndicator(
-                        backgroundColor: AppColors.paleBlue,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.primary),
-                        value: (state.syncProgress ?? 0) / 100,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "${state.syncProgress?.toInt() ?? 0}%",
-                        style: pmedium.copyWith(
-                            fontSize: 16, color: context.textColor()),
-                      ),
-                    ],
-                  ),
+          return PopScope(
+            canPop: false, // Prevents back button from dismissing the dialog
+            child: Dialog(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: BlocBuilder<SyncBloc, SyncState>(
+                  bloc: _bloc,
+                  builder: (context, state) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "${state.currentRepository ?? ''} sinxronlanmoqda... "
+                          "(${state.currentRepositoryIndex ?? 0}/5)",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500, // Assuming pmedium
+                            color: context.textColor(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LinearProgressIndicator(
+                          backgroundColor: AppColors.paleBlue,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.primary),
+                          value: (state.syncProgress ?? 0) / 100,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "${state.syncProgress?.toInt() ?? 0}%",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500, // Assuming pmedium
+                            color: context.textColor(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
       );

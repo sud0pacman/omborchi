@@ -39,6 +39,7 @@ dependencies:
   isar: *isar_version
   isar_flutter_libs: *isar_version # contains Isar Core
   path_provider: ^2.0.15
+  provider: ^6.1.4
   path: any
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -60,6 +61,7 @@ dependencies:
   flutter_image_compress: ^2.4.0
   device_info_plus: ^11.3.0
   cached_memory_image: ^1.5.0
+  cached_network_image: ^3.4.1
 
 
 dev_dependencies:

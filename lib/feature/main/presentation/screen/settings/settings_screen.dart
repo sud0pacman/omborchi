@@ -40,7 +40,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  List<List<SettingsItem>> get _settingsSections => [
+  List<List<SettingsItem>> get _settingsSections =>
+      [
         [
           SettingsItem(
             title: "Tungi rejim".tr,
@@ -54,7 +55,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SettingsItem(
             title: "Xatolik haqida xabar berish".tr,
             icon: const Icon(CupertinoIcons.exclamationmark_triangle),
-            onTap: _reportBug,
+            onTap: () {
+              _openUrl();
+            },
           ),
           SettingsItem(
             title: "Qo'llab quvvatlashga qo'ngiroq qilish".tr,
@@ -66,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   return SupportDialog(
                     onTapContinue: () async {
                       final Uri phoneUri =
-                          Uri.parse("tel:${Constants.supportPhone}");
+                      Uri.parse("tel:${Constants.supportPhone}");
                       if (await canLaunchUrl(phoneUri)) {
                         await launchUrl(phoneUri);
                       }
@@ -94,10 +97,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: AnimationConfiguration.toStaggeredList(
                 duration: const Duration(milliseconds: 375),
-                childAnimationBuilder: (widget) => FadeInAnimation(
-                  curve: Curves.bounceInOut,
-                  child: FadeInAnimation(child: widget),
-                ),
+                childAnimationBuilder: (widget) =>
+                    FadeInAnimation(
+                      curve: Curves.bounceInOut,
+                      child: FadeInAnimation(child: widget),
+                    ),
                 children: _settingsSections
                     .asMap()
                     .entries
@@ -117,7 +121,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: CustomButton(
         backgroundColor: context.containerColor(),
         child: Column(
-          children: items.asMap().entries.map((entry) {
+          children: items
+              .asMap()
+              .entries
+              .map((entry) {
             final item = entry.value;
             final isLast = entry.key == items.length - 1;
             return Column(
@@ -141,7 +148,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: Text(
         item.title,
         style: pmedium.copyWith(
-          color: Theme.of(context).colorScheme.textColor,
+          color: Theme
+              .of(context)
+              .colorScheme
+              .textColor,
           fontSize: 18,
         ),
       ),
@@ -156,6 +166,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final Uri emailUri = Uri.parse(
       "mailto:${Constants.supportEmail}?subject=${Uri.encodeFull(subject)}",
     );
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    }
+  }
+
+  Future<void> _openUrl({String? url}) async {
+    final Uri emailUri = Uri.parse(url ?? "https://t.me/mobiledeveloper0");
     if (await canLaunchUrl(emailUri)) {
       await launchUrl(emailUri);
     }

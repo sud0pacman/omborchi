@@ -16,7 +16,10 @@ AppBar rawMaterialAppBar(
     ),
     leading: IconButton(
       onPressed: onTapLeading,
-      icon: const Icon(CupertinoIcons.back),
+      icon: const Icon(
+        CupertinoIcons.back,
+        color: AppColors.white,
+      ),
     ),
     actions: actions,
     bottom: TabBar(

@@ -2,36 +2,46 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:omborchi/core/custom/extensions/my_extensions.dart';
 import 'package:omborchi/core/custom/widgets/app_bar.dart';
-import 'package:omborchi/core/modules/hive_db_helper.dart';
 import 'package:omborchi/core/theme/color_scheme.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
 import 'package:omborchi/core/utils/consants.dart';
+import 'package:provider/provider.dart';
 
-class SelectThemeScreen extends StatefulWidget {
+import '../../../../../core/database/app_storage.dart';
+
+class ThemeProvider with ChangeNotifier {
+  final AppStorage _storage = AppStorage();
+  ThemeMode _themeMode;
+
+  ThemeProvider() : _themeMode = ThemeMode.system {
+    _themeMode = _storage.getTheme();
+  }
+
+  ThemeMode get themeMode => _themeMode;
+
+  void changeTheme(ThemeMode newTheme) {
+    _themeMode = newTheme;
+    _storage.saveTheme(newTheme);
+    notifyListeners();
+  }
+
+  String? getString(String key) {
+    return _storage.getString(key);
+  }
+}
+
+class SelectThemeScreen extends StatelessWidget {
   const SelectThemeScreen({super.key});
 
   @override
-  State<SelectThemeScreen> createState() => _SelectThemeScreenState();
-}
-
-class _SelectThemeScreenState extends State<SelectThemeScreen> {
-  final preferences = inject<AppPreferences>();
-  late String selectedTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    final themeMode = preferences.theme;
-    selectedTheme = _themeModeToString(themeMode);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final selectedTheme = _themeModeToString(themeProvider.themeMode);
+
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300), // Animatsiya davomiyligi
+      duration: const Duration(milliseconds: 300),
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(
           opacity: animation,
@@ -39,7 +49,7 @@ class _SelectThemeScreenState extends State<SelectThemeScreen> {
         );
       },
       child: Scaffold(
-        key: ValueKey(selectedTheme), // Har bir theme uchun unique key
+        key: ValueKey(selectedTheme),
         appBar: customAppBar(
           onTapLeading: () {
             Navigator.pop(context);
@@ -52,12 +62,17 @@ class _SelectThemeScreenState extends State<SelectThemeScreen> {
           child: Column(
             children: [
               8.verticalSpace,
-              buildThemeItem("Yorqin".tr, const Icon(CupertinoIcons.sun_max)),
+              buildThemeItem(context, "Yorqin".tr,
+                  const Icon(CupertinoIcons.sun_max), selectedTheme),
               8.verticalSpace,
-              buildThemeItem("Qorong'i".tr, const Icon(CupertinoIcons.moon)),
+              buildThemeItem(context, "Qorong'i".tr,
+                  const Icon(CupertinoIcons.moon), selectedTheme),
               8.verticalSpace,
               buildThemeItem(
-                  "Tizim".tr, const Icon(CupertinoIcons.device_phone_portrait)),
+                  context,
+                  "Tizim".tr,
+                  const Icon(CupertinoIcons.device_phone_portrait),
+                  selectedTheme),
             ],
           ),
         ),
@@ -65,9 +80,10 @@ class _SelectThemeScreenState extends State<SelectThemeScreen> {
     );
   }
 
-  Widget buildThemeItem(String title, Icon icon) {
+  Widget buildThemeItem(
+      BuildContext context, String title, Icon icon, String selectedTheme) {
     return InkWell(
-      onTap: () => _changeTheme(title),
+      onTap: () => _changeTheme(context, title),
       borderRadius: BorderRadius.circular(14),
       child: Container(
         decoration: containerBoxDecoration.copyWith(
@@ -89,7 +105,7 @@ class _SelectThemeScreenState extends State<SelectThemeScreen> {
             groupValue: selectedTheme,
             activeColor: AppColors.primary,
             onChanged: (value) {
-              if (value != null) _changeTheme(value);
+              if (value != null) _changeTheme(context, value);
             },
           ),
         ),
@@ -97,12 +113,9 @@ class _SelectThemeScreenState extends State<SelectThemeScreen> {
     );
   }
 
-  void _changeTheme(String newTheme) {
-    setState(() {
-      selectedTheme = newTheme;
-      final themeMode = _stringToThemeMode(newTheme);
-      preferences.changeTheme(themeMode);
-    });
+  void _changeTheme(BuildContext context, String newTheme) {
+    final themeMode = _stringToThemeMode(newTheme);
+    Provider.of<ThemeProvider>(context, listen: false).changeTheme(themeMode);
   }
 
   String _themeModeToString(ThemeMode themeMode) {

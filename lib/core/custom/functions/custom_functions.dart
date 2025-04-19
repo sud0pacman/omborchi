@@ -19,6 +19,12 @@ Future<void> setUpdateTime(DateTime now) async {
     now.toUtc().toIso8601String(),
   );
 }
+bool isValidUrl(String input) {
+  final uri = Uri.tryParse(input);
+  return uri != null &&
+      (uri.hasScheme && uri.hasAuthority) &&
+      (uri.scheme == 'http' || uri.scheme == 'https');
+}
 
 void enableWakelock() {
   WakelockPlus.enable();

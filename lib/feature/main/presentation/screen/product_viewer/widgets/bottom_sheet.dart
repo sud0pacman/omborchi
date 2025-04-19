@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
+import 'package:omborchi/core/custom/widgets/custom_divider.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/utils/consants.dart';
@@ -47,7 +48,7 @@ void showProductDetailsBottomSheet(
                 16.verticalSpace,
                 Text(
                   "Xomashyolar",
-                  style: bold.copyWith(color: context.textColor()),
+                  style: bold.copyWith(color: context.textColor(), fontSize: 20),
                 ),
                 8.verticalSpace,
                 for (var item in list)
@@ -56,7 +57,9 @@ void showProductDetailsBottomSheet(
                     value: "${item.quantity.toString()} ta",
                     context: context,
                   ),
-                16.verticalSpace,
+                8.verticalSpace,
+                customDivider(hasMargin: false),
+                8.verticalSpace,
                 _buildInfoRow(
                   title: "Nomer:",
                   value: product.description.toString(),

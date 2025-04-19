@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_memory_image/cached_memory_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -75,12 +76,14 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
         context,
         onTapDelete: () {
           showDeleteDialog(context);
-
         },
         onTapEdit: () async {
-          Navigator.pushReplacementNamed(
+          final res = await Navigator.pushNamed(
               context, RouteManager.updateProductScreen,
               arguments: widget.product);
+          if (res != null && res == true) {
+            closeScreen(context, arg: true);
+          }
         },
         leadingIcon: AssetRes.icBack,
         // actionTitle: "${widget.product.boyi ?? 0} X ${widget.product.eni ?? 0}",
@@ -140,19 +143,54 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                             borderRadius: BorderRadius.circular(10),
                             child: InteractiveViewer(
                               minScale: 0.5,
-                              maxScale: 4.0, // Maximum zoom level
-                              child: CachedMemoryImage(
-                                fit: BoxFit.cover,
-                                bytes:
-                                File(widget.product.pathOfPicture ?? '').readAsBytesSync(),
-                                uniqueKey: "${widget.product.id}",
-                                placeholder: const LoadingWidget(),
-                                errorWidget: Text(
-                                  "Rasmni yuklashda xatolik",
-                                  style: pmedium.copyWith(
-                                      color: context.textColor(), fontSize: 16),
-                                ),
-                              ),
+                              maxScale: 4.0,
+                              // Maximum zoom l                                                                                                                                     evel
+                              child: widget.product.pathOfPicture != null
+                                  ? isValidUrl(widget.product.pathOfPicture!)
+                                      ? CachedNetworkImage(
+                                          fit: BoxFit.cover,
+                                          imageUrl:
+                                              widget.product.pathOfPicture!,
+                                          placeholder: (___, __) =>
+                                              const LoadingWidget(),
+                                          alignment: Alignment.center,
+                                          errorWidget: (___, __, _) => Center(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                "Rasmni yuklashda xatolik",
+                                                style: pmedium.copyWith(
+                                                    color: context.textColor(),
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : CachedMemoryImage(
+                                          fit: BoxFit.cover,
+                                          bytes: File(widget
+                                                      .product.pathOfPicture ??
+                                                  '')
+                                              .readAsBytesSync(),
+                                          uniqueKey:
+                                              "${widget.product.pathOfPicture}",
+                                          placeholder: const LoadingWidget(),
+                                          errorWidget: Text(
+                                            "Rasmni yuklashda xatolik",
+                                            style: pmedium.copyWith(
+                                                color: context.textColor(),
+                                                fontSize: 16),
+                                          ),
+                                        )
+                                  : Center(
+                                      child: Text(
+                                        "Mahsulot rasmi topilmadi",
+                                        style: pmedium.copyWith(
+                                            color: context.textColor(),
+                                            fontSize: 16),
+                                      ),
+                                    ),
                             ),
                           ),
                         ),

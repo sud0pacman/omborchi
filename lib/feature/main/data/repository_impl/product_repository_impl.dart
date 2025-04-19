@@ -139,24 +139,29 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<State> syncProducts(Function(double) onProgress) async {
+  Future<State> syncProducts(Function(double) onProgress,
+      {int startIndex = 0}) async {
     if (!await networkChecker.hasConnection) {
       AppRes.logger.w("Internet aloqasi mavjud emas");
       return NoInternet("Internet aloqasi yo'q");
     }
 
     try {
+      AppRes.logger.i(
+          "Mahsulotlarni sinxronlash boshlandi, boshlang'ich indeks: $startIndex...");
       final [networkRes, fetchDeletedRes] = await Future.wait([
         productRemoteDataSource.getProducts(),
-        productRemoteDataSource.getAllDeletedProductIds()
+        productRemoteDataSource.getAllDeletedProductIds(),
       ]);
 
       if (networkRes is! Success) {
-        AppRes.logger.e("Mahsulotlarni tarmoqdan olishda xatolik");
+        AppRes.logger
+            .e("Mahsulotlarni olishda xatolik: ${networkRes.toString()}");
         return networkRes;
       }
       if (fetchDeletedRes is! Success) {
-        AppRes.logger.e("O'chirilgan mahsulot ID'larini olishda xatolik");
+        AppRes.logger.e(
+            "O'chirilgan mahsulot ID'larini olishda xatolik: ${fetchDeletedRes.toString()}");
         return GenericError("O'chirilgan mahsulotlarni olishda xatolik");
       }
 
@@ -167,16 +172,20 @@ class ProductRepositoryImpl implements ProductRepository {
 
       if (deletedList.isNotEmpty) {
         await isarHelper.deleteAllProducts(deletedList);
-        AppRes.logger.i("${deletedList.length} ta mahsulot o'chirildi");
+        AppRes.logger
+            .i("${deletedList.length} ta mahsulot mahalliy bazadan o'chirildi");
       }
 
       final appDir = await getApplicationDocumentsDirectory();
-      final batchSize = 10;
+      const batchSize = 10;
+      int lastSyncedIndex = startIndex;
 
-      for (int i = 0; i < products.length; i += batchSize) {
+      for (int i = startIndex; i < products.length; i += batchSize) {
         if (!await networkChecker.hasConnection) {
-          AppRes.logger.w("${i ~/ batchSize}-guruhda internet uzildi");
-          return NoInternet("Sinxlash jarayonida internet uzildi");
+          AppRes.logger
+              .w("Index $i: ${i ~/ batchSize}-guruhda internet uzildi");
+          return NoInternet(
+              "Sinxlash jarayonida internet uzildi, oxirgi indeks: $i");
         }
 
         final batch = products.sublist(
@@ -194,11 +203,13 @@ class ProductRepositoryImpl implements ProductRepository {
         for (int j = 0; j < batch.length; j++) {
           final remoteProduct = batch[j];
           final localProduct = localProducts[j];
+          final currentIndex = i + j;
 
           if (localProduct != null &&
               remoteProduct.updatedAt?.toLocal().toIso8601String() ==
                   localProduct.updatedAt?.toLocal().toIso8601String()) {
-            AppRes.logger.w("${remoteProduct.id} ID'li mahsulot o'zgarmagan");
+            AppRes.logger.w(
+                "Index $currentIndex: ${remoteProduct.id} ID'li mahsulot o'zgarmagan");
             continue;
           }
 
@@ -207,14 +218,25 @@ class ProductRepositoryImpl implements ProductRepository {
             remoteProduct,
             localProduct,
             appDir.path,
+            currentIndex, // Indeksni uzatamiz
           ));
         }
 
         if (updateFutures.isNotEmpty) {
-          final updatedProducts = await Future.wait(updateFutures);
-          for (final product in updatedProducts) {
-            await isarHelper.addProduct(product.toEntity());
-            AppRes.logger.i("${product.id} ID'li mahsulot yangilandi");
+          try {
+            final updatedProducts = await Future.wait(updateFutures);
+            for (final product in updatedProducts) {
+              await isarHelper.addProduct(product.toEntity());
+              AppRes.logger
+                  .i("${product.id} ID'li mahsulot mahalliy bazaga yangilandi");
+              lastSyncedIndex = i + updatedProducts.indexOf(product) + 1;
+            }
+          } catch (e) {
+            AppRes.logger.e(
+              "Index $i: Guruhdagi mahsulotlarni yangilashda xatolik: $e",
+            );
+            return GenericError(
+                "Index $i: Mahsulotlarni yangilashda xatolik: $e, oxirgi muvaffaqiyatli indeks: $lastSyncedIndex");
           }
         }
 
@@ -222,11 +244,12 @@ class ProductRepositoryImpl implements ProductRepository {
       }
 
       final allProducts = await isarHelper.getAllProducts();
-      AppRes.logger.i("Sinxlash muvaffaqiyatli yakunlandi");
+      AppRes.logger.i(
+          "Sinxlash muvaffaqiyatli yakunlandi, jami: ${allProducts.length} ta mahsulot");
       return Success(allProducts);
-    } catch (e, stackTrace) {
-      AppRes.logger.e("Sinxlashda xatolik: $e");
-      return GenericError("Sinxlashda xatolik yuz berdi: ${e.toString()}");
+    } catch (e) {
+      AppRes.logger.e("Sinxlashda umumiy xatolik: $e");
+      return GenericError("Sinxlashda xatolik yuz berdi: $e");
     }
   }
 
@@ -234,6 +257,7 @@ class ProductRepositoryImpl implements ProductRepository {
     ProductNetwork remoteProduct,
     ProductEntity? localProduct,
     String appDirPath,
+    int index,
   ) async {
     final imageName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
     final localImagePath = '$appDirPath/$imageName';
@@ -245,14 +269,32 @@ class ProductRepositoryImpl implements ProductRepository {
     final imageUrl =
         hasValidImage ? remoteProduct.pathOfPicture! : Constants.noImage;
 
-    AppRes.logger.t(
-        "${remoteProduct.id} ID'li mahsulot uchun rasm yuklanmoqda: $imageUrl");
-    await Dio().download(imageUrl, localImagePath);
+    AppRes.logger.i(
+        "Index $index: ${remoteProduct.id} ID'li mahsulot uchun rasm yuklanmoqda: $imageUrl");
 
-    return remoteProduct.copyWith(
-      pathOfPicture: localImagePath,
-      id: remoteProduct.id,
-    );
+    try {
+      final dio = Dio();
+      final response = await dio.download(imageUrl, localImagePath);
+      AppRes.logger.i(
+          "Index $index: ${remoteProduct.id} ID'li mahsulot rasmi yuklandi: $localImagePath, Status: ${response.statusCode}");
+
+      return remoteProduct.copyWith(
+        pathOfPicture: localImagePath,
+        id: remoteProduct.id,
+      );
+    } catch (e) {
+      // Xatolikni logga yozamiz
+      AppRes.logger.e(
+        "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda xatolik. "
+        "Rasm URL: $imageUrl, Xatolik: $e",
+      );
+
+      // Rasmni null qilib, mahsulotni qaytaramiz
+      return remoteProduct.copyWith(
+        pathOfPicture: null,
+        id: remoteProduct.id,
+      );
+    }
   }
 
   void _updateProgress(Function(double) onProgress, int current, int total) {

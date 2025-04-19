@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:omborchi/core/custom/extensions/color_to_hsl.dart';
+import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/feature/main/domain/model/category_model.dart';
 
-import '../../../../../../core/custom/widgets/primary_button.dart';
 import '../../../../../../core/theme/style_res.dart'; // Ensure to use your AppColors and styles
 
 class SearchDialog extends StatefulWidget {
@@ -89,43 +88,50 @@ class _SearchDialogState extends State<SearchDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: PrimaryButton(
-                    text: 'Qidirish',
-                    onPressed: () {
-                      _validateInputs();
-                      if (_nomerError == null &&
-                          _eniError == null &&
-                          _boyiError == null &&
-                          _narxiError == null &&
-                          _marjaError == null) {
-                        final nomerValue = _getValues(
-                            _nomerDanController, _nomerGachaController);
-                        final boyiValue = _getValues(
-                            _boyiDanController, _boyiGachaController);
-                        final eniValue =
-                            _getValues(_eniDanController, _eniGachaController);
-                        final narxiValue = _getValues(
-                            _narxiDanController, _narxiGachaController);
-                        final marjaValue = _getValues(
-                            _marjaDanController, _marjaGachaController);
-                        widget.onSearchTap.call(nomerValue, eniValue, boyiValue,
-                            narxiValue, marjaValue, selectedCategory);
-                        Navigator.of(context).pop();
-                      }
-                    },
+
+                TextButton(
+                  child: Text(
+                    'Bekor qilish',
+                    style: pmedium.copyWith(color: context.textColor()),
                   ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: PrimaryButton(
-                    text: 'Bekor qilish',
-                    hslColor: AppColors.paleBlue.toHSL(),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                TextButton(
+                  style: kButtonBackgroundStyle.copyWith(
+                    backgroundColor:
+                    WidgetStatePropertyAll(context.containerColor()),
                   ),
+                  child: Text(
+                    'Qidirish',
+                    style: pmedium.copyWith(color: context.textColor()),
+                  ),
+                  onPressed: () {
+                    _validateInputs();
+                    if (_nomerError == null &&
+                        _eniError == null &&
+                        _boyiError == null &&
+                        _narxiError == null &&
+                        _marjaError == null) {
+                      final nomerValue = _getValues(
+                          _nomerDanController, _nomerGachaController);
+                      final boyiValue =
+                      _getValues(_boyiDanController, _boyiGachaController);
+                      final eniValue =
+                      _getValues(_eniDanController, _eniGachaController);
+                      final narxiValue = _getValues(
+                          _narxiDanController, _narxiGachaController);
+                      final marjaValue = _getValues(
+                          _marjaDanController, _marjaGachaController);
+                      widget.onSearchTap.call(nomerValue, eniValue, boyiValue,
+                          narxiValue, marjaValue, selectedCategory);
+                      Navigator.of(context).pop();
+                    }
+                  },
                 ),
+
               ],
             ),
           ],

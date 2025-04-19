@@ -133,7 +133,7 @@ ButtonStyle kButtonBackgroundStyle = ButtonStyle(
   backgroundColor: const WidgetStatePropertyAll(AppColors.background),
   shape: const WidgetStatePropertyAll(
     RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(14)),
+      borderRadius: BorderRadius.all(Radius.circular(24)),
     ),
   ),
   overlayColor: WidgetStatePropertyAll(AppColors.overlay),

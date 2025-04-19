@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_memory_image/cached_memory_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -67,39 +68,48 @@ class _MainScreenState extends State<MainScreen> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return BlocBuilder<MainBloc, MainState>(
-            bloc: _bloc,
-            builder: (context, state) {
-              return Dialog(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "${state.currentRepository ?? ''} sinxronlanmoqda... "
-                        "(${state.currentRepositoryIndex ?? 0}/5)",
-                        style: pmedium.copyWith(
-                            fontSize: 16, color: context.textColor()),
-                      ),
-                      const SizedBox(height: 16),
-                      LinearProgressIndicator(
-                        backgroundColor: AppColors.paleBlue,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.primary),
-                        value: (state.syncProgress ?? 0) / 100,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "${state.syncProgress?.toInt() ?? 0}%",
-                        style: medium.copyWith(
-                            fontSize: 16, color: context.textColor()),
-                      ),
-                    ],
-                  ),
+          return PopScope(
+            canPop: false, // Prevents back button from dismissing the dialog
+            child: Dialog(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: BlocBuilder<MainBloc, MainState>(
+                  bloc: _bloc,
+                  builder: (context, state) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "${state.currentRepository ?? ''} sinxronlanmoqda... "
+                          "(${state.currentRepositoryIndex ?? 0}/5)",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500, // Assuming pmedium
+                            color: context.textColor(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LinearProgressIndicator(
+                          backgroundColor: AppColors.paleBlue,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.primary),
+                          value: (state.syncProgress ?? 0) / 100,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "${state.syncProgress?.toInt() ?? 0}%",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500, // Assuming medium
+                            color: context.textColor(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
       );
@@ -122,7 +132,7 @@ class _MainScreenState extends State<MainScreen> {
             message:
                 "Internetning holati yaxshi ekanligini tekshiring. Sinxronlash tugallanmaguncha bu oynani yopmang"
                     .tr,
-            tables: [],
+            tables: const [],
             positiveText: "Boshlash".tr,
             negativeText: "Bekor qilish",
             onPositiveTap: (values) {
@@ -355,7 +365,6 @@ class _MainScreenState extends State<MainScreen> {
         0,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
-
       );
     } else {
       isBottom = true;
@@ -388,24 +397,6 @@ class _MainScreenState extends State<MainScreen> {
             },
           );
         });
-  }
-
-  void showCustomPopover(BuildContext context, Widget child) {
-    final overlay =
-        Overlay.of(context)?.context.findRenderObject() as RenderBox?;
-    if (overlay != null) {
-      final overlayEntry = OverlayEntry(
-        builder: (_) => Positioned(
-          top: 100, // Adjust accordingly
-          left: 50, // Adjust accordingly
-          child: Material(
-            elevation: 4.0,
-            child: child,
-          ),
-        ),
-      );
-      Overlay.of(context).insert(overlayEntry);
-    }
   }
 
   List<ProductModel> generateProductNumbers(List<ProductModel?> products) {
@@ -450,11 +441,11 @@ class _MainScreenState extends State<MainScreen> {
                   pregular.copyWith(color: context.textColor(), fontSize: 16),
             ),
             title: Text(
-              'Marja: ${product.foyda}',
+              'Marja: ${product.foyda} so\'m',
               style: pmedium.copyWith(color: context.textColor(), fontSize: 16),
             ),
             subtitle: Text(
-              'Sotuv: ${product.sotuv} so\'m',
+              'Xizmat: ${product.xizmat} so\'m',
               style: pmedium.copyWith(color: context.textColor(), fontSize: 16),
             ),
             onTap: () async {
@@ -464,7 +455,7 @@ class _MainScreenState extends State<MainScreen> {
                 arguments: product,
               );
               if (result == true) {
-                // Yangilash logikasi
+                _bloc.add(GetLocalDataEvent(selectedIndex));
               }
             },
           ),
@@ -506,6 +497,7 @@ class _MainScreenState extends State<MainScreen> {
             );
 
             if (result == true) {
+              _bloc.add(GetLocalDataEvent(selectedIndex));
               // _bloc.add(Get(nomer, eni, boyi, narxi, marja, categoryId));
             }
           },
@@ -513,25 +505,53 @@ class _MainScreenState extends State<MainScreen> {
             height: 72,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: AppColors.paleBlue,
+              color: context.containerColor(),
             ),
             child: Stack(
               children: [
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: CachedMemoryImage(
-                      fit: BoxFit.cover,
-                      bytes:
-                          File(product.pathOfPicture ?? '').readAsBytesSync(),
-                      uniqueKey: "${product.id}",
-                      placeholder: const LoadingWidget(),
-                      errorWidget: Text(
-                        "Rasmni yuklashda xatolik",
-                        style: pmedium.copyWith(
-                            color: context.textColor(), fontSize: 16),
-                      ),
-                    ),
+                    child: product.pathOfPicture != null
+                        ? isValidUrl(product.pathOfPicture!)
+                            ? CachedNetworkImage(
+                                fit: BoxFit.cover,
+                                imageUrl: product.pathOfPicture!,
+                                placeholder: (___, __) => const LoadingWidget(),
+                                alignment: Alignment.center,
+                                errorWidget: (___, __, _) => Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Rasmni yuklashda xatolik",
+                                      style: pmedium.copyWith(
+                                          color: context.textColor(),
+                                          fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : CachedMemoryImage(
+                                fit: BoxFit.cover,
+                                bytes: File(product.pathOfPicture!)
+                                    .readAsBytesSync(),
+                                uniqueKey: "${product.pathOfPicture}",
+                                alignment: Alignment.center,
+                                placeholder: const LoadingWidget(),
+                                errorWidget: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Rasmni yuklashda xatolik",
+                                    style: pmedium.copyWith(
+                                        color: context.textColor(),
+                                        fontSize: 16),
+                                  ),
+                                ),
+                              )
+                        : Icon(
+                            Icons.error,
+                            color: context.textColor(),
+                          ),
                   ),
                 ),
                 Positioned(
