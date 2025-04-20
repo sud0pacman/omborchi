@@ -44,7 +44,7 @@ class _RawMaterialScreenState extends State<RawMaterialScreen> {
       child: BlocConsumer<RawMaterialBloc, RawMaterialState>(
         listener: (context, state) {
           if (state.errorMsg != null) {
-            AppRes.showSnackBar(context, state.errorMsg!);
+            AppRes.showSnackBar(context,message:  state.errorMsg!, isErrorMessage: true);
           }
         },
         builder: (context, state) {

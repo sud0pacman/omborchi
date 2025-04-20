@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
+import 'package:image/image.dart' as img;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:isar/isar.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
@@ -218,7 +222,7 @@ class ProductRepositoryImpl implements ProductRepository {
             remoteProduct,
             localProduct,
             appDir.path,
-            currentIndex, // Indeksni uzatamiz
+            currentIndex,
           ));
         }
 
@@ -264,7 +268,8 @@ class ProductRepositoryImpl implements ProductRepository {
 
     final hasValidImage = remoteProduct.pathOfPicture != null &&
         !remoteProduct.pathOfPicture!.startsWith("/data") &&
-        remoteProduct.pathOfPicture!.isNotEmpty;
+        remoteProduct.pathOfPicture!.isNotEmpty &&
+        remoteProduct.pathOfPicture!.startsWith("https");
 
     final imageUrl =
         hasValidImage ? remoteProduct.pathOfPicture! : Constants.noImage;
@@ -272,29 +277,63 @@ class ProductRepositoryImpl implements ProductRepository {
     AppRes.logger.i(
         "Index $index: ${remoteProduct.id} ID'li mahsulot uchun rasm yuklanmoqda: $imageUrl");
 
-    try {
-      final dio = Dio();
-      final response = await dio.download(imageUrl, localImagePath);
-      AppRes.logger.i(
-          "Index $index: ${remoteProduct.id} ID'li mahsulot rasmi yuklandi: $localImagePath, Status: ${response.statusCode}");
+    const maxRetries = 3;
+    int attempt = 0;
 
-      return remoteProduct.copyWith(
-        pathOfPicture: localImagePath,
-        id: remoteProduct.id,
-      );
-    } catch (e) {
-      // Xatolikni logga yozamiz
-      AppRes.logger.e(
-        "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda xatolik. "
-        "Rasm URL: $imageUrl, Xatolik: $e",
-      );
+    while (attempt < maxRetries) {
+      try {
+        final dio = Dio();
+        final response = await dio.get<List<int>>(
+          imageUrl,
+          options: Options(responseType: ResponseType.bytes),
+        );
 
-      // Rasmni null qilib, mahsulotni qaytaramiz
-      return remoteProduct.copyWith(
-        pathOfPicture: null,
-        id: remoteProduct.id,
-      );
+        final originalBytes = Uint8List.fromList(response.data!);
+        final image = img.decodeImage(originalBytes);
+        if (image == null) throw Exception("Rasmni dekodlashda xatolik");
+
+        final resizedImage = img.copyResize(image, width: 400);
+        final resizedBytes = img.encodeJpg(resizedImage, quality: 90);
+
+        final file = File(localImagePath);
+        await file.writeAsBytes(resizedBytes);
+
+        AppRes.logger.i(
+            "Index $index: ${remoteProduct.id} ID'li mahsulot rasmi kichik holatda saqlandi: $localImagePath");
+
+        return remoteProduct.copyWith(
+          pathOfPicture: localImagePath,
+          id: remoteProduct.id,
+        );
+      } catch (e) {
+        attempt++;
+        AppRes.logger.w(
+          "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda xatolik. "
+          "Urinish $attempt/$maxRetries, Rasm URL: $imageUrl, Xatolik: $e",
+        );
+
+        if (attempt >= maxRetries) {
+          AppRes.logger.e(
+            "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda maksimal urinishlar soni oshdi. "
+            "Rasm URL: $imageUrl, Oxirgi xatolik: $e",
+          );
+          return remoteProduct.copyWith(
+            pathOfPicture: null,
+            id: remoteProduct.id,
+          );
+        }
+
+        await Future.delayed(const Duration(seconds: 3));
+      }
     }
+
+    AppRes.logger.e(
+      "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda kutilmagan holat. Rasm URL: $imageUrl",
+    );
+    return remoteProduct.copyWith(
+      pathOfPicture: null,
+      id: remoteProduct.id,
+    );
   }
 
   void _updateProgress(Function(double) onProgress, int current, int total) {

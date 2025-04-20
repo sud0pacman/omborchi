@@ -15,7 +15,7 @@ class ThemeProvider with ChangeNotifier {
   final AppStorage _storage = AppStorage();
   ThemeMode _themeMode;
 
-  ThemeProvider() : _themeMode = ThemeMode.system {
+  ThemeProvider() : _themeMode = ThemeMode.dark {
     _themeMode = _storage.getTheme();
   }
 
@@ -136,8 +136,9 @@ class SelectThemeScreen extends StatelessWidget {
       case "Qorong'i":
         return ThemeMode.dark;
       case "Tizim":
-      default:
         return ThemeMode.system;
+      default:
+        return ThemeMode.dark;
     }
   }
 }

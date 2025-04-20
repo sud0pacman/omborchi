@@ -1,18 +1,17 @@
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:cached_memory_image/cached_memory_image.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image/image.dart' as img;
 import 'package:lottie/lottie.dart'; // For Lottie animation
 import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/functions/custom_functions.dart';
 import 'package:omborchi/core/custom/widgets/custom_button.dart';
 import 'package:omborchi/core/custom/widgets/loading_dialog.dart';
-import 'package:omborchi/core/custom/widgets/loading_widget.dart';
 import 'package:omborchi/core/custom/widgets/nav_bar.dart';
 import 'package:omborchi/core/theme/colors.dart';
 import 'package:omborchi/core/theme/style_res.dart';
@@ -244,7 +243,8 @@ class _MainScreenState extends State<MainScreen> {
             if (state.error != null) {
               if (tempError == state.error!) {
               } else {
-                AppRes.showSnackBar(context, state.error!);
+                AppRes.showSnackBar(context,
+                    message: state.error!, isErrorMessage: true);
                 tempError = state.error;
               }
             }
@@ -498,7 +498,6 @@ class _MainScreenState extends State<MainScreen> {
 
             if (result == true) {
               _bloc.add(GetLocalDataEvent(selectedIndex));
-              // _bloc.add(Get(nomer, eni, boyi, narxi, marja, categoryId));
             }
           },
           child: Container(
@@ -513,40 +512,14 @@ class _MainScreenState extends State<MainScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: product.pathOfPicture != null
-                        ? isValidUrl(product.pathOfPicture!)
-                            ? CachedNetworkImage(
+                        ? !isValidUrl(product.pathOfPicture!)
+                            ? Image.file(
+                                File(product.pathOfPicture!),
                                 fit: BoxFit.cover,
-                                imageUrl: product.pathOfPicture!,
-                                placeholder: (___, __) => const LoadingWidget(),
-                                alignment: Alignment.center,
-                                errorWidget: (___, __, _) => Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Rasmni yuklashda xatolik",
-                                      style: pmedium.copyWith(
-                                          color: context.textColor(),
-                                          fontSize: 16),
-                                    ),
-                                  ),
-                                ),
                               )
-                            : CachedMemoryImage(
-                                fit: BoxFit.cover,
-                                bytes: File(product.pathOfPicture!)
-                                    .readAsBytesSync(),
-                                uniqueKey: "${product.pathOfPicture}",
-                                alignment: Alignment.center,
-                                placeholder: const LoadingWidget(),
-                                errorWidget: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Rasmni yuklashda xatolik",
-                                    style: pmedium.copyWith(
-                                        color: context.textColor(),
-                                        fontSize: 16),
-                                  ),
-                                ),
+                            : Icon(
+                                Icons.error,
+                                color: context.textColor(),
                               )
                         : Icon(
                             Icons.error,
@@ -561,10 +534,11 @@ class _MainScreenState extends State<MainScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(8),
-                          topRight: Radius.circular(4),
-                          bottomLeft: Radius.circular(4),
-                          bottomRight: Radius.circular(4)),
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(4),
+                        bottomLeft: Radius.circular(4),
+                        bottomRight: Radius.circular(4),
+                      ),
                       color: AppColors.appBarDark.withAlpha(70),
                     ),
                     child: Text(

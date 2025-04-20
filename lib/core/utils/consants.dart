@@ -1,22 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
+import 'package:omborchi/core/theme/colors.dart';
 
 import '../theme/style_res.dart';
 
 class AppRes {
   static final logger = Logger();
 
-  static void showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: context.containerColor(),
-      elevation: 4,
-      content: Text(
-        message,
-        style: regularWhite.copyWith(fontSize: 14, color: context.textColor()),
+  static void showSnackBar(
+    BuildContext context, {
+    required String message,
+    bool? isErrorMessage,
+    bool? isSuccessMessage,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        elevation: 6.0,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        dismissDirection: DismissDirection.horizontal,
+        backgroundColor: context.containerColor(),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          child: Text(
+            message,
+            style: pregular.copyWith(
+              color: isErrorMessage == true
+                  ? AppColors.red
+                  : isSuccessMessage == true
+                      ? AppColors.emeraldGreen
+                      : context.textColor(),
+              fontSize: 16.0,
+            ),
+          ),
+        ),
+        duration: const Duration(seconds: 3),
       ),
-      behavior: SnackBarBehavior.floating,
-    ));
+    );
   }
 }
 
@@ -61,15 +85,8 @@ class ExpenseFields {
 
 class AppSecrets {
   static const String supabaseAnonKey =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYm1uZGp0dWhvd2FlZWV4eGtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1OTMyNjAsImV4cCI6MjA1OTE2OTI2MH0.moxrOErdz5X0LsaUQKZvCMcONYubDivX-vUobSTXUs4"; // xushbek akam
-  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o"; // afzalbek
-
-  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpaWxjcG9zY2hiZXBuZ3VxbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjcxNjAsImV4cCI6MjA0ODIwMzE2MH0.b8MpECYgoQLEhIQMAa-7wnLIAbyIiUeyLLOvDCUCAH0"; // xushbek akam eskisi
-
-  // static const String supabaseUrl = "https://ilxxvdkgdvcouathvmng.supabase.co"; // afzalbek akamlarki
-// static const String supabaseUrl = "https://eiilcposchbepnguqnum.supabase.co"; // xushbek akamlarki eskisi
-  static const String supabaseUrl =
-      "https://zhbmndjtuhowaeeexxkg.supabase.co"; // xushbek akamlarki
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbmhzdWpjaHJzdG1oeGxyamNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNjEzOTgsImV4cCI6MjA2MDYzNzM5OH0.N7QsfauH_PnJKFxQri5u4MaWyBpbsBQ4L4vkVhukGDw';
+  static const String supabaseUrl = "https://zcnhsujchrstmhxlrjcd.supabase.co";
 }
 
 class AssetRes {

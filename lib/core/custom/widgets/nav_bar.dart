@@ -54,7 +54,7 @@ class PrimaryNavbar extends StatelessWidget {
               iconPath: AssetRes.icProduct,
               onTap: () => onItemTapped(0)),
           NavBarItem(
-              title: "Kategoriya qo'shish".tr,
+              title: "Kategoriya".tr,
               iconPath: AssetRes.icInactive,
               onTap: () => onItemTapped(1)),
           NavBarItem(

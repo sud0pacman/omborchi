@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // Future<void> _updateProductImagePaths() async {
     // For SQL Editor
     // UPDATE product
-    // SET path_of_picture = REPLACE(path_of_picture, 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/', 'https://zhbmndjtuhowaeeexxkg.supabase.co/storage/v1/object/public/product.images/')
+    // SET path_of_picture = REPLACE(path_of_picture, 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/', 'https://zcnhsujchrstmhxlrjcd.supabase.co/storage/v1/object/public/product.images/')
     // WHERE path_of_picture LIKE 'https://tszenvqlmevkamfpzgir.supabase.co/storage/v1/object/public/product_images/%';
   // }
   // Future<void> updateProductImageUrls() async {
@@ -60,6 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     _checkSyncStatus();
   }
+
 
   Future<void> _checkSyncStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,14 +117,14 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
               setState(() {});
             }
             if (state.error != null) {
-              AppRes.showSnackBar(context, state.error!);
+              AppRes.showSnackBar(context,
+                  message: state.error!, isErrorMessage: true);
             }
             if (state.isBack) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text(
-                    "Muvaffaqiyatli o'chirildi. Iltimos oyna malumotlarini yangilang."),
-                behavior: SnackBarBehavior.floating,
-              ));
+              AppRes.showSnackBar(context,
+                  message:
+                      "Muvaffaqiyatli o'chirildi.",
+                  isSuccessMessage: true);
               closeScreen(context, arg: true);
             }
           },
@@ -167,22 +166,8 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                                             ),
                                           ),
                                         )
-                                      : CachedMemoryImage(
-                                          fit: BoxFit.cover,
-                                          bytes: File(widget
-                                                      .product.pathOfPicture ??
-                                                  '')
-                                              .readAsBytesSync(),
-                                          uniqueKey:
-                                              "${widget.product.pathOfPicture}",
-                                          placeholder: const LoadingWidget(),
-                                          errorWidget: Text(
-                                            "Rasmni yuklashda xatolik",
-                                            style: pmedium.copyWith(
-                                                color: context.textColor(),
-                                                fontSize: 16),
-                                          ),
-                                        )
+                                      : Image.file(
+                                          File(widget.product.pathOfPicture!))
                                   : Center(
                                       child: Text(
                                         "Mahsulot rasmi topilmadi",

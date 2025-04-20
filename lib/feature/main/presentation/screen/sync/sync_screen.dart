@@ -133,7 +133,7 @@ class _SyncScreenState extends State<SyncScreen> {
             if (state.error != null) {
               if (tempError == state.error!) {
               } else {
-                AppRes.showSnackBar(context, state.error!);
+                AppRes.showSnackBar(context,message:  state.error!, isErrorMessage: true);
                 tempError = state.error;
               }
             }

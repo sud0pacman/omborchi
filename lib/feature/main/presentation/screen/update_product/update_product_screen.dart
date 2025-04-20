@@ -113,10 +113,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
         child: BlocConsumer<UpdateProductBloc, UpdateProductState>(
           listener: (context, state) {
             if (state.isSuccess == true) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text(Constants.successUpdated),
-                behavior: SnackBarBehavior.floating,
-              ));
+              AppRes.showSnackBar(context,message:  Constants.successUpdated, isSuccessMessage: true);
               closeDialog(context);
               Navigator.pop(context, true);
             }
@@ -124,7 +121,7 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
               showLoadingDialog(context);
             }
             if (state.error != null) {
-              AppRes.showSnackBar(context, state.error!);
+              AppRes.showSnackBar(context,message:  state.error!, isErrorMessage: true);
             }
             if (state.categories.isNotEmpty) {
               AppRes.logger.t(state.categories.length);

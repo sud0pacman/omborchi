@@ -180,13 +180,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         child: BlocConsumer<AddProductBloc, AddProductState>(
           listener: (context, state) {
             if (state.isSuccess == true) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                  "Muvaffaqiyatli qo'shildi",
-                  style: medium.copyWith(color: Colors.white),
-                ),
-                behavior: SnackBarBehavior.floating,
-              ));
+          
+               AppRes.showSnackBar(context,message: "Muvaffaqiyatli qo'shildi", isSuccessMessage: true);
               closeDialog(context);
               Navigator.pop(context, true);
             }
@@ -194,7 +189,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               showLoadingDialog(context);
             }
             if (state.error != null) {
-              AppRes.showSnackBar(context, state.error!);
+              AppRes.showSnackBar(context,message:  state.error!, isErrorMessage: true);
             }
             if (state.rawMaterials != null) {
               rawMaterials = state.rawMaterials;

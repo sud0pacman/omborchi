@@ -60,7 +60,7 @@ class _RawMaterialTypeScreenState extends State<RawMaterialTypeScreen> {
         listener: (context, state) {
           AppRes.logger.wtf(state.toString());
           if (state.error != null) {
-            AppRes.showSnackBar(context, state.error!);
+            AppRes.showSnackBar(context,message:  state.error!, isErrorMessage: true);
           }
           if (state.isCRUD == true) {
             _bloc.add(GetTypes());
