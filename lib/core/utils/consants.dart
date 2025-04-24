@@ -68,7 +68,20 @@ BoxDecoration containerBoxDecoration = BoxDecoration(
     ),
   ],
 );
+class AppSecrets {
+  static const String xushbekSupabaseAnonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbmhzdWpjaHJzdG1oeGxyamNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNjEzOTgsImV4cCI6MjA2MDYzNzM5OH0.N7QsfauH_PnJKFxQri5u4MaWyBpbsBQ4L4vkVhukGDw';
+  static const String xushbekSupabaseUrl =
+      "https://zcnhsujchrstmhxlrjcd.supabase.co";
 
+  static const String afzalbekSupabaseAnonKey =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o";
+  static const String afzalbekSupabaseUrl =
+      "https://ilxxvdkgdvcouathvmng.supabase.co";
+
+  static const String supabaseAnonKey = xushbekSupabaseAnonKey;
+  static const String supabaseUrl = xushbekSupabaseUrl;
+}
 class ExpenseFields {
   static const String employeeTable = 'employee';
   static const String categoryTable = 'category';
@@ -78,16 +91,15 @@ class ExpenseFields {
   static const String rawMaterialTypeTable = 'types';
   static const String rawMaterialTable = 'xomashyo';
   static const String adminKeyTable = 'admin';
-  static const String productImageBucket = 'product.images';
+  static const String productImageBucket =
+      AppSecrets.supabaseUrl == AppSecrets.xushbekSupabaseUrl
+          ? 'product_images'
+          : "product.images";
 
   static const String myBox = 'myBox';
 }
 
-class AppSecrets {
-  static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbmhzdWpjaHJzdG1oeGxyamNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNjEzOTgsImV4cCI6MjA2MDYzNzM5OH0.N7QsfauH_PnJKFxQri5u4MaWyBpbsBQ4L4vkVhukGDw';
-  static const String supabaseUrl = "https://zcnhsujchrstmhxlrjcd.supabase.co";
-}
+
 
 class AssetRes {
   static const _base = 'assets/icons/';

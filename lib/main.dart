@@ -10,9 +10,39 @@ import 'package:omborchi/core/theme/theme.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:workmanager/workmanager.dart';
 
 import 'core/database/app_storage.dart';
 import 'feature/main/presentation/screen/select_theme/select_theme_screen.dart';
+
+const fetchTask = "fetch_questions_task";
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    if (task == fetchTask) {
+      try {
+        AppRes.logger.e("Bazani yangilash boshlandi");
+        await Supabase.initialize(
+          url: AppSecrets.supabaseUrl,
+          anonKey: AppSecrets.supabaseAnonKey,
+        );
+
+        final supabase = Supabase.instance.client;
+
+        await supabase
+            .from(ExpenseFields.rawMaterialTypeTable)
+            .select('*')
+            .limit(1);
+      } catch (err) {
+        AppRes.logger.e(err);
+        throw Exception(err);
+      }
+    }
+    return Future.value(true);
+  });
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +56,17 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  Workmanager().registerPeriodicTask(
+    fetchTask,
+    fetchTask,
+    frequency: const Duration(days: 5),
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+    ),
+  );
   await StorageModule.initBoxes();
-  await AppStorage.init(); // AppStorage ni ishga tushiramiz
+  await AppStorage.init();
 
   await initDependencies();
 

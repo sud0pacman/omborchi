@@ -63,6 +63,7 @@ dependencies:
   cached_memory_image: ^1.5.0
   cached_network_image: ^3.4.1
   image: ^4.5.4
+  workmanager: ^0.5.2
 
 
 dev_dependencies:

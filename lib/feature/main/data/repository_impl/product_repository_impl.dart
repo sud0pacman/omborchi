@@ -185,13 +185,14 @@ class ProductRepositoryImpl implements ProductRepository {
 
       for (int i = startIndex; i < products.length; i++) {
         final remoteProduct = products[i];
-        final localProduct = await isarHelper.getProductById(remoteProduct.id ?? 0);
+        final localProduct =
+            await isarHelper.getProductById(remoteProduct.id ?? 0);
 
         if (localProduct != null &&
             remoteProduct.updatedAt?.toLocal().toIso8601String() ==
                 localProduct.updatedAt?.toLocal().toIso8601String()) {
-          AppRes.logger.w(
-              "Index $i: ${remoteProduct.id} ID'li mahsulot o'zgarmagan");
+          AppRes.logger
+              .w("Index $i: ${remoteProduct.id} ID'li mahsulot o'zgarmagan");
           _updateProgress(onProgress, i + 1, products.length);
           continue;
         }
@@ -204,8 +205,8 @@ class ProductRepositoryImpl implements ProductRepository {
             i,
           );
           await isarHelper.addProduct(updatedProduct.toEntity());
-          AppRes.logger
-              .i("${updatedProduct.id} ID'li mahsulot mahalliy bazaga yangilandi");
+          AppRes.logger.i(
+              "${updatedProduct.id} ID'li mahsulot mahalliy bazaga yangilandi");
           lastSyncedIndex = i + 1;
         } catch (e) {
           AppRes.logger.e(
@@ -229,12 +230,13 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   Future<ProductNetwork> _downloadAndUpdateProduct(
-      ProductNetwork remoteProduct,
-      ProductEntity? localProduct,
-      String appDirPath,
-      int index,
-      ) async {
-    final imageName = "${DateTime.now().millisecondsSinceEpoch}_${remoteProduct.id}.jpg";
+    ProductNetwork remoteProduct,
+    ProductEntity? localProduct,
+    String appDirPath,
+    int index,
+  ) async {
+    final imageName =
+        "${DateTime.now().millisecondsSinceEpoch}_${remoteProduct.id}.jpg";
     final localImagePath = '$appDirPath/$imageName';
 
     final hasValidImage = remoteProduct.pathOfPicture != null &&
@@ -243,7 +245,7 @@ class ProductRepositoryImpl implements ProductRepository {
         remoteProduct.pathOfPicture!.startsWith("https");
 
     final imageUrl =
-    hasValidImage ? remoteProduct.pathOfPicture! : Constants.noImage;
+        hasValidImage ? remoteProduct.pathOfPicture! : Constants.noImage;
 
     AppRes.logger.i(
         "Index $index: ${remoteProduct.id} ID'li mahsulot uchun rasm yuklanmoqda: $imageUrl");
@@ -280,13 +282,13 @@ class ProductRepositoryImpl implements ProductRepository {
         attempt++;
         AppRes.logger.w(
           "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda xatolik. "
-              "Urinish $attempt/$maxRetries, Rasm URL: $imageUrl, Xatolik: $e",
+          "Urinish $attempt/$maxRetries, Rasm URL: $imageUrl, Xatolik: $e",
         );
 
         if (attempt >= maxRetries) {
           AppRes.logger.e(
             "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda maksimal urinishlar soni oshdi. "
-                "Rasm URL: $imageUrl, Oxirgi xatolik: $e",
+            "Rasm URL: $imageUrl, Oxirgi xatolik: $e",
           );
           return remoteProduct.copyWith(
             pathOfPicture: null,
