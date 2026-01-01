@@ -69,18 +69,14 @@ BoxDecoration containerBoxDecoration = BoxDecoration(
   ],
 );
 class AppSecrets {
-  static const String xushbekSupabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbmhzdWpjaHJzdG1oeGxyamNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNjEzOTgsImV4cCI6MjA2MDYzNzM5OH0.N7QsfauH_PnJKFxQri5u4MaWyBpbsBQ4L4vkVhukGDw';
-  static const String xushbekSupabaseUrl =
-      "https://zcnhsujchrstmhxlrjcd.supabase.co";
+  static const String SupabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzdmd0dHl1c2FwaGp5bWVvZWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyNzczNzgsImV4cCI6MjA4Mjg1MzM3OH0.t_waX1XqPe7hLHjSyDwgrlYstupe0WwrpnjM6_bozxk";
+  static const String SupabaseUrl =
+      "https://qsvgttyusaphjymeoedi.supabase.co";
 
-  static const String afzalbekSupabaseAnonKey =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlseHh2ZGtnZHZjb3VhdGh2bW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzNTc5NjAsImV4cCI6MjA0NTkzMzk2MH0.dE2Jl5CPhpI8KKSVlXF6y2TITs-dJvLEXraxHSz_R3o";
-  static const String afzalbekSupabaseUrl =
-      "https://ilxxvdkgdvcouathvmng.supabase.co";
 
-  static const String supabaseAnonKey = xushbekSupabaseAnonKey;
-  static const String supabaseUrl = xushbekSupabaseUrl;
+
+  static const String supabaseAnonKey = SupabaseAnonKey;
+  static const String supabaseUrl = SupabaseUrl;
 }
 class ExpenseFields {
   static const String employeeTable = 'employee';
@@ -92,7 +88,7 @@ class ExpenseFields {
   static const String rawMaterialTable = 'xomashyo';
   static const String adminKeyTable = 'admin';
   static const String productImageBucket =
-      AppSecrets.supabaseUrl == AppSecrets.xushbekSupabaseUrl
+      AppSecrets.supabaseUrl == AppSecrets.SupabaseUrl
           ? 'product_images'
           : "product.images";
 

@@ -186,7 +186,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               Navigator.pop(context, true);
             }
             if (state.isLoading == true) {
-              showLoadingDialog(context);
+              // showLoadingDialog(context);
             }
             if (state.error != null) {
               AppRes.showSnackBar(context,message:  state.error!, isErrorMessage: true);

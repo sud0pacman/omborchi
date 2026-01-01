@@ -22,6 +22,7 @@ class PopUpMenu extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+
         for (int i = 0; i < actions.length; i++)
           item(() => onPressed(i), iconPaths[i], actions[i], context)
       ],
