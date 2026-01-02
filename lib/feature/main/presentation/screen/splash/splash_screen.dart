@@ -23,6 +23,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final productRemoteDataSource = ProductRemoteDataSourceImpl(serviceLocator());
 
+
   @override
   void initState() {
     super.initState();
@@ -66,12 +67,12 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isSynced = prefs.getBool('isSynced') ?? false;
     await Future.delayed(const Duration(milliseconds: 500));
-    Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    // if (isSynced) {
-    //   Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    // } else {
-    //   Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
-    // }
+    // Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+    if (isSynced) {
+      Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+    } else {
+      Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
+    }
   }
 
   @override

@@ -33,6 +33,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
         android:label="Omborchi">
         <activity
             android:name=".MainActivity"

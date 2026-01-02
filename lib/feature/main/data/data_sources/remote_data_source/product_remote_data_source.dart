@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:omborchi/core/network/network_state.dart';
 import 'package:omborchi/core/utils/consants.dart';
 import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart';
@@ -300,13 +303,17 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
 
 
+
+
+
+
+
   @override
   Future<State> uploadImage(String imageName, String image) async {
     try {
       final file = File(image);
       final fileBytes = await file.readAsBytes();
 
-      // Cloudflare R2 configuration
       const String accountId = '04455701552c024s7485876e73f6cbfe1';
       const String accessKeyId = '248522beb13a04b75cf5a97c54d14456';
       const String secretAccessKey = '146bd52bd48a305fae851b27fdefec7e3520fc45359de70c419ac81a8e3aeead';
@@ -315,20 +322,18 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       const String endpoint = 'https://$accountId.r2.cloudflarestorage.com';
       const String publicUrl = 'https://pub-ac2058e7c6384a688264ad7c4669cc88.r2.dev';
 
-      // Remove special characters from image name for better compatibility
       final cleanImageName = imageName.replaceAll(RegExp(r'[^\w\.-]'), '_');
       String path = 'images/$cleanImageName';
 
-      // Date and time for AWS signature
       final now = DateTime.now().toUtc();
       final dateStamp = _formatDate(now);
       final amzDate = _formatDateTime(now);
 
-      // Content type detection
       String contentType = 'image/jpeg';
       if (cleanImageName.toLowerCase().endsWith('.png')) {
         contentType = 'image/png';
-      } else if (cleanImageName.toLowerCase().endsWith('.jpg') || cleanImageName.toLowerCase().endsWith('.jpeg')) {
+      } else if (cleanImageName.toLowerCase().endsWith('.jpg') ||
+          cleanImageName.toLowerCase().endsWith('.jpeg')) {
         contentType = 'image/jpeg';
       } else if (cleanImageName.toLowerCase().endsWith('.gif')) {
         contentType = 'image/gif';
@@ -336,9 +341,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         contentType = 'image/webp';
       }
 
-      // Create canonical request
       final payloadHash = sha256.convert(fileBytes).toString();
-
       final canonicalUri = '/$bucketName/$path';
       final canonicalQueryString = '';
       final canonicalHeaders = 'host:$accountId.r2.cloudflarestorage.com\n'
@@ -354,7 +357,6 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           '$signedHeaders\n'
           '$payloadHash';
 
-      // Create string to sign
       final algorithm = 'AWS4-HMAC-SHA256';
       final credentialScope = '$dateStamp/$region/s3/aws4_request';
       final canonicalRequestHash = sha256.convert(utf8.encode(canonicalRequest)).toString();
@@ -364,16 +366,21 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           '$credentialScope\n'
           '$canonicalRequestHash';
 
-      // Calculate signature
       final signature = _calculateSignature(secretAccessKey, dateStamp, region, stringToSign);
 
-      // Create authorization header
       final authorization = '$algorithm Credential=$accessKeyId/$credentialScope, '
           'SignedHeaders=$signedHeaders, Signature=$signature';
 
-      // Upload to R2
+      // MAXSUS HTTP CLIENT - SSL muammosini hal qiladi
+      final httpClient = HttpClient()
+        ..connectionTimeout = const Duration(seconds: 30)
+        ..badCertificateCallback = (cert, host, port) => true;  // Barcha sertifikatlarni qabul qiladi
+
+      final ioClient = IOClient(httpClient);
+
       final uploadUrl = '$endpoint/$bucketName/$path';
-      final response = await http.put(
+
+      final response = await ioClient.put(
         Uri.parse(uploadUrl),
         headers: {
           'Host': '$accountId.r2.cloudflarestorage.com',
@@ -381,27 +388,35 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           'x-amz-date': amzDate,
           'Authorization': authorization,
           'Content-Type': contentType,
+          'Content-Length': fileBytes.length.toString(),
         },
         body: fileBytes,
       );
 
+      ioClient.close();  // Client'ni yoping
+
       if (response.statusCode == 200 || response.statusCode == 204) {
         final String downloadUrl = '$publicUrl/$path';
+        AppRes.logger.i('Upload successful: $downloadUrl');
         return Success(downloadUrl);
       } else {
         AppRes.logger.e('Upload failed: ${response.statusCode} - ${response.body}');
         return GenericError(Exception('Upload failed: ${response.statusCode}'));
       }
 
+    } on HandshakeException catch (e) {
+      AppRes.logger.e('HandshakeException: ${e.message}');
+      return GenericError(Exception("SSL xatosi: ${e.message}"));
     } on SocketException catch (e) {
-      AppRes.logger.e(e);
-      return NoInternet(Exception("No Internet"));
+      AppRes.logger.e('SocketException: ${e.message}');
+      return NoInternet(Exception("Internet yo'q"));
     } on TimeoutException catch (e) {
-      AppRes.logger.e(e);
-      return NoInternet(Exception("No Internet"));
-    } catch (e) {
-      AppRes.logger.e(e);
-      return GenericError(e);
+      AppRes.logger.e('TimeoutException: ${e.message}');
+      return NoInternet(Exception("Vaqt tugadi"));
+    } catch (e, stackTrace) {
+      AppRes.logger.e('Error: $e');
+      AppRes.logger.e('Stack: $stackTrace');
+      return GenericError(Exception('Xatolik: $e'));
     }
   }
 

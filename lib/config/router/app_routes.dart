@@ -8,9 +8,11 @@ import 'package:omborchi/feature/main/presentation/screen/raw_material_type/raw_
 import 'package:omborchi/feature/main/presentation/screen/select_theme/select_theme_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/settings/settings_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/splash/splash_screen.dart';
+import 'package:omborchi/feature/main/presentation/screen/sync/migrate_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/sync/sync_screen.dart';
 import 'package:omborchi/feature/main/presentation/screen/update_product/update_product_screen.dart';
 import '../../feature/main/domain/model/product_model.dart';
+import '../../feature/main/presentation/screen/sync/rename.dart';
 
 class RouteManager {
   static const String splashScreen = '/splashScreen';

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -44,6 +46,17 @@ void callbackDispatcher() {
   });
 }
 
+
+class MyHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(SecurityContext? context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+  }
+}
+
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -67,7 +80,7 @@ void main() async {
   );
   await StorageModule.initBoxes();
   await AppStorage.init();
-
+  HttpOverrides.global = MyHttpOverrides();
   await initDependencies();
 
   runApp(const CustomAppWidget());
@@ -108,7 +121,7 @@ class CustomAppWidget extends StatelessWidget {
                       data: MediaQuery.of(context).copyWith(
                         textScaler: const TextScaler.linear(1.0),
                       ),
-                      child: child ?? Container(),
+                      child: SafeArea(child: child ?? Container()),
                     );
                   },
                   onGenerateRoute: (settings) =>
