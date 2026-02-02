@@ -108,16 +108,16 @@ void main() async {
     ),
   );
 
-  // Keep-alive task - TEST UCHUN 15 MINUT
-  Workmanager().registerPeriodicTask(
-    keepAliveTask,
-    keepAliveTask,
-    frequency: const Duration(minutes: 15), // Test uchun 15 minut
-    constraints: Constraints(
-      networkType: NetworkType.connected,
-    ),
-    existingWorkPolicy: ExistingWorkPolicy.replace,
-  );
+  // // Keep-alive task - TEST UCHUN 15 MINUT
+  // Workmanager().registerPeriodicTask(
+  //   keepAliveTask,
+  //   keepAliveTask,
+  //   frequency: const Duration(minutes: 15), // Test uchun 15 minut
+  //   constraints: Constraints(
+  //     networkType: NetworkType.connected,
+  //   ),
+  //   existingWorkPolicy: ExistingWorkPolicy.replace,
+  // );
 
   await StorageModule.initBoxes();
   await AppStorage.init();
