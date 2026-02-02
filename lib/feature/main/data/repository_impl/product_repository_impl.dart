@@ -1,6 +1,14 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
+import 'package:omborchi/core/network/network_state.dart';
+import 'package:omborchi/core/utils/consants.dart';
+import 'package:omborchi/feature/main/data/model/remote_model/cost_network.dart';
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'package:image/image.dart' as img;
@@ -17,6 +25,7 @@ import 'package:omborchi/feature/main/domain/model/cost_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/utils/consants.dart';
 import '../../domain/model/category_model.dart';
@@ -352,15 +361,144 @@ class ProductRepositoryImpl implements ProductRepository {
       return GenericError(e);
     }
   }
-
   @override
   Future<State> uploadImage(String imageName, String image) async {
     try {
-      return productRemoteDataSource.uploadImage(imageName, image);
+      final file = File(image);
+      final fileBytes = await file.readAsBytes();
+
+      // Cloudflare R2 configuration
+      const String accountId = '04455701552c024s7485876e73f6cbfe1';
+      const String accessKeyId = '248522beb13a04b75cf5a97c54d14456';
+      const String secretAccessKey = '146bd52bd48a305fae851b27fdefec7e3520fc45359de70c419ac81a8e3aeead';
+      const String bucketName = 'omborchi';
+      const String region = 'auto';
+      const String endpoint = 'https://$accountId.r2.cloudflarestorage.com';
+      const String publicUrl = 'https://pub-ac2058e7c6384a688264ad7c4669cc88.r2.dev';
+
+      // Remove special characters from image name for better compatibility
+      final cleanImageName = imageName.replaceAll(RegExp(r'[^\w\.-]'), '_');
+      String path = 'images/$cleanImageName';
+
+      // Date and time for AWS signature
+      final now = DateTime.now().toUtc();
+      final dateStamp = _formatDate(now);
+      final amzDate = _formatDateTime(now);
+
+      // Content type detection
+      String contentType = 'image/jpeg';
+      if (cleanImageName.toLowerCase().endsWith('.png')) {
+        contentType = 'image/png';
+      } else if (cleanImageName.toLowerCase().endsWith('.jpg') || cleanImageName.toLowerCase().endsWith('.jpeg')) {
+        contentType = 'image/jpeg';
+      } else if (cleanImageName.toLowerCase().endsWith('.gif')) {
+        contentType = 'image/gif';
+      } else if (cleanImageName.toLowerCase().endsWith('.webp')) {
+        contentType = 'image/webp';
+      }
+
+      // Create canonical request
+      final payloadHash = sha256.convert(fileBytes).toString();
+
+      final canonicalUri = '/$bucketName/$path';
+      final canonicalQueryString = '';
+      final canonicalHeaders = 'host:$accountId.r2.cloudflarestorage.com\n'
+          'x-amz-content-sha256:$payloadHash\n'
+          'x-amz-date:$amzDate\n';
+
+      final signedHeaders = 'host;x-amz-content-sha256;x-amz-date';
+
+      final canonicalRequest = 'PUT\n'
+          '$canonicalUri\n'
+          '$canonicalQueryString\n'
+          '$canonicalHeaders\n'
+          '$signedHeaders\n'
+          '$payloadHash';
+
+      // Create string to sign
+      final algorithm = 'AWS4-HMAC-SHA256';
+      final credentialScope = '$dateStamp/$region/s3/aws4_request';
+      final canonicalRequestHash = sha256.convert(utf8.encode(canonicalRequest)).toString();
+
+      final stringToSign = '$algorithm\n'
+          '$amzDate\n'
+          '$credentialScope\n'
+          '$canonicalRequestHash';
+
+      // Calculate signature
+      final signature = _calculateSignature(secretAccessKey, dateStamp, region, stringToSign);
+
+      // Create authorization header
+      final authorization = '$algorithm Credential=$accessKeyId/$credentialScope, '
+          'SignedHeaders=$signedHeaders, Signature=$signature';
+
+      // Upload to R2
+      final uploadUrl = '$endpoint/$bucketName/$path';
+      final response = await http.put(
+        Uri.parse(uploadUrl),
+        headers: {
+          'Host': '$accountId.r2.cloudflarestorage.com',
+          'x-amz-content-sha256': payloadHash,
+          'x-amz-date': amzDate,
+          'Authorization': authorization,
+          'Content-Type': contentType,
+        },
+        body: fileBytes,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        final String downloadUrl = '$publicUrl/$path';
+        return Success(downloadUrl);
+      } else {
+        AppRes.logger.e('Upload failed: ${response.statusCode} - ${response.body}');
+        return GenericError(Exception('Upload failed: ${response.statusCode}'));
+      }
+
+    } on SocketException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
+    } on TimeoutException catch (e) {
+      AppRes.logger.e(e);
+      return NoInternet(Exception("No Internet"));
     } catch (e) {
+      AppRes.logger.e(e);
       return GenericError(e);
     }
   }
+
+    String _formatDate(DateTime date) {
+    return '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
+    }
+
+    String _formatDateTime(DateTime date) {
+    return '${_formatDate(date)}T'
+    '${date.hour.toString().padLeft(2, '0')}'
+    '${date.minute.toString().padLeft(2, '0')}'
+    '${date.second.toString().padLeft(2, '0')}Z';
+    }
+
+    String _calculateSignature(String secretKey, String dateStamp, String region, String stringToSign) {
+    final kDate = _hmacSha256(utf8.encode('AWS4$secretKey'), utf8.encode(dateStamp));
+    final kRegion = _hmacSha256(kDate, utf8.encode(region));
+    final kService = _hmacSha256(kRegion, utf8.encode('s3'));
+    final kSigning = _hmacSha256(kService, utf8.encode('aws4_request'));
+    final signature = _hmacSha256(kSigning, utf8.encode(stringToSign));
+
+    return signature.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+    }
+
+    List<int> _hmacSha256(List<int> key, List<int> data) {
+    final hmac = Hmac(sha256, key);
+    return hmac.convert(data).bytes;
+    }
+  // @override
+  // Future<State> uploadImage(String imageName, String image) async {
+  //   try {
+  //     return productRemoteDataSource.uploadImage(imageName, image);
+  //   } catch (e) {
+  //     return GenericError(e);
+  //   }
+  // }
 
   @override
   Future<State> downloadImage(

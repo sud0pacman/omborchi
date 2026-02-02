@@ -69,9 +69,9 @@ BoxDecoration containerBoxDecoration = BoxDecoration(
   ],
 );
 class AppSecrets {
-  static const String anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbmhzdWpjaHJzdG1oeGxyamNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNjEzOTgsImV4cCI6MjA2MDYzNzM5OH0.N7QsfauH_PnJKFxQri5u4MaWyBpbsBQ4L4vkVhukGDw";
+  static const String anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzdmd0dHl1c2FwaGp5bWVvZWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyNzczNzgsImV4cCI6MjA4Mjg1MzM3OH0.t_waX1XqPe7hLHjSyDwgrlYstupe0WwrpnjM6_bozxk";
   static const String url =
-      "https://zcnhsujchrstmhxlrjcd.supabase.co";
+      "https://qsvgttyusaphjymeoedi.supabase.co";
 
 
 

@@ -19,30 +19,55 @@ import 'core/database/app_storage.dart';
 import 'feature/main/presentation/screen/select_theme/select_theme_screen.dart';
 
 const fetchTask = "fetch_questions_task";
+const keepAliveTask = "keep_supabase_alive_task";
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    if (task == fetchTask) {
-      try {
-        AppRes.logger.e("Bazani yangilash boshlandi");
-        await Supabase.initialize(
-          url: AppSecrets.supabaseUrl,
-          anonKey: AppSecrets.supabaseAnonKey,
-        );
+    try {
+      // Initialize Supabase
+      await Supabase.initialize(
+        url: AppSecrets.supabaseUrl,
+        anonKey: AppSecrets.supabaseAnonKey,
+      );
 
-        final supabase = Supabase.instance.client;
+      final supabase = Supabase.instance.client;
 
+      if (task == fetchTask) {
+        AppRes.logger.i("Bazani yangilash boshlandi");
         await supabase
             .from(ExpenseFields.rawMaterialTypeTable)
             .select('*')
             .limit(1);
-      } catch (err) {
-        AppRes.logger.e(err);
-        throw Exception(err);
+        AppRes.logger.i("Bazani yangilash tugadi");
       }
+      else if (task == keepAliveTask) {
+        AppRes.logger.i("Keep-alive task boshlandi");
+
+        // 1. Barcha eski ma'lumotlarni o'chirish
+        await supabase
+            .from('sleep_configure')
+            .delete()
+            .neq('id', 0); // Barcha yozuvlarni o'chirish
+
+        AppRes.logger.i("Eski ma'lumotlar o'chirildi");
+
+        // 2. Yangi ma'lumot qo'shish
+        final currentTime = DateTime.now().toIso8601String();
+        await supabase
+            .from('sleep_configure')
+            .insert({
+          'last_update': currentTime,
+        });
+
+        AppRes.logger.i("Yangi ma'lumot qo'shildi: $currentTime");
+      }
+
+      return Future.value(true);
+    } catch (err) {
+      AppRes.logger.e("Task xatolik: $err");
+      return Future.value(false);
     }
-    return Future.value(true);
   });
 }
 
@@ -69,7 +94,11 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+
+  // Initialize WorkManager
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+
+  // Original task
   Workmanager().registerPeriodicTask(
     fetchTask,
     fetchTask,
@@ -78,6 +107,18 @@ void main() async {
       networkType: NetworkType.connected,
     ),
   );
+
+  // Keep-alive task - TEST UCHUN 15 MINUT
+  Workmanager().registerPeriodicTask(
+    keepAliveTask,
+    keepAliveTask,
+    frequency: const Duration(minutes: 15), // Test uchun 15 minut
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+    ),
+    existingWorkPolicy: ExistingWorkPolicy.replace,
+  );
+
   await StorageModule.initBoxes();
   await AppStorage.init();
   HttpOverrides.global = MyHttpOverrides();
@@ -113,7 +154,7 @@ class CustomAppWidget extends StatelessWidget {
                   fallbackLocale: const Locale('en', 'EN'),
                   locale: Locale(
                     Provider.of<ThemeProvider>(context, listen: false)
-                            .getString('lang') ??
+                        .getString('lang') ??
                         "en",
                   ),
                   builder: (context, child) {
