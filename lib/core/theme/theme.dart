@@ -18,7 +18,7 @@ class AppTheme {
           color: const Color(0xff757575),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: Colors.white,
         titleTextStyle: pbold.copyWith(
           fontSize: 18,
@@ -104,7 +104,7 @@ class AppTheme {
           color: const Color(0xffcdcdcd),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: Colors.black,
         titleTextStyle: pbold.copyWith(
           fontSize: 18,
