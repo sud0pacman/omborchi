@@ -2,10 +2,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
+import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart'; // For Lottie animation
 import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
@@ -22,6 +24,8 @@ import 'package:omborchi/feature/main/presentation/screen/main/widgets/category_
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/home_app_bar.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/search_dialog.dart';
 import 'package:omborchi/feature/main/presentation/screen/main/widgets/sync_dialog.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart' as AppSettings;
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../../../core/custom/widgets/dialog/info_dialog.dart';
@@ -46,12 +50,60 @@ class _MainScreenState extends State<MainScreen> {
   int currentNomer = 0;
   int currentNomerIndex = 1;
 
+  final platform = MethodChannel('com.omborchi/network');
+
+  void _showNetworkPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Network Access Required'),
+        content: const Text(
+          'Please enable network access for this app in:\n\n'
+          'Settings → General → (Your App Name) → Wireless Data → Allow',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Deep-link to app settings
+              AppSettings.openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
-    _bloc.add(GetCategories());
-    _bloc.add(GetProductsByCategory(selectedIndex));
+
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'networkUnavailable') {
+        Logger().i("❌ we do not have permission for internter");
+        _showNetworkPermissionDialog();
+      } else {
+        Logger().i("✅ we have permission for internter");
+        _bloc.add(GetCategories());
+        _bloc.add(GetProductsByCategory(selectedIndex));
+      }
+    });
+  }
+
+  Future<void> checkNetwork() async {
+    try {
+      final bool isAvailable = await platform.invokeMethod('checkNetwork');
+      if (!isAvailable) {
+        _showNetworkPermissionDialog();
+      }
+    } catch (e) {
+      debugPrint('Network check failed: $e');
+    }
   }
 
   @override
@@ -284,6 +336,7 @@ class _MainScreenState extends State<MainScreen> {
               padding: const EdgeInsets.only(left: 16.0, right: 8),
               child: Row(
                 children: [
+                  // category
                   SizedBox(
                     width: 88,
                     child: ListView.builder(
@@ -332,7 +385,7 @@ class _MainScreenState extends State<MainScreen> {
                               child: Lottie.asset('assets/lottie/empty.json'),
                             )
                           : isGridView
-                              ? _buildProductGrid(state.products)
+                              ? _buildProductGrid(state.products, state.applicationDocumentsDirectory)
                               : _buildProductList(state.products),
                     ),
                   ),
@@ -467,7 +520,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildProductGrid(List<ProductModel?> products) {
+  Widget _buildProductGrid(List<ProductModel?> products, String appDirPath) {
     if (products.isEmpty) {
       return Center(
         child: Lottie.asset('assets/lottie/empty.json'),
@@ -514,8 +567,12 @@ class _MainScreenState extends State<MainScreen> {
                     child: product.pathOfPicture != null
                         ? !isValidUrl(product.pathOfPicture!)
                             ? Image.file(
-                                File(product.pathOfPicture!),
+                                getProductImage(product.pathOfPicture!, appDirPath)!,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  debugPrint("❌ Main Screen Image Loading Error: $error");
+                                  return Text("Image loading error: $error");
+                                },
                               )
                             : Icon(
                                 Icons.error,
@@ -556,5 +613,11 @@ class _MainScreenState extends State<MainScreen> {
         );
       },
     );
+  }
+
+  File? getProductImage(String? fileName, String appDirPath) {
+    if (fileName == null || fileName.isEmpty) return null;
+    final file = File('$appDirPath/$fileName');
+    return file;
   }
 }

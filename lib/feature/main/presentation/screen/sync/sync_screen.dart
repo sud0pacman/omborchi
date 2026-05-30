@@ -1,7 +1,10 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logger/logger.dart';
 import 'package:omborchi/config/router/app_routes.dart';
 import 'package:omborchi/core/custom/extensions/context_extensions.dart';
 import 'package:omborchi/core/custom/widgets/primary_button.dart';
@@ -33,6 +36,8 @@ class _SyncScreenState extends State<SyncScreen> {
   int? currentRepositoryIndex;
 
   String? tempError;
+
+  final platform = MethodChannel('com.omborchi/network');
 
   void showSyncProgressDialog(BuildContext context) {
     if (!isSyncDialogOpen) {
@@ -96,10 +101,45 @@ class _SyncScreenState extends State<SyncScreen> {
     }
   }
 
+
+  void _showNetworkPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Network Access Required'),
+        content: const Text(
+          'Please enable network access for this app in:\n\n'
+          'Settings → General → (Your App Name) → Wireless Data → Allow',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Deep-link to app settings
+              AppSettings.openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'networkUnavailable') {
+        Logger().i("❌ we do not have permission for internter");
+        _showNetworkPermissionDialog();
+      } else {
+        Logger().i("✅ we have permission for internter");
+      }
+    });
   }
 
   @override

@@ -11,6 +11,7 @@ class MainState {
   final String? currentRepository;  // Name of the repository being synced
   final String? error;  // Name of the repository being synced
   final int? currentRepositoryIndex;  // Order of the repository being synced
+  final String applicationDocumentsDirectory;
 
   MainState({
     required this.categories,
@@ -23,6 +24,7 @@ class MainState {
     required this.currentRepository,
     required this.error,
     required this.currentRepositoryIndex,
+    required this.applicationDocumentsDirectory,
   });
 
   MainState copyWith({
@@ -36,6 +38,7 @@ class MainState {
     String? currentRepository,
     String? error,
     int? currentRepositoryIndex,
+    String? applicationDocumentsDirectory,
   }) {
     return MainState(
       categories: categories ?? this.categories,
@@ -48,6 +51,7 @@ class MainState {
       currentRepository: currentRepository ?? this.currentRepository,
       error: error ?? this.error,
       currentRepositoryIndex: currentRepositoryIndex ?? this.currentRepositoryIndex,
+      applicationDocumentsDirectory: applicationDocumentsDirectory ?? this.applicationDocumentsDirectory
     );
   }
 }

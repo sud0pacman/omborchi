@@ -57,12 +57,19 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
 
   @override
   void initState() {
+    _bloc.add(InitialState());
     _bloc.add(GetProductMaterials(productId: widget.product.id ?? 0));
     super.initState();
   }
 
   List<RawMaterialUi> materials = [];
   int materialSum = 0;
+
+  File? getProductImage(String? fileName, String appDirPath) {
+    if (fileName == null || fileName.isEmpty) return null;
+    final file = File('$appDirPath/$fileName');
+    return file;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +174,7 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
                                           ),
                                         )
                                       : Image.file(
-                                          File(widget.product.pathOfPicture!))
+                                          getProductImage(widget.product.pathOfPicture!, state.appDirPath)!)
                                   : Center(
                                       child: Text(
                                         "Mahsulot rasmi topilmadi",

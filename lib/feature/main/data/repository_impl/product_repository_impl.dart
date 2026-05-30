@@ -235,6 +235,7 @@ class ProductRepositoryImpl implements ProductRepository {
     String appDirPath,
     int index,
   ) async {
+    // ✅ Store only the filename, not the full path
     final imageName =
         "${DateTime.now().millisecondsSinceEpoch}_${remoteProduct.id}.jpg";
     final localImagePath = '$appDirPath/$imageName';
@@ -252,10 +253,10 @@ class ProductRepositoryImpl implements ProductRepository {
 
     const maxRetries = 3;
     int attempt = 0;
+    final dio = Dio(); // ✅ single instance outside the loop
 
     while (attempt < maxRetries) {
       try {
-        final dio = Dio();
         final response = await dio.get<List<int>>(
           imageUrl,
           options: Options(responseType: ResponseType.bytes),
@@ -268,27 +269,24 @@ class ProductRepositoryImpl implements ProductRepository {
         final resizedImage = img.copyResize(image, width: 400);
         final resizedBytes = img.encodeJpg(resizedImage, quality: 90);
 
-        final file = File(localImagePath);
-        await file.writeAsBytes(resizedBytes);
+        await File(localImagePath).writeAsBytes(resizedBytes);
 
         AppRes.logger.i(
-            "Index $index: ${remoteProduct.id} ID'li mahsulot rasmi kichik holatda saqlandi: $localImagePath");
+            "Index $index: ${remoteProduct.id} ID'li mahsulot rasmi saqlandi: $imageName");
 
         return remoteProduct.copyWith(
-          pathOfPicture: localImagePath,
+          pathOfPicture: imageName, // ✅ only filename saved to DB
           id: remoteProduct.id,
         );
       } catch (e) {
         attempt++;
         AppRes.logger.w(
-          "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda xatolik. "
-          "Urinish $attempt/$maxRetries, Rasm URL: $imageUrl, Xatolik: $e",
+          "Index $index: Urinish $attempt/$maxRetries, Xatolik: $e",
         );
 
         if (attempt >= maxRetries) {
           AppRes.logger.e(
-            "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda maksimal urinishlar soni oshdi. "
-            "Rasm URL: $imageUrl, Oxirgi xatolik: $e",
+            "Index $index: Maksimal urinishlar soni oshdi. URL: $imageUrl",
           );
           return remoteProduct.copyWith(
             pathOfPicture: null,
@@ -300,13 +298,7 @@ class ProductRepositoryImpl implements ProductRepository {
       }
     }
 
-    AppRes.logger.e(
-      "Index $index: ${remoteProduct.id} ID'li mahsulot rasmini yuklashda kutilmagan holat. Rasm URL: $imageUrl",
-    );
-    return remoteProduct.copyWith(
-      pathOfPicture: null,
-      id: remoteProduct.id,
-    );
+    return remoteProduct.copyWith(pathOfPicture: null, id: remoteProduct.id);
   }
 
   void _updateProgress(Function(double) onProgress, int current, int total) {

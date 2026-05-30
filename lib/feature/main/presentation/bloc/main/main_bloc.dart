@@ -6,6 +6,7 @@ import 'package:omborchi/feature/main/domain/model/category_model.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/category_repository.dart';
 import 'package:omborchi/feature/main/domain/repository/product_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../domain/repository/raw_material_repository.dart';
 import '../../../domain/repository/type_repository.dart';
@@ -32,10 +33,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             currentRepository: null,
             error: null,
             currentRepositoryIndex: null,
-            isEmpty: false)) {
+            isEmpty: false,
+            applicationDocumentsDirectory: "")) {
     // Load categories
     on<GetCategories>((event, emit) async {
       final res = await categoryRepository.getCategories();
+      
+      // stupid logic brute force logic karochchi bunga tegma
+      final dir = await getApplicationDocumentsDirectory();
+
+      emit(state.copyWith(applicationDocumentsDirectory: dir.path));
+
       if (res is Success) {
         emit(state.copyWith(categories: res.value, isLoading: false));
       } else {

@@ -19,3 +19,5 @@ class GetProductById extends ProductViewEvent {
 
   GetProductById({required this.product});
 }
+
+class InitialState extends ProductViewEvent {}

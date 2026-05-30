@@ -6,6 +6,7 @@ import 'package:omborchi/feature/main/data/model/local_model/raw_material_entity
 import 'package:omborchi/feature/main/data/model/local_model/raw_material_ui.dart';
 import 'package:omborchi/feature/main/domain/model/product_model.dart';
 import 'package:omborchi/feature/main/domain/repository/raw_material_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../domain/repository/product_repository.dart';
 
@@ -19,7 +20,14 @@ class ProductViewBloc extends Bloc<ProductViewEvent, ProductViewState> {
 
   ProductViewBloc(this.productRepository, this.rawMaterialRepository)
       : super(
-            ProductViewState(materials: [], isLoading: false, isBack: false, error: null)) {
+            ProductViewState(materials: [], isLoading: false, isBack: false, error: null, appDirPath: "")) {
+              
+    on<InitialState>((event, emit) async {
+      final dir = await getApplicationDocumentsDirectory();
+
+      emit(state.copyWith(appDirPath: dir.path));
+    });
+
     on<GetProductMaterials>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       final costRes = await productRepository.getCostListById(event.productId);

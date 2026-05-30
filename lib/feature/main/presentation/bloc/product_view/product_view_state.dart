@@ -6,6 +6,7 @@ class ProductViewState {
   final ProductModel? product;
   final bool isLoading;
   final bool isBack;
+  final String appDirPath;
 
   ProductViewState({
     required this.materials,
@@ -13,6 +14,7 @@ class ProductViewState {
     this.product,
     required this.isLoading,
     required this.isBack,
+    required this.appDirPath,
   });
 
   ProductViewState copyWith({
@@ -21,6 +23,7 @@ class ProductViewState {
     ProductModel? product,
     bool? isLoading,
     bool? isBack,
+    String? appDirPath,
   }) {
     return ProductViewState(
       materials: materials ?? this.materials,
@@ -28,6 +31,7 @@ class ProductViewState {
       product: product ?? this.product,
       isLoading: isLoading ?? this.isLoading,
       isBack: isBack ?? this.isBack,
+      appDirPath: appDirPath ?? this.appDirPath
     );
   }
 }

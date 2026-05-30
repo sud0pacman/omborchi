@@ -1,17 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:lottie/lottie.dart';
-import 'package:omborchi/core/utils/consants.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../config/router/app_routes.dart';
 import '../../../../../core/modules/app_module.dart';
-import '../../../../../core/network/network_state.dart' as NetworkState;
 import '../../../data/data_sources/remote_data_source/product_remote_data_source.dart';
-import '../../../data/model/remote_model/product_network.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -66,12 +60,17 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkSyncStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isSynced = prefs.getBool('isSynced') ?? false;
-    await Future.delayed(const Duration(milliseconds: 500));
-    // Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
-    if (isSynced) {
-      Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+
+    Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+
+    if (context.mounted) {
+      if (isSynced) {
+        Navigator.pushReplacementNamed(context, RouteManager.mainScreen);
+      } else {
+        Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
+      }
     } else {
-      Navigator.pushReplacementNamed(context, RouteManager.syncScreen);
+      debugPrint("❌ context die");
     }
   }
 
